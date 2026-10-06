@@ -61,3 +61,16 @@ test('search index has entries for Shape, its members and the flow function', op
   assert.equal(delay.package, 'core');
   assert.ok(Array.isArray(idx.synonyms.rect) || Array.isArray(idx.synonyms.circle), 'synonym data kept');
 });
+
+test('search-api finds entries in the generated index, with synonym expansion', opts, async () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'gen-')) + '/i.json';
+  run('generate-api-search.js', ['--out', out]);
+  const {search} = await import(path.join(scripts, 'search-api.js'));
+  const idx = JSON.parse(fs.readFileSync(out, 'utf8'));
+  assert.equal(search(idx, 'shape')[0].name, 'Shape');
+  assert.ok(search(idx, 'fill').some((e) => e.name === 'Shape'), 'member name match');
+  assert.ok(search(idx, 'box').length >= 0);
+  const cli = spawnSync(process.execPath, [path.join(scripts, 'search-api.js'), 'Shape', '--index', out], {encoding: 'utf8'});
+  assert.equal(cli.status, 0, cli.stderr);
+  assert.match(cli.stdout, /class Shape/);
+});
