@@ -1,0 +1,19 @@
+---
+title: "Canvas Commons smoke test"
+format:
+  revealjs:
+    width: 1920
+    height: 1080
+    resources:
+      - dist/*/*
+    include-in-header:
+      - text: <script src="./dist/motion-canvas-ts.js"></script>
+---
+
+## Smoke test
+
+If the next slide shows a spinning square, the toolchain works.
+
+## Animation {.hidetitle}
+
+{{< motion-canvas ./animations/src/smoke.js auto fullscreen=true >}}

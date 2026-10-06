@@ -1,0 +1,65 @@
+# Bootstrap a new presentation project
+
+Use this when the user wants a new Quarto presentation project containing Canvas Commons animations. Follow the steps in order. Each step gives a command and its expected result. If a result differs, stop and use `validate.md`.
+
+`<skill>` below means the directory that contains this skill (the folder with `SKILL.md` and `assets/`). `<target>` is the project directory.
+
+## Before you start
+
+Check the target directory is empty or does not exist yet. Never overwrite an existing project.
+
+```bash
+ls -A <target>
+```
+
+Expected: no output, or "No such file or directory". If it lists files, stop and ask the user for a different directory.
+
+Check the tools exist: `node --version` (22 or later), `npm --version`, `make --version`, `quarto --version`. Report any that are missing instead of continuing.
+
+## Steps
+
+1. Copy the template.
+
+   ```bash
+   mkdir -p <target> && cp -r <skill>/assets/project-template/. <target>/ && cd <target>
+   ```
+
+   Expected: `ls -A` shows `Makefile`, `package.json`, `vite.config.ts`, `animations/`, `_extensions/`, `src/` and `smoke.qmd`.
+
+2. Install both dependency trees. They are independent.
+
+   ```bash
+   npm install && npm --prefix ./animations install
+   ```
+
+   Expected: `node_modules/` exists in `<target>` and in `<target>/animations`. npm warnings about vulnerabilities are expected and can be ignored.
+
+3. Build the animations and the player bundle.
+
+   ```bash
+   make anim
+   ```
+
+   Expected: the command exits 0 and these files exist: `dist/motion-canvas-ts.js`, `dist/animations/src/smoke.js`.
+
+4. Render the smoke deck.
+
+   ```bash
+   quarto render smoke.qmd
+   ```
+
+   Expected: `smoke.html` exists, contains `dist/motion-canvas-ts.js` and `canvas-commons-player`, and `src="./animations/src/smoke.js"`. The player resolves that `src` relative to `dist/`, so the file that matters is `dist/animations/src/smoke.js`.
+
+   ```bash
+   grep -c "motion-canvas-ts.js" smoke.html; grep -c "canvas-commons-player" smoke.html; grep -o 'src="./animations/src/smoke.js"' smoke.html; ls dist/animations/src/smoke.js
+   ```
+
+   Expected: both counts are 1 or more, the `src` attribute is printed, and the file is listed. If `_site/` exists instead (the project has a `_quarto.yml`), look there.
+
+5. Replace the smoke deck with the real one.
+
+   Rename `smoke.qmd` to the deck's name, update `QMD_FILE` at the top of `Makefile` to match, and keep the `resources:` and `include-in-header:` lines from the smoke deck's YAML. Hand deck writing and styling to the `quarto-presentation` skill. Keep `smoke.qmd` until the real deck renders.
+
+## Adding scenes
+
+Create each new scene as described in `SKILL.md` (scene file, project file, vite registration), then run `make anim`. Reference the built file in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`.

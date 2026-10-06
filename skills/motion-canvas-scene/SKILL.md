@@ -1,11 +1,17 @@
 ---
 name: motion-canvas-scene
-description: Use when creating, building or debugging Canvas Commons (formerly Motion Canvas) scenes in a Quarto project.
+description: Use when starting a new Quarto presentation project that will contain Canvas Commons (Motion Canvas) animations, when checking that such a project builds, or when a scene fails to build or render.
 ---
 
 # Creating, Building, and Debugging Scenes
 
 > **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
+
+## Starting or checking a project
+
+- New presentation project (an empty directory, or "set up a project for animated slides"): follow `references/bootstrap.md`. It copies the template in `assets/project-template/`, installs, builds and renders a smoke deck.
+- "Does my project work?", or an animation fails to build or render: follow `references/validate.md`, a read-only checklist that stops at the first failure and points back to the error tables below.
+- How the root project, `animations/` and the Makefile fit together: `references/project-architecture.md`.
 
 ## Creating a New Scene
 
