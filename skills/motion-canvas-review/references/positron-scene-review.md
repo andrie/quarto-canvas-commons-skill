@@ -1,6 +1,6 @@
 # Worked example: reviewing an IDE mockup scene
 
-The scene is about 420 lines. It draws a Positron-style window with Python and R editor tabs, a console, a variables list, a plots panel, a status bar and three feature chips, and types code into the editor while switching from Python to R. The snippets below are illustrative and not importable: copy the idea into the scene or project you are reviewing. Everything in "Before and after" was built and rendered with Canvas Commons 0.4.0.
+The scene is about 420 lines. It draws a Positron-style window with Python and R editor tabs, a console, a variables list, a plots panel, a status bar and three feature chips, and types code into the editor while switching from Python to R. The snippets below are illustrative and not importable: copy the idea into the scene or project you are reviewing. The "after" snippets in "Before and after" were built and rendered with Canvas Commons 0.4.0; the "before" excerpts are from the original scene.
 
 ## Findings
 
@@ -17,25 +17,25 @@ Most valuable first. Line ranges are described by element, because line numbers 
    - Where: `showChips`, which does `(chip.children()[0] as Rect).fill(colour)` and `(chip.children()[1] as Txt).text(items[i])`, plus `pythonFeatures[i]` baked into the JSX.
    - Signal: children changed by index, and one state change needing several imperative calls.
    - Level: class component, `FeatureChip` with `label` and `accent` signals.
-   - Saving: the casts and the per-chip setup in `showChips` (estimate: 10 to 15 lines).
+   - Saving: no line saving, and the class adds about 20 lines. The gain is structural: no casts, the text and the dot colour live in one place, and a switch is one tween. (The chips are already a single `.map`, so there is little repetition to remove.)
    - Risk: the text and the dot colour now tween instead of snapping. If the snap was intended, call the signal with a value and no duration, for example `chip().label('Air formatter')`, which sets it immediately.
 
 3. **Two near-identical editor tabs.**
    - Where: the two tab `Rect` nodes, their accent strips and their labels.
    - Signal: a block repeats with only strings or numbers changing.
-   - Level: function component, `EditorTab`.
-   - Saving: about 20 lines (estimate).
-   - Risk: a behaviour change worth checking first. The Python tab's accent strip is a plain `Rect` with no opacity binding, while the R strip follows `rTabActive().opacity()`, and step 3 fades only the tab background. After the switch to R both strips are likely visible. Building the strip as a child of the tab fixes this by construction. The animation code still needs refs to the active strip and the label fills, so `EditorTab` takes a `ref` for the tab `Rect`.
+   - Level: leave inline. There are two tabs, so the repetition is below the threshold. A function component, `EditorTab`, only pays once a third tab appears (the snippet below shows its shape).
+   - Saving: none now (an estimate of 5 to 8 lines at a third tab).
+   - Risk: there is a bug to fix in place first. The Python tab's accent strip is a plain `Rect` with no opacity binding, while the R strip follows `rTabActive().opacity()`, and step 3 fades only the tab background. After the switch to R both strips are likely visible. Bind the Python strip to `pyTabActive().opacity()` as the R one is. Note that the tabs also change during the scene (fills, label colours, opacities), so a future `EditorTab` that must switch state would need an `active` signal, which is level 3, and not a static `active` prop.
 
-4. **Two variables lists repeating five `Txt` nodes.**
+4. **Two variables lists repeating `Txt` pairs.**
    - Where: `varsPy` and `varsR`.
    - Signal: a block repeats with only strings or numbers changing.
-   - Level: plain helper, `VarRow(name, type)`, inside a column layout.
-   - Saving: about 15 lines (estimate).
+   - Level: plain helper, `VarRow(name, type)`, inside a column layout. Borderline: there are three rows in total.
+   - Saving: about zero net. Six one-line `Txt` nodes become three calls plus an 8-line helper. The gain is that the hand-set `0`/`110` columns and `0`/`38` row offsets disappear.
    - Risk: none.
 
 5. **Three small panel labels** (`CONSOLE`, `VARIABLES`, `PLOTS`).
-   - Level: plain helper, but borderline. Three uses is the threshold, so extract only if the file is being tidied anyway.
+   - Level: plain helper. Three uses meets the threshold, but the saving is small (about 4 lines, an estimate), so do it while tidying.
 
 6. **Session switch driven by separate calls.**
    - Where: step 3 of the timeline, which sets `sessionTxt`, `statusLang`, `statusTools`, `dot`, both tab fills and the tab opacities one call at a time.
@@ -99,11 +99,11 @@ yield* all(
 );
 ```
 
-### EditorTab (function component)
+### EditorTab (function component, for a third tab)
 
 Before: each tab was a `Rect` for the background, a `Rect` for the accent strip and a `Txt`, each with its own hand-computed `position`.
 
-After: a function taking a props object. The `ref` arrives as a prop, so the timeline can still tween the tab. The snippet leaves out the accent strip for brevity: add it as a child `Rect` with `opacity={active ? 1 : 0}`.
+After: a function taking a props object. The `ref` arrives as a prop, so the timeline can still tween the tab. Two behaviour differences to check. First, the label is now a child of the tab `Rect`, so the original `pyTabActive().opacity(0, 0.3)` would fade the label out as well, where before only the background faded. Tween the label fill through its own ref instead. Second, the snippet leaves out the accent strip: a child with `opacity={active ? 1 : 0}` is fixed at creation, so switching it needs its own ref or an `active` signal on a class.
 
 ```tsx
 interface EditorTabProps {
@@ -128,7 +128,7 @@ function EditorTab({ref, label, active = false}: EditorTabProps) {
 
 ### VarRow (plain helper)
 
-Before: five `Txt` nodes per list, each with `anchor`, `position` and the same font props.
+Before: two `Txt` nodes per row, each with `anchor`, `position` and the same font props.
 
 After: one row per call, laid out by flex.
 

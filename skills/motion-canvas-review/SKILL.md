@@ -13,7 +13,7 @@ This applies to Canvas Commons scenes (`makeScene2D` files). If the file is not 
 
 1. Read the whole scene before judging any part of it.
 2. Scan for the signals below and note the line range of each hit.
-3. Give each hit a level from the ladder, or "leave inline". Count the uses first: below three, the level is "leave inline".
+3. Give each hit a level from the ladder, or "leave inline". For a repeated block, count the uses first: below three, the level is "leave inline". A single-instance finding (an unused existing pattern, or one state change spanning several nodes) is judged on its own merits.
 4. Check the project and `motion-canvas-authoring` for something that already does the job before suggesting new code.
 5. Write the report in the format at the end.
 
