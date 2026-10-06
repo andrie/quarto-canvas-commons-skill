@@ -324,6 +324,10 @@ for (let i = 0; i < lines.length; i++) {
 }
 ```
 
+## Application window mockups
+
+`references/app-window-mockup.md`: draw an application window (title bar, activity bar, tabs, editor and console panes, status bar) as one flex layout from a small helper, with a palette object for the application's colours and the offset formula for overlays placed from the window's top-left.
+
 ## Custom Component Pattern
 
 Extend Layout for reusable animated components. This sketch shows how the library's `Database` is built; for a database cylinder, import the existing one from `../lib/components/Database` instead of rewriting it.
