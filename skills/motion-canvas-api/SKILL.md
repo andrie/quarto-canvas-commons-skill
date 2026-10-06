@@ -9,6 +9,27 @@ description: Use when writing or debugging Canvas Commons (formerly Motion Canva
 
 Import everything from the package roots, `@canvas-commons/core` and `@canvas-commons/2d`: the 0.4.0 packages have no `lib/...` deep imports. Older projects used the `@motion-canvas/*` scope (PORT-NOTE: deliberate mention of the old scope), and `@canvas-commons/editor` replaces the old `ui` package.
 
+## Generated reference data (version 0.4.0, commit 2da1d4a)
+
+Two files under `references/` are generated offline from the Canvas Commons source, so they list the real exported API rather than what this page remembers.
+
+- `references/component-hierarchy.md`: the class tree, `Node > Layout > Shape > Curve > Rect` and so on, with each class's JSDoc summary. Read it to see which props a node inherits.
+- `references/api-search-index.json`: 800+ exported classes, functions, types and enums from `core` and `2d`, each with `kind`, `package`, `signature`, `description`, class `members`, `examples` and example scenes, plus the synonym and purpose data. Query it with `node scripts/search-api.js Rect` (also takes `"fade in"`, `--limit 3`), or use `jq '.entries[] | select(.name=="Rect")' references/api-search-index.json`.
+
+Members listed for a class are the ones it declares itself, not inherited ones: follow `extends` up the hierarchy for the rest. Several classes (Rect and Path among them) have no JSDoc in 0.4.0, so their description is empty.
+
+Regenerate only when Canvas Commons ships an API-affecting version, and record the new version and commit in this heading. The generators read TypeScript sources and docs from a clone and build nothing. They need only the `typescript` package.
+
+```bash
+git clone --depth 1 https://github.com/canvas-commons/canvas-commons /tmp/cc   # check packages/core/package.json says the version you want
+cd skills/motion-canvas-api
+TS=/path/to/node_modules/typescript   # e.g. a project's animations/node_modules/typescript, or `npm install --no-save typescript` in a temp directory
+node scripts/generate-api-search.js --repo /tmp/cc --ts $TS --out references/api-search-index.json
+node scripts/generate-component-hierarchy.js --repo /tmp/cc --ts $TS --out references/component-hierarchy.md
+```
+
+Do not rely on building the clone. At commit 2da1d4a the repo uses pnpm (there is no lerna), `pnpm install --frozen-lockfile` works, but `pnpm run build` and `pnpm run docs:build` both failed here (tsdown cannot import `unrun`; Docusaurus fails without the built packages), under pnpm 10 and under the pinned pnpm 11.0.8.
+
 ## Scene Creation
 
 ```typescript

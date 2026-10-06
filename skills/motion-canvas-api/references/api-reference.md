@@ -1,5 +1,7 @@
 ### Canvas Commons (Motion Canvas) documentation - version 0.4.0
 
+> Regenerate the sibling files `api-search-index.json` and `component-hierarchy.md` only when Canvas Commons ships an API-affecting version. Current data is for 0.4.0 (see SKILL.md).
+
 #### Core APIs and Components
 
 ##### Scene Creation
