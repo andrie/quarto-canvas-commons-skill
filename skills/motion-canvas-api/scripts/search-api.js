@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Query references/api-search-index.json offline.
 //
 //   node search-api.js <query> [--limit 8] [--index <file.json>]
@@ -6,7 +7,7 @@
 // prefix, substring, synonym and purpose expansion (API_SYNONYMS, PURPOSE_TO_API), member names,
 // descriptions, and a typo fallback: when fewer than 3 results match, the query is corrected to the
 // nearest known name, synonym or alias by bounded Levenshtein distance (at most length/3 edits).
-// Not supported: fuzzysort-style subsequence matching ("rct" will not find Rect), and the MCP
+// Not supported: true fuzzysort-style subsequence matching (a short query such as "rct" only works when it is within one edit of a name), and the MCP
 // project's hierarchy-validated term scoring. Both were dropped in the port.
 
 import fs from 'node:fs';
