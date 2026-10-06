@@ -27,4 +27,6 @@ import {pulse} from './lib/utils/pulse';
 
 From a file in `animations/src/scenes/`, use `../lib/styles` and so on.
 
+The symlink install needs `resolve: { preserveSymlinks: true }` in `animations/vite.config.ts` (the `motion-canvas-scene` template already sets it). Without it `vite build` fails because rollup resolves the real path of a library file and then cannot resolve `@canvas-commons/2d` or `@canvas-commons/core` from it (the error reads "Rollup failed to resolve import").
+
 Every `@canvas-commons/*` import in the library uses the package root, as 0.4.0 does not expose `lib/...` subpaths. The project needs `skipLibCheck: true` in `animations/tsconfig.json`.

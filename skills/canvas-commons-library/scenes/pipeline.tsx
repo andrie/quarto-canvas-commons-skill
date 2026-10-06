@@ -1,5 +1,5 @@
 import { makeScene2D, Circle, Rect, Txt, TxtProps, Line, Node, RectProps } from "@canvas-commons/2d";
-import {Code} from '@canvas-commons/2d';
+import {Code, lines} from '@canvas-commons/2d';
 import { createRef, makeRef, all, chain, loop, linear, experimentalLog, RefsProperty, waitFor, DEFAULT, createRefMap, sequence } from "@canvas-commons/core";
 import {useLogger} from '@canvas-commons/core';
 import { BaseFont } from "../styles";
@@ -112,7 +112,7 @@ export default makeScene2D(function* (view) {
           lineWidth={3} stroke="#f00" >
 
             <Code ref={cb} position={[0, -100]}
-              code={code_git} />,
+              code={code_git} />
           </Rect>
         </Rect>
 
@@ -170,9 +170,9 @@ export default makeScene2D(function* (view) {
     )
   )
 
-  // // Code animation (0.4.0 Code has no `selection(lines(...))`; use Code's own selection API)
-  // yield* cb().selection(lines(1, 2), 1);
-  // yield* cb().selection(DEFAULT, 0);
+  // Code animation: `lines` comes from @canvas-commons/2d and Code.selection accepts it (line numbers are zero-based)
+  yield* cb().selection(lines(1, 2), 1);
+  yield* cb().selection(DEFAULT, 0);
   // yield* cb().edit(1, false)``;
   // yield* cb().edit(1, false)`${code_r1}`;
   // yield* cb().selection(lines(2,2), 1);
