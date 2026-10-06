@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>fake deck</title>
+<style>html,body{margin:0;background:#000} section{display:none;width:100vw;height:100vh} section.present{display:block} canvas{width:100%;height:100%}</style>
+</head>
+<body>
+<!-- A stand-in for a rendered deck: just enough Reveal.js API and a canvas-commons-player whose colour follows the real clock once it plays. -->
+<div class="slides">
+  <section><h1 style="color:#fff">Title</h1></section>
+  <section><canvas-commons-player></canvas-commons-player></section>
+</div>
+<script>
+customElements.define('canvas-commons-player', class extends HTMLElement {
+  connectedCallback() {
+    this.state = 'loading';
+    this.playing = false;
+    const c = document.createElement('canvas');
+    c.width = 160; c.height = 90;
+    this.appendChild(c);
+    const g = c.getContext('2d');
+    setTimeout(() => {
+      this.state = 'ready'; this.playing = true;
+      const t0 = performance.now();
+      const draw = () => { const s = (performance.now() - t0) / 1000; g.fillStyle = `hsl(${(s * 90) % 360} 80% 50%)`; g.fillRect(0, 0, 160, 90); requestAnimationFrame(draw); };
+      draw();
+    }, 300);
+  }
+});
+const slides = [...document.querySelectorAll('.slides > section')];
+const h = Math.min(Number((location.hash.match(/^#\/(\d+)/) || [0, 0])[1]), slides.length - 1);
+slides[h].classList.add('present');
+window.Reveal = {isReady: () => true, getIndices: () => ({h, v: 0}), getHorizontalSlides: () => slides, getCurrentSlide: () => slides[h]};
+</script>
+</body>
+</html>

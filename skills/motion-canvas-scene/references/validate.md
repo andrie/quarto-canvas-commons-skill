@@ -114,3 +114,25 @@ The `make` targets below are the `cc-` names, which exist in every project whose
    If the `grep` prints nothing, the deck embeds no animation yet, so this check has proved nothing about the player: do not report it as passing. Run "Prove the player with a throwaway deck" in `bootstrap.md`, which renders a temporary copy of the deck's header with the smoke slide and deletes it afterwards, without touching the deck. Expected there: a `canvas-commons-player` count of 1 or more and the smoke `src`.
 
    Failure: a `src` path that does not match a built file is the "Blank animation player" case in `SKILL.md`: fix the shortcode path to `./animations/src/<name>.js`.
+
+## Check the scene visually (optional)
+
+The checks above prove that the scenes build and the deck renders, not that a scene looks right. This step is not a pass/fail check: it takes screenshots for you to look at. Run it after `quarto render <deck>`, from the directory that holds `<deck-html>`:
+
+```bash
+node <skill>/scripts/screenshot-slide.mjs <deck-html> --slide <n> --at 0.5,2,4 --out /tmp/cc-shots
+```
+
+`--slide` is 1-based and counts every horizontal slide, including Quarto's title slide when the YAML has a `title:`. A deck with a title slide and the animation on the next slide is `--slide 2`, which the script opens as `#/1` (reveal.js numbers slides from 0). If the slide has no player, the script warns and lists the slides that have one. `--at` gives seconds after the player starts playing; `--width` and `--height` set the viewport (default 1920 by 1080, the template deck's size). It serves the deck's directory over a local HTTP server (the player fetches the scene bundle, which `file://` blocks), waits for the slide's `canvas-commons-player` to reach its `ready` state and start playing, then writes `<deck-base>-slide<n>-t<seconds>.png` into `--out` (default `canvas-commons-screenshots` in the system temp directory) and prints each path with the scene frame it caught. The frame is the reliable timing: scenes loop, so a late offset can show an early frame.
+
+View the PNGs (the Read tool shows images). Keep `--out` outside the project, or Quarto may publish the screenshots with the deck.
+
+It needs Playwright and its Chromium, which it never adds to the project. It looks in `--playwright <dir>`, then `$PLAYWRIGHT_DIR`, then `~/.cache/canvas-commons-tools`, each a directory whose `node_modules` has `playwright`. When none has it, the script prints the one-off install command and exits 2:
+
+```bash
+mkdir -p ~/.cache/canvas-commons-tools && cd ~/.cache/canvas-commons-tools && npm init -y && npm i playwright && npx playwright install chromium
+```
+
+On Linux without `libasound.so.2` (common in WSL and containers), Chromium fails to start: the script exits 3 and prints a no-sudo workaround that unpacks the library from `apt-get download libasound2t64` (or `libasound2`) into `~/.cache/canvas-commons-tools/libasound`, which the script then finds by itself. An `LD_LIBRARY_PATH` you set yourself is passed through to the browser. Exit 4 means the deck loaded but a slide or player problem stopped it: the message says which.
+
+Do not use a browser's own headless screenshot with `--virtual-time-budget` instead. The player advances on the real clock, so virtual time races through page loading while the scene has barely started: a 5-second budget still captures one of the first frames.

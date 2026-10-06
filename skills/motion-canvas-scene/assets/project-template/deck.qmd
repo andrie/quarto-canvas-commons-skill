@@ -10,8 +10,8 @@ format:
       - text: <script src="./dist/motion-canvas-ts.js"></script>
 ---
 
-<!-- Toolchain proof: once the first real scene builds, delete the slide below and run `node ~/.claude/skills/motion-canvas-scene/scripts/remove-scene.js smoke`. -->
-
 ## Smoke test {.hidetitle}
+
+<!-- Toolchain proof: once the first real scene builds, delete this slide and run `node ~/.claude/skills/motion-canvas-scene/scripts/remove-scene.js smoke`. -->
 
 {{< motion-canvas ./animations/src/smoke.js auto fullscreen=true >}}

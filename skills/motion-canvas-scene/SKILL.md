@@ -11,6 +11,7 @@ description: Use when starting a new Quarto presentation project that will conta
 
 - New presentation project (an empty directory, or "set up a project for animated slides"), or adding Canvas Commons to an existing project such as a Quarto deck that already has its own `Makefile`, `package.json` or `.gitignore`: follow `references/bootstrap.md`. It asks the user for the deck name, copies the template in `assets/project-template/` into the project root without overwriting anything, merges where files already exist, then installs, builds and renders the deck.
 - "Does my project work?", or an animation fails to build or render: follow `references/validate.md`, a read-only checklist that starts from the deck the Makefile names, stops at the first failure and points back to the error tables below.
+- "Does the scene look right?": take screenshots of its slide at chosen moments with `scripts/screenshot-slide.mjs`, as in "Check the scene visually" at the end of `references/validate.md`. Building and rendering do not show this.
 - How the root project, `animations/` and the Makefile fit together: `references/project-architecture.md`.
 
 ## Creating a new scene
@@ -30,6 +31,7 @@ description: Use when starting a new Quarto presentation project that will conta
    ```
 
    Reference the result in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`.
+4. Render the deck and look at the scene: "Check the scene visually" in `references/validate.md`.
 
 To delete a scene, run `node ~/.claude/skills/motion-canvas-scene/scripts/remove-scene.js <name>`. It removes the scene and project files, their `.meta` files (`src/<name>.meta`, `src/scenes/<name>.meta`, which the build writes), the registration, and the built bundle (`dist/animations/src/<name>.js` with any `<name>.*` file next to it, such as a source map), and prints each file it deleted. The next `make anim` empties `dist/animations/` and rebuilds it, so nothing stale survives; a project from an older template needs the `emptyOutDir` patch in `references/validate.md`, check 4.
 

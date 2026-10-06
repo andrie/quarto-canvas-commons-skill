@@ -76,3 +76,8 @@ test('template animations build owns dist/animations and empties it on rebuild',
   assert.doesNotMatch(cfg, /\bdir:\s*"/, 'no second output dir in rollupOptions.output');
   assert.match(read('vite.player.config.ts'), /emptyOutDir:\s*false/, 'the player build must not wipe dist/animations');
 });
+
+test('template deck has nothing between the YAML and the first slide heading (it would become an empty slide)', () => {
+  const body = read('deck.qmd').split(/^---$/m)[2];
+  assert.match(body, /^\s*## /);
+});
