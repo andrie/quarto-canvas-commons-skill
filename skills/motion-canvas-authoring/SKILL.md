@@ -383,3 +383,7 @@ export function* pulse(element: any, options: { scaleGrowth?: number; duration?:
 - **Transparent fills**: always `"rgba(0,0,0,0)"`, never `"transparent"`
 - **Colors**: always from `Posit` and `Colors` objects, as shipped in `animations/src/styles.ts`
 - **Consistent proportions**: maintain lineWidth ratios across related elements in a scene
+
+## Before you finish a scene
+
+Run the `motion-canvas-review` skill on it. It finds repeated blocks, hand-built offsets and state changes that a helper or component would simplify.

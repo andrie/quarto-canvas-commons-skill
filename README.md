@@ -7,6 +7,7 @@ Claude Code skills for building animated Canvas Commons (formerly Motion Canvas)
 - `motion-canvas-scene`: bootstrap a project from a template or add Canvas Commons to an existing Quarto project (it asks for the deck name and merges into an existing `Makefile`, `package.json` and `.gitignore` without overwriting them), add or remove scenes (`scripts/add-scene.js`, and `scripts/remove-scene.js`, which also deletes the scene's `.meta` files and built bundle), validate a project (including a check that `animations/vite.config.ts` empties `dist/animations/` on rebuild), take screenshots of a rendered slide to check a scene visually (`scripts/screenshot-slide.mjs`, which needs Playwright outside the project), fix build errors.
 - `motion-canvas-authoring`: layout, timing and style patterns for composing a scene, including an application window mockup (`references/app-window-mockup.md`).
 - `svg-to-motion-canvas`: translate a draw.io or SVG diagram into a scene. Worked examples come from `seed/`.
+- `motion-canvas-review`: review a scene for repeated code that a helper or component would remove. Includes a worked example on an IDE mockup scene.
 - `motion-canvas-r-code`: R and Python syntax highlighting and fonts for `Code` nodes.
 - `motion-canvas-api`: a searchable 0.4.0 API index and cheat sheet.
 - `canvas-commons-library`: shared styles, the `Database` component, `pulse` and reusable scenes.
