@@ -1,0 +1,37 @@
+# quarto-canvas-commons-skill
+
+Claude Code skills for building animated Canvas Commons (formerly Motion Canvas) scenes inside Quarto revealjs decks. Canvas Commons is pinned at 0.4.0.
+
+## The six skills
+
+- `motion-canvas-scene`: bootstrap a project from a template, add or remove scenes, validate a project, fix build errors.
+- `motion-canvas-authoring`: layout, timing and style patterns for composing a scene.
+- `svg-to-motion-canvas`: translate a draw.io or SVG diagram into a scene. Worked examples come from `seed/`.
+- `motion-canvas-r-code`: R syntax highlighting and fonts for `Code` nodes.
+- `motion-canvas-api`: a searchable 0.4.0 API index and cheat sheet.
+- `canvas-commons-library`: shared styles, the `Database` component, `pulse` and reusable scenes.
+
+## Install
+
+```bash
+bash scripts/install.sh              # symlink each skill into ~/.claude/skills
+bash scripts/install.sh --dry-run    # show what would happen, change nothing
+bash scripts/install.sh --uninstall  # remove only symlinks that point into this repo
+```
+
+An existing real directory is never touched. An existing symlink that points somewhere else is skipped unless you pass `--force`. Use `--target DIR` to install somewhere other than `~/.claude/skills`.
+
+**Warning:** `~/.claude` is the git-synced claude-config working tree. Installing symlinks there shows up as untracked changes that a later sync could push to the shared repository. Check `git status` in `~/.claude` before you sync.
+
+## Tests
+
+```bash
+TS_PATH=/path/to/node_modules/typescript node --test tests/*.test.js
+bash scripts/check-ported.sh
+```
+
+Use the glob: `node --test tests/` does not work on Node 22. `TS_PATH` points at a `typescript` package, which the API generator tests need. `check-ported.sh` fails on stale `@motion-canvas/` references, deep `lib/` imports and `offsetX`/`offsetY` node props.
+
+## Not applied
+
+The staged patch for the global `quarto-presentation` skill, in `docs/superpowers/notes/quarto-presentation-additions/`, is not applied. Its `README.md` says how to apply it.
