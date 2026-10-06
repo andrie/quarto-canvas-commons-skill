@@ -97,3 +97,41 @@ test('search-api: nonsense returns nothing and exact matches still rank first', 
   assert.equal(search(realIndex, 'Rect')[0].name, 'Rect');
   assert.equal(search(realIndex, 'Polygon')[0].name, 'Polygon');
 });
+
+// Multi-word and intent queries from the fresh-agent usability tests: [query, acceptable first hits].
+const intentCases = [
+  ['fade in one after another', ['chain', 'sequence']],
+  ['move along path', ['Curve']],
+  ['follow path', ['Curve']],
+  ['stagger', ['sequence']],
+  ['fade in', ['sequence']],
+  ['fade out', ['sequence']],
+  ['rounded rectangle', ['Rect']],
+  ['one after another', ['chain']],
+  ['in sequence', ['chain']],
+  ['in parallel', ['all']],
+  ['run animations in parallel', ['all']],
+  ['easing', ['easeInOutCubic']],
+  ['ease', ['easeInOutCubic']],
+  ['wait for', ['waitFor']],
+  ['repeat', ['loop']],
+  ['getPointAtPercentage', ['Curve']],
+  ['Rect', ['Rect']],
+];
+for (const [query, expected] of intentCases) {
+  test(`search-api: "${query}" ranks ${expected[0]} first`, async () => {
+    const {search} = await import(path.join(scripts, 'search-api.js'));
+    assert.ok(expected.includes(search(realIndex, query)[0]?.name), `got ${search(realIndex, query).map((e) => e.name).join(', ')}`);
+  });
+}
+
+test('search-api: "fade in" surfaces sequence in the top three, partial multi-word matches still rank', async () => {
+  const {search} = await import(path.join(scripts, 'search-api.js'));
+  assert.ok(search(realIndex, 'fade in', 3).some((e) => e.name === 'sequence'));
+  assert.ok(search(realIndex, 'circle banana').some((e) => e.name === 'Circle'), 'one matching word is enough');
+});
+
+test('search-api: CLI shows the signature of a matched member', () => {
+  const cli = spawnSync(process.execPath, [path.join(scripts, 'search-api.js'), 'move along path', '--limit', '2'], {encoding: 'utf8'});
+  assert.match(cli.stdout, /getPointAtPercentage\(value: number\): CurvePoint/);
+});

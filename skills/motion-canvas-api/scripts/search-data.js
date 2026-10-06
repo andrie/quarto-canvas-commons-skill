@@ -203,3 +203,51 @@ export const TERM_TO_COMPONENT = {
   'movie': 'Video',
   'camera': 'Camera',
 };
+
+// Query-layer intents, used only by search-api.js (they are not embedded in the index, so the committed
+// index stays generator-reproducible). Each key is a phrase (whole words, stop-words included); the
+// targets are ordered, best first, and a target may be an entry name or a class member name (Curve owns
+// getPointAtPercentage). Every target was checked against the 0.4.0 index.
+export const QUERY_INTENTS = {
+  'fade in': ['sequence', 'chain', 'all', 'tween', 'opacity'],
+  'fade out': ['sequence', 'chain', 'all', 'tween', 'opacity'],
+  'stagger': ['sequence', 'delay', 'all'],
+  'staggered': ['sequence', 'delay', 'all'],
+  'cascade': ['sequence', 'delay', 'all'],
+  'one after another': ['chain', 'sequence'],
+  'one by one': ['sequence', 'chain'],
+  'in sequence': ['chain', 'sequence'],
+  'sequentially': ['chain', 'sequence'],
+  'in order': ['chain', 'sequence'],
+  'in parallel': ['all', 'any'],
+  'at the same time': ['all', 'any'],
+  'simultaneously': ['all', 'any'],
+  'together': ['all', 'any'],
+  'parallel': ['all', 'any'],
+  'move along path': ['getPointAtPercentage', 'tween'],
+  'move along a path': ['getPointAtPercentage', 'tween'],
+  'follow path': ['getPointAtPercentage', 'tween'],
+  'follow a path': ['getPointAtPercentage', 'tween'],
+  'along path': ['getPointAtPercentage', 'tween'],
+  'point on path': ['getPointAtPercentage'],
+  'delayed start': ['delay'],
+  'start later': ['delay'],
+  'after a delay': ['delay'],
+  'pause': ['waitFor', 'waitUntil'],
+  'hold': ['waitFor', 'waitUntil'],
+  'wait for': ['waitFor', 'waitUntil'],
+  'wait until': ['waitUntil', 'waitFor'],
+  'repeat': ['loop', 'loopFor', 'loopUntil'],
+  'forever': ['loop', 'loopUntil'],
+  'repeatedly': ['loop', 'loopFor'],
+  'easing': ['easeInOutCubic', 'easeOutCubic', 'easeInCubic', 'linear'],
+  'ease': ['easeInOutCubic', 'easeOutCubic', 'easeInCubic', 'linear'],
+  'timing function': ['easeInOutCubic', 'easeOutCubic', 'easeInCubic', 'linear'],
+  'interpolate': ['tween', 'map', 'remap'],
+};
+
+// Words that carry no search signal in a natural-language query.
+export const STOP_WORDS = new Set([
+  'a', 'an', 'the', 'of', 'in', 'on', 'at', 'to', 'for', 'from', 'by', 'with', 'into', 'and', 'or',
+  'one', 'another', 'other', 'along', 'after', 'is', 'it', 'my', 'how', 'do', 'i', 'can', 'some',
+]);
