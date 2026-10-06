@@ -1,5 +1,5 @@
 import { Parser, Tree } from '@lezer/common';
-import { CodeHighlighter, HighlightResult } from '@motion-canvas/2d/lib/code/CodeHighlighter';
+import { CodeHighlighter, HighlightResult } from '@canvas-commons/2d';
 
 interface RCache {
   tree: Tree;
