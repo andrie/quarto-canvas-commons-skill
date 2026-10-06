@@ -308,6 +308,10 @@ const rHighlighter = new RHighlighter(parser, {
       fill={Colors.TEXT} position={[-800, 50]} width={850} />
 ```
 
+### Terminal output and aligned text
+
+`Txt` collapses runs of spaces, so console output, tables and aligned columns need a `Code` node with `highlighter={null}` (or `Txt` with `textWrap="pre"`). The `motion-canvas-api` skill's "Plain text and line spacing" has the example, including `lineHeight` for matching line numbers.
+
 ### Line-by-line code reveal
 
 ```typescript

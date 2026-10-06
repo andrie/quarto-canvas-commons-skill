@@ -79,6 +79,17 @@ All nodes inheriting from Layout support:
 | `rotation` | degrees | Rotation |
 | `anchor` | `[-1..1, -1..1]` | Origin anchor (`anchorX`, `anchorY`; was `offset` before 0.4.0) |
 
+`anchor` sets which point of the node `position` refers to, as a fraction of its half-size: `-1` is the left (x) or top (y) edge, `0` the centre (the default), `1` the right or bottom edge. It is also the pivot for `rotation` and `scale`, but it does not move the node's children.
+
+```tsx
+// Left-aligned text: x is where the text starts, y is its vertical centre
+<Txt anchor={[-1, 0]} position={[-800, -400]} text="Starts at x = -800" />
+// A box whose top-left corner sits at (-800, -300)
+<Rect anchor={[-1, -1]} position={[-800, -300]} size={[400, 200]} fill="#447099" />
+// One axis only: right-align a label to x = 800
+<Txt anchorX={1} x={800} text="Ends at x = 800" />
+```
+
 ## Coordinate System
 
 - Origin at **center** of the scene
@@ -340,6 +351,16 @@ const MyStyle = HighlightStyle.define([
 Code.defaultHighlighter = new LezerHighlighter(parser, MyStyle);
 ```
 
+### Plain text and line spacing
+
+For preformatted text that is not code (terminal output, tables, aligned columns), use a `Code` node with `highlighter={null}`. It keeps every space and line break, and the `null` stops a project-wide `Code.defaultHighlighter` from colouring it; the text takes the node's `fill`. `Code` also takes `lineHeight` (inherited from `Layout`, in px or a percentage such as `'150%'`), which spaces the lines and lets separately drawn line numbers line up:
+
+```tsx
+<Code highlighter={null} anchor={[-1, -1]} position={[-800, 100]}
+      fontFamily="monospace" fontSize={22} lineHeight={32} fill="#CCCCCC"
+      code={`species    mass\nAdelie     3700.7\nChinstrap  3733.1`} />
+```
+
 ### Reactive code with signals
 ```typescript
 import {CODE} from '@canvas-commons/2d';
@@ -435,3 +456,4 @@ const bottomLeft = tri().vertex(2);
 - Node properties are signals: `node.fill()` reads, `node.fill('red')` sets, `node.fill('red', 1)` tweens
 - JSX creates real instances (no virtual DOM) — you can store them directly
 - Install Lezer parsers for syntax highlighting: `npm i @lezer/javascript`, `lezer-r`, etc.
+- `Txt` does not keep runs of spaces. Its default `textWrap` (`true`) behaves like CSS `white-space: pre-line`: line breaks stay, but spaces and tabs collapse to one, so aligned columns fall apart. `textWrap={false}` collapses the line breaks too. For aligned text, set `textWrap="pre"` on the `Txt` (like `pre-wrap`), or use a `Code` node with `highlighter={null}` (see "Plain text and line spacing").
