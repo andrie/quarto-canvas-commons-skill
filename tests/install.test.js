@@ -60,11 +60,21 @@ test('skips a pre-existing real directory and leaves it untouched', () => {
   assert.ok(fs.lstatSync(path.join(t, 'motion-canvas-scene')).isSymbolicLink());
 });
 
-test('repoints a stale symlink that points elsewhere', () => {
+test('skips a symlink that points elsewhere and leaves it', () => {
   const t = tmp();
   const elsewhere = tmp();
   fs.symlinkSync(elsewhere, path.join(t, 'motion-canvas-api'));
-  run(['--target', t]);
+  const out = run(['--target', t]);
+  assert.match(out, /SKIP motion-canvas-api: symlink points elsewhere/);
+  assert.strictEqual(fs.readlinkSync(path.join(t, 'motion-canvas-api')), elsewhere);
+  assert.ok(resolves(path.join(t, 'motion-canvas-scene')));
+});
+
+test('--force repoints a symlink that points elsewhere', () => {
+  const t = tmp();
+  const elsewhere = tmp();
+  fs.symlinkSync(elsewhere, path.join(t, 'motion-canvas-api'));
+  run(['--target', t, '--force']);
   assert.ok(resolves(path.join(t, 'motion-canvas-api')));
 });
 

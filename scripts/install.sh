@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
 # Symlink each skill into a skills directory so this repo stays the source of truth.
 #
-# Usage: install.sh [--dry-run] [--uninstall] [--target DIR]
+# Usage: install.sh [--dry-run] [--uninstall] [--force] [--target DIR]
 #   --target DIR  skills directory (default: $HOME/.claude/skills)
 #   --dry-run     print what would happen and change nothing
 #   --uninstall   remove only symlinks that point into this repo's skills/
+#   --force       repoint an existing symlink that points somewhere else
 set -eu
 
 repo=$(cd "$(dirname "$0")/.." && pwd)
 target="${HOME:?HOME is not set}/.claude/skills"
 dry=0
 uninstall=0
+force=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) dry=1 ;;
     --uninstall) uninstall=1 ;;
+    --force) force=1 ;;
     --target)
       [ $# -ge 2 ] || { echo "error: --target needs a directory" >&2; exit 2; }
       target=$2; shift ;;
-    -h|--help) sed -n '2,7p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,8p' "$0"; exit 0 ;;
     *) echo "error: unknown option: $1" >&2; exit 2 ;;
   esac
   shift
@@ -41,6 +44,10 @@ if [ "$uninstall" = 0 ]; then
     dest="$target/$name"
     if [ -e "$dest" ] && [ ! -L "$dest" ]; then
       echo "SKIP $name: real directory exists at $dest"
+      continue
+    fi
+    if [ -L "$dest" ] && [ "$(readlink "$dest")" != "$repo/skills/$name" ] && [ "$force" = 0 ]; then
+      echo "SKIP $name: symlink points elsewhere ($(readlink "$dest")); use --force to repoint"
       continue
     fi
     if [ "$dry" = 1 ]; then
