@@ -5,7 +5,7 @@ This repo holds Claude Code skills for building animated Canvas Commons (formerl
 ## Layout
 
 - `skills/motion-canvas-scene`: bootstrap a project or add Canvas Commons to an existing Quarto project, add or remove scenes, validate, screenshot a slide. Holds the vendored project template in `assets/project-template/`.
-- `skills/motion-canvas-api`, `motion-canvas-authoring`, `svg-to-motion-canvas`, `motion-canvas-r-code`: reference and pattern skills.
+- `skills/motion-canvas-api`, `motion-canvas-authoring`, `motion-canvas-review`, `svg-to-motion-canvas`, `motion-canvas-r-code`: reference and pattern skills.
 - `skills/canvas-commons-library`: a plain folder of shared TypeScript (styles, `Database`, `pulse`, scenes). It has no `SKILL.md` on purpose.
 - `seed/`: worked examples the skills point at (scenes and draw.io diagrams). Not shipped as a skill.
 - `tests/` and `scripts/`: the checks and the installer.

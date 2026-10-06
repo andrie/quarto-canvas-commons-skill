@@ -10,7 +10,7 @@ const script = path.join(repo, 'scripts', 'install.sh');
 const skills = fs.readdirSync(path.join(repo, 'skills'), { withFileTypes: true })
   .filter((d) => d.isDirectory()).map((d) => d.name);
 const expected = ['motion-canvas-api', 'motion-canvas-scene', 'motion-canvas-authoring',
-  'svg-to-motion-canvas', 'motion-canvas-r-code', 'canvas-commons-library'];
+  'svg-to-motion-canvas', 'motion-canvas-r-code', 'canvas-commons-library', 'motion-canvas-review'];
 
 function tmp() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'install-test-'));
@@ -25,7 +25,7 @@ function resolves(link) {
   return fs.realpathSync(link) === fs.realpathSync(path.join(repo, 'skills', path.basename(link)));
 }
 
-test('repo contains the expected six skill directories', () => {
+test('repo contains the expected seven skill directories', () => {
   for (const s of expected) assert.ok(skills.includes(s), s);
 });
 
