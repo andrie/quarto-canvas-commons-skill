@@ -5,9 +5,10 @@ import {addEntry} from './vite-project-array.js';
 const args = process.argv.slice(2);
 const name = args.find((a) => !a.startsWith('--') && args[args.indexOf(a) - 1] !== '--root');
 const rootIdx = args.indexOf('--root');
-const root = path.resolve(rootIdx >= 0 ? args[rootIdx + 1] : 'animations');
+const rootValue = rootIdx >= 0 ? args[rootIdx + 1] : 'animations';
+const root = path.resolve(rootValue ?? '.');
 
-if (!name || !/^[a-z0-9][a-z0-9_-]*$/i.test(name)) {
+if (rootValue === undefined || !name || !/^[a-z0-9][a-z0-9_-]*$/i.test(name)) {
   console.error('usage: add-scene.js <name> [--root <animationsDir>]  (name: letters, digits, - and _)');
   process.exit(1);
 }

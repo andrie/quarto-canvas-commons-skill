@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {execFileSync} from 'node:child_process';
+import {execFileSync, spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {addEntry, removeEntry} from '../skills/motion-canvas-scene/scripts/vite-project-array.js';
 
@@ -74,3 +74,75 @@ test('remove-scene deletes both files and the registration', () => {
   assert.ok(!fs.existsSync(path.join(root, 'src/demo.ts')));
   assert.ok(!fs.readFileSync(path.join(root, 'vite.config.ts'), 'utf8').includes('demo'));
 });
+
+const cfg = (body, pre = '') => `${pre}export default { plugins: [motionCanvas({ project: [${body}] })] };\n`;
+const entries = (src) => [...src.matchAll(/"(\.\/src\/[^"]+\.ts)"/g)].map((m) => m[1]);
+
+test('a ] in a line comment does not end the array early', () => {
+  const src = cfg('\n  // see [1]\n  "./src/a.ts",\n  "./src/b.ts",\n');
+  const added = addEntry(src, './src/b.ts');
+  assert.equal(added, src, 'existing entry after the comment is found');
+  assert.deepEqual(entries(removeEntry(src, './src/b.ts')), ['./src/a.ts']);
+});
+
+test('a ] in a block comment or string does not end the array early', () => {
+  const src = cfg('\n  /* x ] y */\n  "./src/a.ts",\n  "./src/we]ird.ts",\n  "./src/b.ts",\n');
+  assert.equal(addEntry(src, './src/b.ts'), src);
+  assert.ok(!removeEntry(src, './src/b.ts').includes('b.ts'));
+});
+
+test('project: [ mentioned in a comment is ignored', () => {
+  const src = cfg('\n  "./src/a.ts",\n', '// project: [ "./src/old.ts" ]\n/* project: [ */\n');
+  const out = addEntry(src, './src/n.ts');
+  assert.ok(out.startsWith('// project: [ "./src/old.ts" ]\n/* project: [ */\n'));
+  assert.deepEqual(entries(out), ['./src/old.ts', './src/n.ts', './src/a.ts']);
+  assert.match(out, /project: \[\n        "\.\/src\/n\.ts",/);
+});
+
+test('add then remove with a // see [1] comment in the array round-trips', () => {
+  const src = cfg('\n  // see [1]\n  "./src/a.ts",\n');
+  const out = removeEntry(addEntry(src, './src/n.ts'), './src/n.ts');
+  assert.equal(out, src);
+});
+
+test('empty project array works', () => {
+  const out = addEntry(cfg(''), './src/n.ts');
+  assert.deepEqual(entries(out), ['./src/n.ts']);
+  assert.deepEqual(entries(removeEntry(out, './src/n.ts')), []);
+});
+
+test('unterminated array throws', () => {
+  assert.throws(() => addEntry('motionCanvas({ project: [ "a"', './src/x.ts'), /project array not found/);
+});
+
+test('addEntry preserves CRLF line endings', () => {
+  const crlf = fixture.replace(/\r?\n/g, '\r\n');
+  const out = addEntry(crlf, './src/demo.ts');
+  assert.ok(!/[^\r]\n/.test(out), 'no bare LF introduced');
+  assert.match(out, /project:\s*\[\r\n\s*"\.\/src\/demo\.ts",\r\n/);
+});
+
+test('remove-scene warns on stderr when the config has no entry', () => {
+  const root = tmpProject();
+  fs.writeFileSync(path.join(root, 'src/scenes/ghost.tsx'), 'x');
+  const r = spawnSync('node', [path.join(scripts, 'remove-scene.js'), 'ghost', '--root', root], {encoding: 'utf8'});
+  assert.equal(r.status, 0);
+  assert.match(r.stderr, /vite\.config\.ts has no entry for \.\/src\/ghost\.ts/);
+  assert.ok(!fs.existsSync(path.join(root, 'src/scenes/ghost.tsx')));
+});
+
+test('remove-scene does not warn when the entry was registered', () => {
+  const root = tmpProject();
+  execFileSync('node', [path.join(scripts, 'add-scene.js'), 'demo', '--root', root]);
+  const r = spawnSync('node', [path.join(scripts, 'remove-scene.js'), 'demo', '--root', root], {encoding: 'utf8'});
+  assert.equal(r.stderr, '');
+});
+
+for (const script of ['add-scene.js', 'remove-scene.js']) {
+  test(`${script} prints usage when --root has no value`, () => {
+    const r = spawnSync('node', [path.join(scripts, script), 'demo', '--root'], {encoding: 'utf8'});
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /usage:/);
+    assert.ok(!/TypeError/.test(r.stderr));
+  });
+}
