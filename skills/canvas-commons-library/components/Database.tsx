@@ -1,6 +1,6 @@
-import { SimpleSignal, SignalValue, PossibleColor } from '@motion-canvas/core';
-import { initial, signal } from '@motion-canvas/2d/lib/decorators';
-import { Circle, Line, Layout, LayoutProps } from '@motion-canvas/2d/lib/components';
+import { SimpleSignal, SignalValue, PossibleColor } from '@canvas-commons/core';
+import { initial, signal } from '@canvas-commons/2d';
+import { Circle, Line, Layout, LayoutProps } from '@canvas-commons/2d';
 
 export interface DatabaseProps extends LayoutProps {
   stroke?: SignalValue<PossibleColor>;

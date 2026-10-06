@@ -1,5 +1,5 @@
-import {makeScene2D, Circle} from '@motion-canvas/2d';
-import {all, sequence, useLogger, makeRef, useRandom, DEFAULT} from '@motion-canvas/core';
+import {makeScene2D, Circle} from '@canvas-commons/2d';
+import {all, sequence, useLogger, makeRef, useRandom, DEFAULT} from '@canvas-commons/core';
 
 
 function gridCircle(ref:any, x:number, y:number, size:number, scale:number) {

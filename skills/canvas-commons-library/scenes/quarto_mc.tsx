@@ -1,6 +1,6 @@
-import { makeScene2D, Circle, Rect, RectProps, Txt, Line, Node, TxtProps } from "@motion-canvas/2d";
-import { createRef, all } from "@motion-canvas/core";
-import { waitFor } from "@motion-canvas/core";
+import { makeScene2D, Circle, Rect, RectProps, Txt, Line, Node, TxtProps } from "@canvas-commons/2d";
+import { createRef, all } from "@canvas-commons/core";
+import { waitFor } from "@canvas-commons/core";
 
 export default makeScene2D(function* (view) {
   const myCircle = createRef<Circle>();

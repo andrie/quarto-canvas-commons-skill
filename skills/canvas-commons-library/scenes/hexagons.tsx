@@ -1,8 +1,8 @@
-import {makeScene2D} from '@motion-canvas/2d';
-import {Node, Circle, Polygon, Txt, Layout} from '@motion-canvas/2d/lib/components';
-import {delay, waitFor, waitUntil} from '@motion-canvas/core/lib/flow';
-import {createRef, makeRef, range, useRandom} from '@motion-canvas/core/lib/utils';
-import {all, chain, sequence} from '@motion-canvas/core/lib/flow';
+import {makeScene2D} from '@canvas-commons/2d';
+import {Node, Circle, Polygon, Txt, Layout} from '@canvas-commons/2d';
+import {delay, waitFor, waitUntil} from '@canvas-commons/core';
+import {createRef, makeRef, range, useRandom} from '@canvas-commons/core';
+import {all, chain, sequence} from '@canvas-commons/core';
 import { Colors, Posit } from '../styles';
 
 function gridPoly(ref:any, x:number, y:number, size:number, opacity:number) {
