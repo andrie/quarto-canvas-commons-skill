@@ -68,3 +68,11 @@ test('skill docs no longer tell anyone to render smoke.qmd', () => {
     assert.doesNotMatch(fs.readFileSync(path.join(skill, f), 'utf8'), /render smoke\.qmd|(?<![\w-])smoke\.html|QMD_FILE = smoke/, f);
   }
 });
+
+test('template animations build owns dist/animations and empties it on rebuild', () => {
+  const cfg = read('animations/vite.config.ts');
+  assert.match(cfg, /outDir:\s*"\.\.\/dist\/animations"/);
+  assert.match(cfg, /emptyOutDir:\s*true/);
+  assert.doesNotMatch(cfg, /\bdir:\s*"/, 'no second output dir in rollupOptions.output');
+  assert.match(read('vite.player.config.ts'), /emptyOutDir:\s*false/, 'the player build must not wipe dist/animations');
+});

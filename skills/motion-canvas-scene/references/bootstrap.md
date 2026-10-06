@@ -343,7 +343,12 @@ The `smoke` scene and the smoke slide are only a toolchain proof. Once the first
 
 ```bash
 node <skill>/scripts/remove-scene.js smoke
+make anim
 ```
+
+`remove-scene.js` deletes `animations/src/smoke.ts`, `animations/src/scenes/smoke.tsx`, the `smoke.meta` files next to each, the `./src/smoke.ts` entry in `animations/vite.config.ts`, and `dist/animations/src/smoke.js` (plus any other `smoke.*` file there). It prints each file it deleted. `make anim` then rebuilds `dist/animations/` from scratch. Expected: `ls dist/animations/src` no longer lists `smoke.js`, and `dist/motion-canvas-ts.js` still exists.
+
+To see that the real scene looks right, not only that it builds, take screenshots of its slide: "Check the scene visually" in `validate.md`.
 
 Hand deck writing and styling to the `quarto-presentation` skill. If a scene uses custom fonts through `animations/global.css`, the deck also needs a stylesheet link to that CSS in `include-in-header:`, next to the player script line. The `motion-canvas-r-code` skill's `references/fonts-and-highlighting.md` has the exact line, but you do not need that skill for anything else here.
 

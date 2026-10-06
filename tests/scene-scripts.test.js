@@ -146,3 +146,44 @@ for (const script of ['add-scene.js', 'remove-scene.js']) {
     assert.ok(!/TypeError/.test(r.stderr));
   });
 }
+
+function tmpProjectWithDist() {
+  const top = fs.mkdtempSync(path.join(os.tmpdir(), 'scene-dist-'));
+  const root = path.join(top, 'animations');
+  fs.mkdirSync(path.join(root, 'src/scenes'), {recursive: true});
+  fs.writeFileSync(path.join(root, 'vite.config.ts'), fixture);
+  const out = path.join(top, 'dist/animations/src');
+  fs.mkdirSync(out, {recursive: true});
+  return {top, root, out};
+}
+
+test('remove-scene deletes the built bundle, its map and same-named assets, and nothing else', () => {
+  const {top, root, out} = tmpProjectWithDist();
+  execFileSync('node', [path.join(scripts, 'add-scene.js'), 'demo', '--root', root]);
+  for (const f of ['demo.js', 'demo.js.map', 'demo.css', 'demo-two.js', 'other.js']) fs.writeFileSync(path.join(out, f), 'x');
+  fs.writeFileSync(path.join(top, 'dist/motion-canvas-ts.js'), 'player');
+  const r = spawnSync('node', [path.join(scripts, 'remove-scene.js'), 'demo', '--root', root], {encoding: 'utf8'});
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(fs.readdirSync(out).sort(), ['demo-two.js', 'other.js']);
+  assert.ok(fs.existsSync(path.join(top, 'dist/motion-canvas-ts.js')), 'player bundle kept');
+  assert.match(r.stdout, /dist\/animations\/src\/demo\.js/);
+});
+
+test('remove-scene deletes the .meta files next to the scene and project files', () => {
+  const {root} = tmpProjectWithDist();
+  execFileSync('node', [path.join(scripts, 'add-scene.js'), 'demo', '--root', root]);
+  fs.writeFileSync(path.join(root, 'src/demo.meta'), '{}');
+  fs.writeFileSync(path.join(root, 'src/scenes/demo.meta'), '{}');
+  fs.writeFileSync(path.join(root, 'src/scenes/keep.meta'), '{}');
+  execFileSync('node', [path.join(scripts, 'remove-scene.js'), 'demo', '--root', root]);
+  assert.ok(!fs.existsSync(path.join(root, 'src/demo.meta')));
+  assert.ok(!fs.existsSync(path.join(root, 'src/scenes/demo.meta')));
+  assert.ok(fs.existsSync(path.join(root, 'src/scenes/keep.meta')));
+});
+
+test('remove-scene works when there is no dist directory', () => {
+  const root = tmpProject();
+  execFileSync('node', [path.join(scripts, 'add-scene.js'), 'demo', '--root', root]);
+  const r = spawnSync('node', [path.join(scripts, 'remove-scene.js'), 'demo', '--root', root], {encoding: 'utf8'});
+  assert.equal(r.status, 0, r.stderr);
+});

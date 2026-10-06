@@ -49,7 +49,7 @@ The `make` targets below are the `cc-` names, which exist in every project whose
 
    Failure: a Makefile that includes `canvas-commons.mk` without the file: copy it from `<skill>/assets/project-template/canvas-commons.mk`. No deck name printed: set `QMD_FILE` (template Makefile) or `CC_QMD_FILE` (a Makefile that appended the include) to the deck. A deck that does not exist: ask the user which deck is meant and set the variable to it. A missing `.gitignore` line: append `<deck-html>` or `<deck-base>_files/`. A stray `smoke.qmd` or `smoke.html`: the variable or `.gitignore` still points at the old smoke deck, so point it at the real deck.
 
-4. Every project file is registered in the vite config.
+4. Every project file is registered in the vite config, and the config empties its output directory.
 
    ```bash
    for f in animations/src/*.ts; do b=$(basename "$f"); case "$b" in *.d.ts|styles.ts) continue;; esac; grep -qE "[\"']\./src/$b[\"']" animations/vite.config.ts || echo "unregistered: $f"; done
@@ -58,6 +58,16 @@ The `make` targets below are the `cc-` names, which exist in every project whose
    Expected: no output. The loop skips `.d.ts` declaration files and `styles.ts`, which are not project files.
 
    Failure: add each listed file to the `project` array in `animations/vite.config.ts` (`scripts/add-scene.js` does this for a new scene, or edit the `project` array by hand). Left unregistered, it is never built and the shortcode shows a blank player.
+
+   Then check that the build empties its output directory:
+
+   ```bash
+   grep -nE '(outDir|emptyOutDir):' animations/vite.config.ts
+   ```
+
+   Expected: `outDir: "../dist/animations"` and `emptyOutDir: true`.
+
+   Failure: a config from an older template prints nothing. It sets the output only through `rollupOptions.output.dir`, so Vite will not empty a directory outside `animations/` (the build prints "outDir ... is not inside project root and will not be emptied"), and the bundle of every removed scene stays in `dist/animations/src/`. To patch it, add `outDir: "../dist/animations",` and `emptyOutDir: true,` as the first lines under `build: {`, delete the `dir: "../dist/animations",` line from `rollupOptions.output`, then `make cc-force-build`. Only set `emptyOutDir: true` when `outDir` is `../dist/animations`: pointed at `../dist` or `..` it would delete the player bundle or the project.
 
 5. The build outputs exist, and the build succeeds from scratch.
 
