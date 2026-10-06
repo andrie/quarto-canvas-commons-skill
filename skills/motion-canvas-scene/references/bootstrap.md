@@ -58,9 +58,13 @@ Check the tools exist: `node --version` (22 or later), `npm --version`, `make --
 
 5. Replace the smoke deck with the real one.
 
-   Rename `smoke.qmd` to the deck's name, update `QMD_FILE` at the top of `Makefile` to match, and keep the `resources:` and `include-in-header:` lines from the smoke deck's YAML. Hand deck writing and styling to the `quarto-presentation` skill. Keep `smoke.qmd` until the real deck renders.
+   Do these three things, in this order:
 
-   The template `.gitignore` ignores `smoke.html` only, so add the real deck's `.html` to `.gitignore` after the rename. If a scene uses custom fonts through `animations/global.css`, the deck also needs the stylesheet line in `include-in-header:`: see `motion-canvas-r-code/references/fonts-and-highlighting.md` rather than repeating it here.
+   1. Rename `smoke.qmd` to the deck's name and keep the `resources:` and `include-in-header:` lines from the smoke deck's YAML. Hand deck writing and styling to the `quarto-presentation` skill. Keep `smoke.qmd` until the real deck renders.
+   2. Edit the first line of `Makefile`, `QMD_FILE = smoke.qmd`, to name the new file. `make quarto`, `make preview` and `make publish` all render `QMD_FILE` and will otherwise keep rendering the smoke deck.
+   3. Add the deck's rendered `.html` to `.gitignore` (for `talk.qmd`, add `talk.html`). The template ignores `smoke.html` only.
+
+   If a scene uses custom fonts through `animations/global.css`, the deck also needs a stylesheet link to that CSS in `include-in-header:`, next to the player script line. The `motion-canvas-r-code` skill's `references/fonts-and-highlighting.md` has the exact line, but you do not need that skill for anything else in this step.
 
 6. Optional: link the shared library. If the `canvas-commons-library` skill is installed, symlink it into the animations source tree.
 
@@ -68,7 +72,7 @@ Check the tools exist: `node --version` (22 or later), `npm --version`, `make --
    ln -s ~/.claude/skills/canvas-commons-library animations/src/lib
    ```
 
-   Import from it in a scene, for example `import {Posit} from '../lib/styles';` (a scene in `animations/src/scenes/`). The template's `animations/vite.config.ts` already sets `resolve.preserveSymlinks`, which the symlink needs for `make anim` to build.
+   Import from it in a scene, for example `import {Posit} from '../lib/styles';` (a scene in `animations/src/scenes/`). The template's `animations/vite.config.ts` already sets `resolve.preserveSymlinks`, which the symlink needs for `make anim` to build. The Makefile watches the library with `find -L`, so editing a library file triggers an incremental `make anim`. If a change to a linked file ever fails to rebuild (an older Makefile, say), run `make force-build`.
 
 ## Adding scenes
 

@@ -2,7 +2,7 @@ QMD_FILE = smoke.qmd
 PORT = 4200
 
 # Source file patterns
-ANIM_SOURCES := $(shell find animations/src -name "*.ts" -o -name "*.tsx" -o -name "*.js" 2>/dev/null)
+ANIM_SOURCES := $(shell find -L animations/src -name "*.ts" -o -name "*.tsx" -o -name "*.js" 2>/dev/null)
 ROOT_SOURCES := $(shell find . -maxdepth 1 -name "*.ts" -o -name "*.js" -o -name "package.json" -o -name "vite.config.*" 2>/dev/null)
 
 # Build output markers

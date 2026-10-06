@@ -73,9 +73,12 @@ Use this when the user asks whether their project works, or when an animation fa
 7. The deck renders and references each animation.
 
    ```bash
-   quarto render <deck>.qmd
-   grep -o 'src="[^"]*animations/src/[^"]*"' <deck>.html | sort -u
+   grep '^QMD_FILE' Makefile
+   quarto render <the file named by QMD_FILE>
+   grep -o 'src="[^"]*animations/src/[^"]*"' <the rendered .html> | sort -u
    ```
+
+   The deck is the one named by `QMD_FILE` in the `Makefile` (`grep '^QMD_FILE' Makefile` prints it), not a name to guess. Render any other `.qmd` that embeds animations as well, and run the `grep` on each rendered `.html`.
 
    Expected: render exits 0, and every `src` listed maps to a built file: drop the leading `./` and prefix `dist/`, so `./animations/src/smoke.js` must exist as `dist/animations/src/smoke.js` (check with `ls dist/animations/src`).
 

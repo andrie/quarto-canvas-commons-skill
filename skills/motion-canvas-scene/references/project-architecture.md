@@ -40,7 +40,7 @@ Each project file `animations/src/<name>.ts` imports its scene with the `?scene`
 | `make install` | `npm install` in the root and in `animations/` |
 | `make clean` | `rm -rf dist` |
 
-Incremental builds use two timestamp markers, `dist/.build-complete` (root) and `dist/animations/.build-complete` (animations). Each is touched after a successful build, and `make` rebuilds that half only when a source file (or `package.json` or the vite config) is newer than its marker. The root half watches `*.ts`, `*.js`, `package.json` and `vite.config.*` in the root folder only, so an edit to `src/main.ts` does not trigger a root rebuild: use `make force-build`. The animations half watches every `.ts`, `.tsx` and `.js` file under `animations/src`. Deleting `dist/` removes the markers, so the next `make anim` rebuilds everything.
+Incremental builds use two timestamp markers, `dist/.build-complete` (root) and `dist/animations/.build-complete` (animations). Each is touched after a successful build, and `make` rebuilds that half only when a source file (or `package.json` or the vite config) is newer than its marker. The root half watches `*.ts`, `*.js`, `package.json` and `vite.config.*` in the root folder only, so an edit to `src/main.ts` does not trigger a root rebuild: use `make force-build`. The animations half watches every `.ts`, `.tsx` and `.js` file under `animations/src`, following symlinks (`find -L`), so a linked shared library counts. Deleting `dist/` removes the markers, so the next `make anim` rebuilds everything.
 
 `animations/` builds with `tsc && vite build`, so type errors fail the build before Vite runs. The `QMD_FILE` variable at the top of the Makefile names the deck that `make quarto` renders: change it when you rename `smoke.qmd`.
 
