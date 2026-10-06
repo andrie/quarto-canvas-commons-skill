@@ -2,7 +2,7 @@
 
 ## Canvas text and font loading
 
-`Code` and `Txt` draw onto an HTML5 `<canvas>`, not DOM text. Naming a font in `fontFamily` does nothing unless that font has already been loaded into the document through normal CSS font loading. If it has not, the browser silently falls back to the next family in the list, or to a generic one. There is no error, only the wrong font.
+`Code` and `Txt` draw onto an HTML5 `<canvas>`, not DOM text. Naming a font in `fontFamily` does nothing unless that font has already been loaded into the document through normal CSS font loading, or is installed on the viewer's system (checked in headless Chromium: an installed `'DejaVu Serif'` changed the measured width with no CSS, while an uninstalled name measured the same as the fallback). If it has not, the browser silently falls back to the next family in the list, or to a generic one. There is no error, only the wrong font.
 
 ### The JetBrains Mono finding
 

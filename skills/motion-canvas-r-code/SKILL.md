@@ -1,6 +1,6 @@
 ---
 name: motion-canvas-r-code
-description: Use when showing R code in a Canvas Commons or Motion Canvas animation, when R code in a Code node has no syntax colours, or when a canvas text node renders in the wrong font.
+description: Use when showing R or Python code in a Canvas Commons or Motion Canvas animation, when R or Python code in a Code node has no syntax colours, or when a canvas text node renders in the wrong font.
 ---
 
 # R code in Canvas Commons animations
@@ -12,7 +12,7 @@ R code in a `Code` node needs a highlighter that knows R, and canvas text ignore
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | R code has no colours, or not your palette | Not established why the original scene had none. Verified: `lezer-r` does carry highlight tags, and the default `LezerHighlighter` colours R with its fixed default palette, tagged tokens only | `highlighter={new RHighlighter(parser, colours)}` colours by node name with your palette |
-| Text renders in the wrong font, no error | `fontFamily` only works for fonts the page has loaded. The built font CSS is a separate file that the deck page does not load by itself | Add the font CSS to the qmd `include-in-header`, and name only loaded fonts |
+| Text renders in the wrong font, no error | `fontFamily` only works for fonts the page has loaded or the viewer's system has installed. The built font CSS is a separate file that the deck page does not load by itself | Add the font CSS to the qmd `include-in-header`, and name only loaded fonts |
 
 ## Setup
 
@@ -27,6 +27,8 @@ include-in-header:
   - text: <script src="./dist/motion-canvas-ts.js"></script>
   - text: <link rel="stylesheet" href="./dist/animations/<name>.css">
 ```
+
+Steps 4 and 5 are only for web fonts, the ones `global.css` loads. A scene that names only system fonts needs neither the CSS import nor the stylesheet line. The generic families `monospace`, `sans-serif`, `serif` and `system-ui` are always safe. A named font installed on the computer, such as `'DejaVu Sans Mono'`, also works without CSS, but only on a machine where it is installed: anywhere else the next family in the list renders, so end the list with a generic family.
 
 ## Using it in a scene
 
@@ -48,6 +50,41 @@ const rHighlighter = new RHighlighter(parser, {
 ```
 
 All eight colour keys are read, so supply all of them. `assets/shiny-ellmer-code.R` is the sample R code. The worked example scene is `<skill>/../../seed/scenes/shiny-ellmer.tsx`, where `<skill>` is this skill's directory. The installed skill is a symlink into the repository, so resolve it first: `$(readlink -f ~/.claude/skills/motion-canvas-r-code)/../../seed/scenes/shiny-ellmer.tsx` (a lexical `..` from `~/.claude/skills/` would miss the repository).
+
+## Other languages: Python
+
+The same `highlighter` prop takes a `LezerHighlighter` built from a Lezer grammar and a `HighlightStyle`. Python needs one package:
+
+```bash
+npm --prefix ./animations install @lezer/python
+```
+
+`@codemirror/language` (for `HighlightStyle`) and `@lezer/highlight` (for `tags`) need no install: they come with `@canvas-commons/2d`.
+
+```tsx
+import {Code, LezerHighlighter} from '@canvas-commons/2d';
+import {HighlightStyle} from '@codemirror/language';
+import {tags} from '@lezer/highlight';
+import {parser as pythonParser} from '@lezer/python';
+import {Colors, Posit} from '../styles';
+
+const pythonStyle = HighlightStyle.define([
+  {tag: tags.keyword, color: Colors.KEYWORD},
+  {tag: tags.string, color: Colors.STRING},
+  {tag: tags.comment, color: Colors.COMMENT},
+  {tag: [tags.number, tags.bool, tags.null], color: Colors.NUMBER},
+  {tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: Colors.FUNCTION},
+  {tag: tags.propertyName, color: Colors.PROPERTY},
+  {tag: tags.variableName, color: Colors.TEXT},
+  {tag: tags.operator, color: Posit.teal},
+  {tag: tags.punctuation, color: Colors.TEXT},
+]);
+const pythonHighlighter = new LezerHighlighter(pythonParser, pythonStyle);
+
+<Code highlighter={pythonHighlighter} code={pythonCode} fill={Colors.TEXT} fontSize={32} fontFamily="monospace" />
+```
+
+`@lezer/python` 1.1 tags tokens with specific tags (`controlKeyword`, `definitionKeyword`, `moduleKeyword`, `lineComment`, `arithmeticOperator`, `paren` and so on). A rule for the parent tag covers its children, so `tags.keyword`, `tags.comment`, `tags.operator` and `tags.punctuation` colour all of them. `True`, `False` and `None` are `bool` and `null`, not keywords, and need their own rule. Function names in calls and `def` lines are `function(variableName)`, and method calls are `function(propertyName)`. `fill` colours any token no rule matches. Unlike `RHighlighter`, the rules are optional: leave one out and that token takes the `fill`.
 
 ## Known gap: pipes
 
