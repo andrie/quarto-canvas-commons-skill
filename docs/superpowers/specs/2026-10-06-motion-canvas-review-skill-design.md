@@ -4,7 +4,7 @@
 
 Add a skill that reviews a Canvas Commons scene for reuse opportunities, so people using this repo's skills write tighter scenes. The reviewer is Claude, working on a scene it or a user wrote. The output is a ranked list of findings, each with a suggested level of reuse. The review advises and does not rewrite the scene unless the user asks.
 
-The trigger for this work was a generated Positron IDE mockup scene (about 330 lines) that repeats tabs, variable rows, panel labels and feature chips, computes every position from `top`/`left`/`cy` offsets, and mutates chips by child index. That scene is the worked example, not a component to ship.
+The trigger for this work was a generated Positron IDE mockup scene (about 420 lines) that repeats tabs, variable rows, panel labels and feature chips, computes every position from `top`/`left`/`cy` offsets, and mutates chips by child index. That scene is the worked example, not a component to ship.
 
 ## Context in the repo
 

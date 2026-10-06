@@ -13,7 +13,7 @@ This applies to Canvas Commons scenes (`makeScene2D` files). If the file is not 
 
 1. Read the whole scene before judging any part of it.
 2. Scan for the signals below and note the line range of each hit.
-3. Give each hit a level from the ladder, or "leave inline".
+3. Give each hit a level from the ladder, or "leave inline". Count the uses first: below three, the level is "leave inline".
 4. Check the project and `motion-canvas-authoring` for something that already does the job before suggesting new code.
 5. Write the report in the format at the end.
 
@@ -38,7 +38,9 @@ Choose the lightest level that works. Move up only when a lighter one needs manu
 
 ## Leave it inline
 
-- Fewer than three uses.
+Report these as level "leave inline". Do not recommend an extraction for them, not even as "optional" or "borderline".
+
+- Fewer than three uses. Two identical blocks are still two uses: say "leave inline", and add one sentence saying a third use is the point where a function component would pay.
 - A one-off layout that nothing else will repeat.
 - Two instances that differ in structure and not only in values.
 

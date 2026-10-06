@@ -1,6 +1,6 @@
 # Worked example: reviewing an IDE mockup scene
 
-The scene is about 330 lines. It draws a Positron-style window with Python and R editor tabs, a console, a variables list, a plots panel, a status bar and three feature chips, and types code into the editor while switching from Python to R. The snippets below are illustrative and not importable: copy the idea into the scene or project you are reviewing. Everything in "Before and after" was built and rendered with Canvas Commons 0.4.0.
+The scene is about 420 lines. It draws a Positron-style window with Python and R editor tabs, a console, a variables list, a plots panel, a status bar and three feature chips, and types code into the editor while switching from Python to R. The snippets below are illustrative and not importable: copy the idea into the scene or project you are reviewing. Everything in "Before and after" was built and rendered with Canvas Commons 0.4.0.
 
 ## Findings
 
@@ -25,7 +25,7 @@ Most valuable first. Line ranges are described by element, because line numbers 
    - Signal: a block repeats with only strings or numbers changing.
    - Level: function component, `EditorTab`.
    - Saving: about 20 lines (estimate).
-   - Risk: none. The animation code still needs refs to the active strip and the label fills, so `EditorTab` takes a `ref` for the tab `Rect`.
+   - Risk: a behaviour change worth checking first. The Python tab's accent strip is a plain `Rect` with no opacity binding, while the R strip follows `rTabActive().opacity()`, and step 3 fades only the tab background. After the switch to R both strips are likely visible. Building the strip as a child of the tab fixes this by construction. The animation code still needs refs to the active strip and the label fills, so `EditorTab` takes a `ref` for the tab `Rect`.
 
 4. **Two variables lists repeating five `Txt` nodes.**
    - Where: `varsPy` and `varsR`.
