@@ -1,6 +1,6 @@
 ---
 name: motion-canvas-scene
-description: Use when starting a new Quarto presentation project that will contain Canvas Commons (Motion Canvas) animations, when checking that such a project builds, or when a scene fails to build or render.
+description: Use when starting a new Quarto presentation project that will contain Canvas Commons (Motion Canvas) animations, when adding, creating or removing a scene in an existing project, when checking that such a project builds, or when a scene fails to build or render.
 ---
 
 # Creating, Building, and Debugging Scenes
@@ -50,7 +50,7 @@ The build pipeline runs:
 1. **`tsc`** — TypeScript compilation (catches type errors)
 2. **`vite build`** — bundling to `dist/animations/src/` (catches import/config errors)
 
-Output goes to `dist/animations/src/<name>.js` — this is what the Quarto shortcode references.
+Output goes to `dist/animations/src/<name>.js`. The shortcode references it as `./animations/src/<name>.js`, which the player resolves relative to `dist/`.
 
 ## Common Errors and Fixes
 
@@ -78,40 +78,30 @@ Output goes to `dist/animations/src/<name>.js` — this is what the Quarto short
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Blank animation player | Wrong `src` path in shortcode | Check path matches `dist/animations/src/<name>.js` |
+| Blank animation player | Wrong `src` path in shortcode | The shortcode path must be `./animations/src/<name>.js`; the player resolves it relative to `dist/`, so it must map to the built file `dist/animations/src/<name>.js` |
 | Animation doesn't appear | JS not loaded | Verify `include-in-header` in .qmd YAML has the script tag |
 | Colors wrong | Hardcoded hex instead of style constants | Use `Posit.blue`, `Colors.KEYWORD` etc. from styles.ts |
 
-## Style Configuration
+## Style configuration
 
-**Always read these files at runtime** for current values:
+A bootstrapped project ships `animations/src/styles.ts`, a snapshot copy of `canvas-commons-library/styles.ts` (the library file is canonical, and a test keeps the two identical). **Read it at runtime** for current values. From a scene in `animations/src/scenes/`, import it as `../styles`.
 
-### `animations/src/styles.ts`
-
-Contains:
-- `Colors` object: background, surface, syntax highlighting colors (KEYWORD, TEXT, FUNCTION, STRING, NUMBER, PROPERTY, COMMENT), basic colors (red, green, blue, white, black)
-- `Posit` object: brand colors (blue `#447099`, orange `#EE6331`, gray `#404041`, white, teal `#419599`, green `#72994E`, burgundy `#9A4665`)
+It contains:
+- `Colors` object: background, surface, syntax highlighting colours (KEYWORD, TEXT, FUNCTION, STRING, NUMBER, PROPERTY, COMMENT), basic colours (red, green, blue, white, black)
+- `Posit` object: brand colours (blue `#447099`, orange `#EE6331`, gray `#404041`, white, teal `#419599`, green `#72994E`, burgundy `#9A4665`)
 - `BaseFont`: `{ fontFamily: 'Open Sans', fontWeight: 700, fontSize: 28 }`
 - `WhiteLabel`, `BlackLabel`: preset text styles
 
-### `theme.scss`
+The template has no `theme.scss`. Deck theming (Posit blue shades, fonts, heading styles) is a Quarto deck matter: hand it to the `quarto-presentation` skill.
 
-Contains:
-- Posit blue shades: LIGHT-BLUE-1 through Dark-Blue-3
-- Gray shades: Light-Gray-3 through Dark-Gray-3
-- Font imports: Open Sans, Source Code Pro
-- Heading styles: font weights, sizes, colors
+## Shared components and utilities
 
-## Existing Components and Utilities
+A bootstrapped project has none of these by default. They come from the optional library symlink, `animations/src/lib` (see `references/bootstrap.md`, step 6, and the `canvas-commons-library` README). Import from `./lib/...`, or `../lib/...` from a scene.
 
-### Custom components (`animations/src/components/`)
-
-- **Database** — 3D database cylinder (top ellipse + bottom half-ellipse + vertical sides). Props: `size`, `stroke`, `lineWidth`, `position`. Extends Layout.
-- **RHighlighter** — Custom syntax highlighter for R code. Maps Lezer parser node types directly to colors. More reliable than LezerHighlighter for languages with limited semantic highlighting.
-
-### Animation utilities (`animations/src/utils/`)
-
-- **pulse** — Scale up then down for emphasis. `yield* pulse(element, { scaleGrowth: 0.1, duration: 0.5 })`
+- **Database** (`../lib/components/Database`): a 3D database cylinder (top ellipse, bottom half-ellipse, vertical sides). Props: `size`, `stroke`, `lineWidth`, `position`. Extends Layout.
+- **pulse** (`../lib/utils/pulse`): scales an element up then down for emphasis. `yield* pulse(element, { scaleGrowth: 0.1, duration: 0.5 })`
+- **Library scenes** (`../lib/scenes/...`): ready-made scenes such as `hexagons`. See the library README for how to register one.
+- **RHighlighter**: not in the library. It is a syntax highlighter for R code that ships with the `motion-canvas-r-code` skill, which has its own setup steps.
 
 ## Project Dependencies
 

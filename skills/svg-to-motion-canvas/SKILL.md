@@ -7,6 +7,8 @@ description: Use when translating a draw.io or SVG diagram into an animated Canv
 
 > **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
 
+New scenes are created and registered with `~/.claude/skills/motion-canvas-scene/scripts/add-scene.js`.
+
 A proven workflow for creating animated diagram scenes: design the static layout in draw.io, export as SVG, then translate to an animated Motion Canvas scene.
 
 ## Translation Process
@@ -24,7 +26,7 @@ A proven workflow for creating animated diagram scenes: design the static layout
 | `<rect>` with stroke, no fill, containing `<text>` | `<Layout>` wrapping `<Rect fill="rgba(0,0,0,0)" stroke={Posit.blue} lineWidth={6.75}>` + `<Txt fontSize={63}>` |
 | `<rect>` with no stroke (text-only label) | Plain `<Txt>` node |
 | Arrow `<path>` between elements | `<Line points={[() => source().right(), () => target().left()]} startArrow endArrow arrowSize={18}>` |
-| Database cylinder (curved `<path>` elements) | `<Database>` custom component from `../components/Database` |
+| Database cylinder (curved `<path>` elements) | `<Database>` from the optional library symlink: `../lib/components/Database` |
 | Triangle/polygon `<path>` | `<Polygon sides={n}>` with `vertex()` for text positioning |
 | Branching/routed arrow paths | Multi-point `<Line>` with computed midpoints via arrow functions |
 | Plain `<text>` | `<Txt>` node |
@@ -73,7 +75,7 @@ Rather than computing exact coordinates, use the SVG as a **relative layout guid
 | `fill="none"` | `fill="rgba(0,0,0,0)"` — never use `"transparent"` |
 | `fill="#447099"` | `fill={Posit.blue}` — map to constants |
 
-Always read `animations/src/styles.ts` for current color values. Map SVG hex colors to the nearest `Posit` or `Colors` constant rather than hardcoding.
+Always read `animations/src/styles.ts` (shipped by the `motion-canvas-scene` project template) for current color values. Map SVG hex colors to the nearest `Posit` or `Colors` constant rather than hardcoding.
 
 ## Animation Strategy
 
@@ -118,15 +120,15 @@ yield* all(
 
 ## Proven examples
 
-Three translated diagrams and four stand-alone scenes are described in `references/worked-examples.md`, with the files under `seed/`.
+Three translated diagrams and four stand-alone scenes are described in `references/worked-examples.md`, with the files under `<skill>/../../seed/` (the repository's `seed/` directory, reached through the install symlink: see the top of that file for the exact command).
 
 ## Checklist for SVG Translation
 
 1. [ ] Read the SVG and list all elements
 2. [ ] Map each element to a Motion Canvas component
 3. [ ] Read `animations/src/styles.ts` for current colors
-4. [ ] Check if custom components exist (`Database`, etc.) before building from scratch
-5. [ ] Create scene file, project file, register in vite.config.ts
+4. [ ] Check if library components exist (`Database`, etc., under the optional `animations/src/lib` symlink to `canvas-commons-library`) before building from scratch
+5. [ ] Create the scene file, project file and vite registration with `~/.claude/skills/motion-canvas-scene/scripts/add-scene.js <name>`
 6. [ ] Position elements to fill 1920x1080 canvas with margins
 7. [ ] Connect elements using cardinal points
 8. [ ] Design animation sequence (progressive reveal)

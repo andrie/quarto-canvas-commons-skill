@@ -384,7 +384,7 @@ const highlighter = new LezerHighlighter(parser, customStyle);
 **Creating Brand-Consistent Themes:**
 ```typescript
 // Using Posit brand colors for syntax highlighting
-import {Posit, Colors} from '../styles';
+import {Posit, Colors} from '../styles'; // animations/src/styles.ts, shipped by the motion-canvas-scene project template
 
 const positStyle = HighlightStyle.define([
   { tag: tags.keyword, color: Colors.KEYWORD },        // Pink/red (#ff6470)
@@ -468,6 +468,7 @@ export class RHighlighter implements CodeHighlighter<RCache | null> {
 ```
 
 **Usage with Custom Highlighter:**
+`RHighlighter` is not in a fresh project: it ships with the `motion-canvas-r-code` skill, which has the setup steps.
 ```typescript
 import { RHighlighter } from '../components/RHighlighter';
 

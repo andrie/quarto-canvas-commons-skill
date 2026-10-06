@@ -37,7 +37,7 @@ Use this when the user asks whether their project works, or when an animation fa
 
    Expected: no output. The loop skips `.d.ts` declaration files and `styles.ts`, which are not project files.
 
-   Failure: add each listed file to the `project` array in `animations/vite.config.ts` (Step 3 of "Creating a New Scene" in `SKILL.md`). Left unregistered, it is never built and the shortcode shows a blank player.
+   Failure: add each listed file to the `project` array in `animations/vite.config.ts` (`scripts/add-scene.js` does this for a new scene, or edit the `project` array by hand). Left unregistered, it is never built and the shortcode shows a blank player.
 
 4. The build outputs exist, and the build succeeds from scratch.
 

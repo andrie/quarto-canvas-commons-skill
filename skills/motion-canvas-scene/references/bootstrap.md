@@ -66,13 +66,13 @@ Check the tools exist: `node --version` (22 or later), `npm --version`, `make --
 
    If a scene uses custom fonts through `animations/global.css`, the deck also needs a stylesheet link to that CSS in `include-in-header:`, next to the player script line. The `motion-canvas-r-code` skill's `references/fonts-and-highlighting.md` has the exact line, but you do not need that skill for anything else in this step.
 
-6. Optional: link the shared library. If the `canvas-commons-library` skill is installed, symlink it into the animations source tree.
+6. Optional: link the shared library. The template already ships `animations/src/styles.ts`, a snapshot copy of the library's `styles.ts` (the library file is canonical, so a scene can `import {Posit} from '../styles'` with no symlink). The symlink adds the rest of the library: components, utils and scenes. If the `canvas-commons-library` skill is installed, symlink it into the animations source tree.
 
    ```bash
    ln -s ~/.claude/skills/canvas-commons-library animations/src/lib
    ```
 
-   Import from it in a scene, for example `import {Posit} from '../lib/styles';` (a scene in `animations/src/scenes/`). The template's `animations/vite.config.ts` already sets `resolve.preserveSymlinks`, which the symlink needs for `make anim` to build. The Makefile watches the library with `find -L`, so editing a library file triggers an incremental `make anim`. If a change to a linked file ever fails to rebuild (an older Makefile, say), run `make force-build`.
+   Import from it in a scene, for example `import {Database} from '../lib/components/Database';` (a scene in `animations/src/scenes/`). The symlink holds an absolute path, so it dangles on any other machine: the template `.gitignore` lists `animations/src/lib`, so it is not committed, and each machine re-creates it with the command above. The template's `animations/vite.config.ts` already sets `resolve.preserveSymlinks`, which the symlink needs for `make anim` to build. The Makefile watches the library with `find -L`, so editing a library file triggers an incremental `make anim`. If a change to a linked file ever fails to rebuild (an older Makefile, say), run `make force-build`.
 
 ## Adding scenes
 
