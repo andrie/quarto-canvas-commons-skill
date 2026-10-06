@@ -1,8 +1,8 @@
-import {makeScene2D} from '@motion-canvas/2d';
-import {createRef, waitFor, all} from '@motion-canvas/core';
-import {Rect, Txt, Line, Layout} from '@motion-canvas/2d/lib/components';
-import {Posit} from '../styles';
-import {Database} from '../components/Database';
+import {makeScene2D} from '@canvas-commons/2d';
+import {createRef, waitFor, all} from '@canvas-commons/core';
+import {Rect, Txt, Line, Layout} from '@canvas-commons/2d';
+import {Posit} from '../lib/styles';
+import {Database} from '../lib/components/Database';
 
 export default makeScene2D(function* (view) {
   // Create references for our elements

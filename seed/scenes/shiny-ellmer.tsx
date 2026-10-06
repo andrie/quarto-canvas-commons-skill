@@ -1,11 +1,15 @@
-import {makeScene2D} from '@motion-canvas/2d';
-import {createRef, waitFor, all, easeInCubic, easeOutCubic} from '@motion-canvas/core';
-import {Rect, Txt, Line, Circle, Code, Layout} from '@motion-canvas/2d/lib/components';
-import {Posit, Colors} from '../styles';
+// Expected project layout (see skills/motion-canvas-r-code/SKILL.md):
+//   animations/src/lib                    symlink to skills/canvas-commons-library (styles, Database, pulse)
+//   animations/src/components/RHighlighter.ts   copied from skills/motion-canvas-r-code/components/
+//   animations/src/lezer-r.d.ts           copied from skills/motion-canvas-r-code/assets/
+import {makeScene2D} from '@canvas-commons/2d';
+import {createRef, waitFor, all, easeInCubic, easeOutCubic} from '@canvas-commons/core';
+import {Rect, Txt, Line, Circle, Code, Layout} from '@canvas-commons/2d';
+import {Posit, Colors} from '../lib/styles';
 import {parser} from 'lezer-r';
-import {Database} from '../components/Database';
+import {Database} from '../lib/components/Database';
 import {RHighlighter} from '../components/RHighlighter';
-import {pulse} from '../utils/animations';
+import {pulse} from '../lib/utils/pulse';
 
 
 export default makeScene2D(function* (view) {
@@ -82,7 +86,7 @@ server <- function(input, output) {
         position={[-800, 50]}
         width={850}
         textAlign="left"
-        offsetX={-1}
+        anchorX={-1}
       />
 
       {/* User - no box, just text */}

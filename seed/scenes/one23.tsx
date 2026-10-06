@@ -1,6 +1,6 @@
-import { makeScene2D, Circle, Rect, Txt, Line, Node } from "@motion-canvas/2d";
-import { createRef, all, chain, waitFor, linear } from "@motion-canvas/core";
-import { Posit } from "../styles";
+import { makeScene2D, Circle, Rect, Txt, Line, Node } from "@canvas-commons/2d";
+import { createRef, all, chain, waitFor, linear } from "@canvas-commons/core";
+import { Posit } from "../lib/styles";
 
 export default makeScene2D(function* (view) {
     const f = createRef<Txt>();

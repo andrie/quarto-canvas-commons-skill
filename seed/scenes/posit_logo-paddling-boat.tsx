@@ -1,5 +1,5 @@
-import {makeScene2D, Circle, Polygon, Path, Node, Layout, PathProps, Txt} from '@motion-canvas/2d';
-import {all, chain, delay, createRef, waitFor, waitUntil, linear} from '@motion-canvas/core';
+import {makeScene2D, Circle, Polygon, Path, Node, Layout, PathProps, Txt} from '@canvas-commons/2d';
+import {all, chain, delay, createRef, waitFor, waitUntil, linear} from '@canvas-commons/core';
 
 // function to create a polygon path
 // function createChevronPath() {

@@ -3,10 +3,10 @@
 set -u
 cd "$(dirname "$0")/.."
 status=0
-if grep -rn "@motion-canvas/" skills --include='*.md' --include='*.ts' --include='*.tsx' --include='*.js' --include='*.json' | grep -v 'PORT-NOTE'; then
+if grep -rn "@motion-canvas/" skills seed --include='*.md' --include='*.ts' --include='*.tsx' --include='*.js' --include='*.json' | grep -v 'PORT-NOTE'; then
   echo "FAIL: old @motion-canvas/ scope found (mark deliberate mentions with PORT-NOTE)"; status=1
 fi
-if grep -rnE "TEXT[^A-Za-z]*['\"]?#447099" skills; then
+if grep -rnE "TEXT[^A-Za-z]*['\"]?#447099" skills seed; then
   echo "FAIL: Colors.TEXT drifted to #447099"; status=1
 fi
 [ $status -eq 0 ] && echo "OK: no stale references"

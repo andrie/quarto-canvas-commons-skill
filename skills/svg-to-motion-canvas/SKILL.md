@@ -116,25 +116,9 @@ yield* all(
 - Wait between groups: **0.5-1 seconds**
 - Total scene duration: **5-15 seconds** for typical diagrams
 
-## Proven Examples
+## Proven examples
 
-These SVG→scene translations exist in the project and demonstrate the patterns:
-
-### `_img/llm_app.drawio.svg` → `animations/src/scenes/shiny-ellmer.tsx`
-- SVG: User (text) → App (rect) → LLM (text) with database below App
-- Scene: Layout+Rect+Txt boxes, cardinal point Lines, Database component
-- Added: Code panel on left side with line-by-line R code reveal
-
-### `_img/multiple_sources.drawio.svg` → `animations/src/scenes/multi-database.tsx`
-- SVG: Same User→App→LLM layout but with 3 databases
-- Scene: Same base layout; databases start at center position and animate outward
-- Animation: databases clone from center, slide to left/right with opacity fade-in
-
-### `_img/infosec_triad.drawio.svg` → `animations/src/scenes/infosec-triad.tsx`
-- SVG: Rotated triangle path with 3 text labels (Confidentiality, Integrity, Availability)
-- Scene: `<Polygon sides={3}>` with `vertex()` for label positioning
-- Animation: triangle visible immediately, labels fade in sequentially with `opacity(1, 2)`
-- Note: compensates for inscribed polygon behavior with scale factors
+Three translated diagrams and four stand-alone scenes are described in `references/worked-examples.md`, with the files under `seed/`.
 
 ## Checklist for SVG Translation
 

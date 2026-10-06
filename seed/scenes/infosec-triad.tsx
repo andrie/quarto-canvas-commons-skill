@@ -1,7 +1,7 @@
-import {makeScene2D} from '@motion-canvas/2d';
-import {createRef, waitFor} from '@motion-canvas/core';
-import {Polygon, Txt, Layout, Node} from '@motion-canvas/2d/lib/components';
-import {Posit} from '../styles';
+import {makeScene2D} from '@canvas-commons/2d';
+import {createRef, waitFor} from '@canvas-commons/core';
+import {Polygon, Txt, Layout, Node} from '@canvas-commons/2d';
+import {Posit} from '../lib/styles';
 
 export default makeScene2D(function* (view) {
   // Calculate scene dimensions for 70% height

@@ -1,8 +1,7 @@
-import {makeScene2D, Circle, Polygon, Path, Node, Layout, PathProps, Txt, Img} from '@motion-canvas/2d';
-import {all, chain, delay, createRef, createRefMap, waitFor, waitUntil, linear} from '@motion-canvas/core';
+import {makeScene2D, Circle, Polygon, Path, Node, Layout, PathProps, Txt} from '@canvas-commons/2d';
+import {all, chain, delay, createRef, createRefMap, waitFor, waitUntil, linear} from '@canvas-commons/core';
 
-import { Posit } from '../styles';
-import positLogo from '../../images/posit-logo.png';
+import { Posit } from '../lib/styles';
 
 
 function pointsToPath(points: number[][]) {
@@ -44,7 +43,6 @@ export default makeScene2D(function* (view) {
 
   view.add(
     <>
-      {/* <Img src={positLogo} scale={0.5} x={460} opacity={0.4} /> */}
       <Node ref={pLogo} >
         <Path ref={chevron.left} position={[-50,   0]} scale={1}   stroke={Posit.gray} rotation={180} lineWidth={8} data={rect_path} />,
         <Path ref={chevron.right} position={[150,  0]} scale={1} stroke={Posit.gray} lineWidth={8} data={rect_path} />,

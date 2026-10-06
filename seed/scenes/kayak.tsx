@@ -1,11 +1,10 @@
-import {makeScene2D} from '@motion-canvas/2d/lib/scenes';;
-import {createRef, useLogger} from '@motion-canvas/core/lib/utils';
-import {all, delay, chain, waitFor} from '@motion-canvas/core/lib/flow';
-import {createSignal} from '@motion-canvas/core/lib/signals';
-import {linear} from '@motion-canvas/core/lib/tweening';
-import {Circle, Line, Polygon, Node, Rect} from '@motion-canvas/2d/lib/components';
-import {PossibleVector2, Vector2} from '@motion-canvas/core/lib/types';
-// import {useLogger} from '@motion-canvas/core';
+import {makeScene2D} from '@canvas-commons/2d';
+import {createRef, useLogger} from '@canvas-commons/core';
+import {all, delay, chain, waitFor} from '@canvas-commons/core';
+import {createSignal} from '@canvas-commons/core';
+import {linear} from '@canvas-commons/core';
+import {Circle, Line, Polygon, Node, Rect} from '@canvas-commons/2d';
+import {PossibleVector2, Vector2} from '@canvas-commons/core';
 
 const WIDTH = 1920;
 const HEIGHT = 1080;
@@ -120,25 +119,17 @@ const scaling = 30;
 const keypoints:PossibleVector2[] = raw.map(p => [(p[0] - 5) * scaling, -p[1] * scaling]);
 
 // function to convert raw keypoints to Vector2
-// const kps:Vector2[] = keypoints.map(p => new Vector2(p[0], p[1]));
 
 function convert_keypoints(raw:number[][], scaling:number):Vector2[] {
   const keypoints:PossibleVector2[] = raw.map(p => [(p[0] - 5) * scaling, -p[1] * scaling]);
   return keypoints.map((p: [number, number]) => new Vector2(p[0], p[1]));
-  // return keypoints
 }
 
 const kps = convert_keypoints(raw1, 30);
 
 
-// const kps:PossibleVector2[] = keypoints;
-// const kp = kps
-
 export default makeScene2D(function* (view) {
 
-  // const myPoly = createRef<Polygon>();
-  // const radius = createSignal(100);
-  // const nsides = createSignal(6);
   const logger = useLogger();
   const kp = createSignal(convert_keypoints(raw1, 30));
   const WATER="#1E514B";
@@ -180,7 +171,6 @@ export default makeScene2D(function* (view) {
           {/* head */}
           <Circle 
             position={() => kp()[12]} 
-            // y={kp[11]} 
             size={24} 
             fill={"#fff"}
           />
@@ -215,11 +205,9 @@ export default makeScene2D(function* (view) {
           
           {/* Boat */}
           <Line points={() => [[-150,5],[140,5]]} lineWidth={20} stroke={BOAT}/>
-3
+
           {/* left paddle blade */}
           <Line points={() => [kp()[0], kp()[1]]} lineWidth={4} stroke={"#222"}/> 
-
-          Rec
 
           </Node>
           </Polygon>
@@ -227,11 +215,8 @@ export default makeScene2D(function* (view) {
         position = {[0,0]}
         sides={6}
         size = {650}
-        // fill={'#88a'}
         stroke={BOAT}
         lineWidth={15} 
-        // clip={true}
-        // margin={20}
         scale={1.5}
         >
           </Polygon>
