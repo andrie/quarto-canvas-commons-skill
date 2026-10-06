@@ -10,6 +10,8 @@ export default defineConfig({
       ],
     }),
   ],
+  // Keep symlinked paths (the shared library at src/lib), or rollup resolves the real path and cannot find @canvas-commons/2d from library files.
+  resolve: { preserveSymlinks: true },
   build: {
     rollupOptions: {
       output: {

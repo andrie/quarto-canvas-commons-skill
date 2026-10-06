@@ -1,6 +1,6 @@
 # Validate an existing project
 
-Use this when the user asks whether their project works, or when an animation fails to build or render. These checks are read-only apart from the build and render outputs. Run them in order from the project root and stop at the first failure. Name the fix, then ask before changing anything.
+Use this when the user asks whether their project works, or when an animation fails to build or render. These checks are read-only apart from the build and render outputs. Run them in order from the project root and stop at the first failure, except that check 4 first records the state of `dist/` and then rebuilds, and you continue after that. Name the fix, then ask before changing anything.
 
 `<skill>` means the directory that contains this skill (the folder with `SKILL.md` and `assets/`).
 
@@ -15,7 +15,7 @@ Use this when the user asks whether their project works, or when an animation fa
    grep -n "lezer-r" animations/package.json
    ```
 
-   Expected: both files listed; the first `grep` prints nothing; if the second `grep` lists any file, the third prints a `lezer-r` line.
+   Expected: both files listed; the first `grep` prints nothing; if the second `grep` lists any file, the third prints a `lezer-r` line. A `grep` that prints nothing exits 1, which is the expected clean result here, not a failure.
 
    Failure: a missing `package.json` means this is not a project (use `bootstrap.md`). Any `@motion-canvas/` hit is a stale scope: replace it with `@canvas-commons/` (the `lib/...` import and `offset` rules in the `SKILL.md` error tables also apply). A missing `lezer-r` line: `npm --prefix ./animations install lezer-r`. <!-- PORT-NOTE: deliberate old scope -->
 
@@ -32,7 +32,7 @@ Use this when the user asks whether their project works, or when an animation fa
 3. Every project file is registered in the vite config.
 
    ```bash
-   for f in animations/src/*.ts; do b=$(basename "$f"); case "$b" in *.d.ts|styles.ts) continue;; esac; grep -q "$b" animations/vite.config.ts || echo "unregistered: $f"; done
+   for f in animations/src/*.ts; do b=$(basename "$f"); case "$b" in *.d.ts|styles.ts) continue;; esac; grep -qE "[\"']\./src/$b[\"']" animations/vite.config.ts || echo "unregistered: $f"; done
    ```
 
    Expected: no output. The loop skips `.d.ts` declaration files and `styles.ts`, which are not project files.
@@ -46,7 +46,7 @@ Use this when the user asks whether their project works, or when an animation fa
    make force-build && find dist -name "*.js" | sort
    ```
 
-   Expected: the first command lists the built files (if it reports "No such file", `dist/` was missing: that alone explains a blank player, so say so, and the rebuild below is the fix). Then the build exits 0, and the list includes `dist/motion-canvas-ts.js` and one `dist/animations/src/<name>.js` per project file.
+   Record the result of the `ls dist/...` command before running `make force-build`, then continue. If it reports "No such file", `dist/` was missing: report that explicitly, because it alone explains a blank player, and the rebuild is the fix. Expected after the rebuild: the build exits 0, and the list includes `dist/motion-canvas-ts.js` and one `dist/animations/src/<name>.js` per project file.
 
    Failure: match the error text against the "Common errors and fixes" tables in `SKILL.md`.
 
@@ -66,7 +66,7 @@ Use this when the user asks whether their project works, or when an animation fa
    diff -r _extensions/andrie/motion-canvas <skill>/assets/project-template/_extensions/andrie/motion-canvas
    ```
 
-   Expected: no output.
+   Expected: no output. `<skill>` is the absolute path of the skill folder, for example `~/.claude/skills/motion-canvas-scene`.
 
    Failure: the project has an older copy. The usual difference is `motion-canvas-player` where the current copy has `canvas-commons-player`, which shows as a silent blank player. Report the differences and offer to replace the folder with the template copy.
 

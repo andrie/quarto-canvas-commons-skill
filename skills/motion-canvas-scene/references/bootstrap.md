@@ -60,6 +60,16 @@ Check the tools exist: `node --version` (22 or later), `npm --version`, `make --
 
    Rename `smoke.qmd` to the deck's name, update `QMD_FILE` at the top of `Makefile` to match, and keep the `resources:` and `include-in-header:` lines from the smoke deck's YAML. Hand deck writing and styling to the `quarto-presentation` skill. Keep `smoke.qmd` until the real deck renders.
 
+   The template `.gitignore` ignores `smoke.html` only, so add the real deck's `.html` to `.gitignore` after the rename. If a scene uses custom fonts through `animations/global.css`, the deck also needs the stylesheet line in `include-in-header:`: see `motion-canvas-r-code/references/fonts-and-highlighting.md` rather than repeating it here.
+
+6. Optional: link the shared library. If the `canvas-commons-library` skill is installed, symlink it into the animations source tree.
+
+   ```bash
+   ln -s ~/.claude/skills/canvas-commons-library animations/src/lib
+   ```
+
+   Import from it in a scene, for example `import {Posit} from '../lib/styles';` (a scene in `animations/src/scenes/`). The template's `animations/vite.config.ts` already sets `resolve.preserveSymlinks`, which the symlink needs for `make anim` to build.
+
 ## Adding scenes
 
 For each real scene, run `add-scene.js <name>` instead of copying files. From `<target>`:

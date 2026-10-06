@@ -10,7 +10,7 @@ ANIM_BUILD_MARKER := dist/animations/.build-complete
 ROOT_BUILD_MARKER := dist/.build-complete
 
 # Phony target to prevent file name conflict
-.PHONY: all build anim quarto publish serve preview clean scene force-build
+.PHONY: all install build anim quarto publish serve preview clean scene force-build
 
 # Default target
 all: anim quarto publish
