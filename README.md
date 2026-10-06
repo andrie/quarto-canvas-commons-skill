@@ -4,7 +4,7 @@ Claude Code skills for building animated Canvas Commons (formerly Motion Canvas)
 
 ## The six skills
 
-- `motion-canvas-scene`: bootstrap a project from a template, add or remove scenes, validate a project, fix build errors.
+- `motion-canvas-scene`: bootstrap a project from a template or add Canvas Commons to an existing Quarto project (it asks for the deck name and merges into an existing `Makefile`, `package.json` and `.gitignore` without overwriting them), add or remove scenes, validate a project, fix build errors.
 - `motion-canvas-authoring`: layout, timing and style patterns for composing a scene.
 - `svg-to-motion-canvas`: translate a draw.io or SVG diagram into a scene. Worked examples come from `seed/`.
 - `motion-canvas-r-code`: R syntax highlighting and fonts for `Code` nodes.
@@ -30,7 +30,7 @@ TS_PATH=/path/to/node_modules/typescript node --test tests/*.test.js
 bash scripts/check-ported.sh
 ```
 
-Use the glob: `node --test tests/` does not work on Node 22. `TS_PATH` points at a `typescript` package, which the API generator tests need. `check-ported.sh` fails on stale `@motion-canvas/` references, deep `lib/` imports and `offsetX`/`offsetY` node props.
+Use the glob: `node --test tests/` does not work on Node 22. The template tests need `make`. `tests/fixtures/existing-projects/` holds two tiny existing projects (one with its own Makefile, `package.json` and root `vite.config.ts`, one plain Quarto deck) for trying the "add to an existing project" procedure by hand. `TS_PATH` points at a `typescript` package, which the API generator tests need. `check-ported.sh` fails on stale `@motion-canvas/` references, deep `lib/` imports and `offsetX`/`offsetY` node props.
 
 ## Not applied
 

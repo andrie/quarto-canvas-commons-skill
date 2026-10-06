@@ -5,7 +5,7 @@ description: Use when showing R code in a Canvas Commons or Motion Canvas animat
 
 # R code in Canvas Commons animations
 
-> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
+> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds (`make cc-anim` where the project's own Makefile already had an `anim` target). If a project differs, say so before proceeding.
 
 R code in a `Code` node needs a highlighter that knows R, and canvas text ignores fonts the page has not loaded. Two separate problems, two fixes.
 

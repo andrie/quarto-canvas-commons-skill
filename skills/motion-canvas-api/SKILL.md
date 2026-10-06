@@ -5,7 +5,7 @@ description: Use when writing or debugging Canvas Commons (formerly Motion Canva
 
 # Canvas Commons (Motion Canvas) API reference (v0.4.0)
 
-> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
+> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds (`make cc-anim` where the project's own Makefile already had an `anim` target). If a project differs, say so before proceeding.
 
 Import everything from the package roots, `@canvas-commons/core` and `@canvas-commons/2d`: the 0.4.0 packages have no `lib/...` deep imports. Older projects used the `@motion-canvas/*` scope (PORT-NOTE: deliberate mention of the old scope), and `@canvas-commons/editor` replaces the old `ui` package.
 

@@ -68,4 +68,4 @@ Quarto renders a heading for every slide, and a fullscreen player does not hide 
 }
 ```
 
-The Canvas Commons project template's `smoke.qmd` uses `.hidetitle` but loads no theme, so the class does nothing there until you add the rule.
+The deck the Canvas Commons project template creates (the template's `deck.qmd`, renamed to the user's deck name at bootstrap) uses `.hidetitle` on its smoke slide but loads no theme, so the class does nothing there until you add the rule.
