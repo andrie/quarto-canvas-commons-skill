@@ -47,3 +47,5 @@ export default makeProject({
 ```
 
 Then register `./src/hexagons.ts` in the `project` array of `animations/vite.config.ts`, either by hand or by running `node ~/.claude/skills/motion-canvas-scene/scripts/add-scene.js hexagons` and then replacing the scene import in the generated `animations/src/hexagons.ts` with the one above. Note that `add-scene.js` also writes a skeleton `animations/src/scenes/hexagons.tsx`, which you can delete once the project file no longer imports it. Build with `make anim` and reference `./animations/src/hexagons.js` in the shortcode.
+
+Building a library scene through the `animations/src/lib` symlink makes the tooling write a `<scene>.meta` file next to the library file (for example `hexagons.meta`). The library folder therefore collects untracked `.meta` files, which its `.gitignore` ignores, and the metadata is shared by every project that links the library. If a project wants its own meta and timing events, copy the scene into the project's own `animations/src/scenes/` and import that copy instead.
