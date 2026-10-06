@@ -7,12 +7,12 @@ description: Use when showing R code in a Canvas Commons or Motion Canvas animat
 
 > **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
 
-The `Code` node has no R support out of the box, and canvas text ignores fonts the page has not loaded. Two separate problems, two fixes.
+R code in a `Code` node needs a highlighter that knows R, and canvas text ignores fonts the page has not loaded. Two separate problems, two fixes.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| R code renders in one flat colour | `lezer-r` parses R but attaches no highlight tags, so the normal tag-based highlighting finds nothing | Pass `highlighter={new RHighlighter(parser, colours)}`, which colours by node name |
-| Text renders in the wrong font, with no error | `fontFamily` only works for fonts already loaded in the document, and the first-named font was never loaded | Load fonts in `global.css`, import it in the project file, and name only loaded fonts |
+| R code has no colours, or not your palette | Not established why the original scene had none. Verified: `lezer-r` does carry highlight tags, and the default `LezerHighlighter` colours R with its fixed default palette, tagged tokens only | `highlighter={new RHighlighter(parser, colours)}` colours by node name with your palette |
+| Text renders in the wrong font, no error | `fontFamily` only works for fonts the page has loaded. The built font CSS is a separate file that the deck page does not load by itself | Add the font CSS to the qmd `include-in-header`, and name only loaded fonts |
 
 ## Setup
 
@@ -20,6 +20,13 @@ The `Code` node has no R support out of the box, and canvas text ignores fonts t
 2. Copy `components/RHighlighter.ts` to `animations/src/components/`.
 3. Copy `assets/lezer-r.d.ts` to `animations/src/` (`lezer-r` ships no types).
 4. Copy `assets/global.css` to `animations/` and add `import '../global.css';` to the scene's project file (`animations/src/<name>.ts`).
+5. Load the built CSS in the deck. `make anim` emits it as `dist/animations/<name>.css` (check with `ls dist/animations/*.css`), and `resources: dist/*/*` already publishes it. Add to the qmd YAML:
+
+```yaml
+include-in-header:
+  - text: <script src="./dist/motion-canvas-ts.js"></script>
+  - text: <link rel="stylesheet" href="./dist/animations/<name>.css">
+```
 
 ## Using it in a scene
 
@@ -27,6 +34,7 @@ In 0.4.0 `Code` has no `language` prop. Highlighting comes from its `highlighter
 
 ```tsx
 import {Code} from '@canvas-commons/2d';
+import {Colors, Posit} from '../styles';
 import {parser} from 'lezer-r';
 import {RHighlighter} from '../components/RHighlighter';
 
@@ -39,11 +47,11 @@ const rHighlighter = new RHighlighter(parser, {
 <Code highlighter={rHighlighter} code={rCode} fontSize={24} fontFamily="'Fira Code', monospace" />
 ```
 
-All eight colour keys are read, so supply all of them. `assets/shiny-ellmer-code.R` is sample R code for the worked example, the `shiny-ellmer` scene in `seed/scenes/`.
+All eight colour keys are read, so supply all of them. `assets/shiny-ellmer-code.R` is the sample R code. The worked example scene is `seed/scenes/shiny-ellmer.tsx` in this repository. `seed/r-code/` no longer holds anything: its assets live in this skill.
 
 ## Known gap: pipes
 
-`RHighlighter` has no case for the pipe operators `|>` and `%>%`, so they render in the default colour. Add a case for the pipe node name to the `switch` in `walkTree`. Print the node names for a pipe line first, since the grammar's name for it is not documented here.
+The `lezer-r` 0.1.3 grammar cannot see the pipes `|>` and `%>%`. It parses `|>` as a `LogicOp` (`|`) followed by an error node, and `%>%` as a single error node, so no `switch` case in `RHighlighter` can colour them. The fix lies outside the tree: scan the code for `|>` and `%[^%\s]*%` in `prepare()` and add those ranges to `colorLookup`, or use a newer or patched grammar. Not implemented here.
 
 ## Reference
 
