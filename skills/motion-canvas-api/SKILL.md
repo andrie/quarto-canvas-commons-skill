@@ -14,7 +14,7 @@ Import everything from the package roots, `@canvas-commons/core` and `@canvas-co
 Two files under `references/` are generated offline from the Canvas Commons source, so they list the real exported API rather than what this page remembers.
 
 - `references/component-hierarchy.md`: the class tree, `Node > Layout > Shape > Curve > Rect` and so on, with each class's JSDoc summary. Read it to see which props a node inherits.
-- `references/api-search-index.json`: 800+ exported classes, functions, types and enums from `core` and `2d`, each with `kind`, `package`, `signature`, `description`, class `members`, `examples` and example scenes, plus the synonym and purpose data. Query it with `node scripts/search-api.js Rect` (also takes `"fade in"`, `--limit 3`), or use `jq '.entries[] | select(.name=="Rect")' references/api-search-index.json`.
+- `references/api-search-index.json`: 800+ exported classes, functions, types and enums from `core` and `2d`, each with `kind`, `package`, `signature`, `description`, class `members`, `examples` and example scenes, plus the synonym and purpose data. Query it with `node scripts/search-api.js Rect` (also takes `"fade in"`, `--limit 3`). It matches exact names, aliases ("rectangle" or "box" finds Rect), prefixes, substrings, synonyms, purposes, member names and descriptions, and corrects typos ("retangle" finds Rect) by edit distance when few results match. It does not do subsequence matching ("rct" finds nothing), or use `jq '.entries[] | select(.name=="Rect")' references/api-search-index.json`.
 
 Members listed for a class are the ones it declares itself, not inherited ones: follow `extends` up the hierarchy for the rest. Several classes (Rect and Path among them) have no JSDoc in 0.4.0, so their description is empty.
 
@@ -27,6 +27,8 @@ TS=/path/to/node_modules/typescript   # e.g. a project's animations/node_modules
 node scripts/generate-api-search.js --repo /tmp/cc --ts $TS --out references/api-search-index.json
 node scripts/generate-component-hierarchy.js --repo /tmp/cc --ts $TS --out references/component-hierarchy.md
 ```
+
+The generator tests need `typescript` too: run them with `TS_PATH=$TS node --test tests/*.test.js` or after `npm install --no-save typescript`. Without it they fail on purpose; set `SKIP_GENERATOR_TESTS=1` to skip them explicitly.
 
 Do not rely on building the clone. At commit 2da1d4a the repo uses pnpm (there is no lerna), `pnpm install --frozen-lockfile` works, but `pnpm run build` and `pnpm run docs:build` both failed here (tsdown cannot import `unrun`; Docusaurus fails without the built packages), under pnpm 10 and under the pinned pnpm 11.0.8.
 

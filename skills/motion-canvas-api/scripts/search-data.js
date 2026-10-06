@@ -162,3 +162,44 @@ export const PURPOSE_TO_API = {
   'blur': ['blur', 'filter', 'effect', 'soften', 'smooth'],
   'mask': ['clip', 'mask', 'clipping', 'shape', 'area']
 };
+
+// Common term to component name, ported unchanged from mcp-node-motion-canvas
+// (TERM_TO_COMPONENT_MAP in src/utils/ComponentHierarchyLoader.ts). All targets exist as classes in 0.4.0.
+export const TERM_TO_COMPONENT = {
+  // Shape mappings
+  'rectangle': 'Rect',
+  'square': 'Rect',
+  'box': 'Rect',
+  'ellipse': 'Circle',
+  'arc': 'Circle',
+  'sector': 'Circle',
+  'pie': 'Circle',
+  'triangle': 'Polygon',
+  'pentagon': 'Polygon',
+  'hexagon': 'Polygon',
+  'star': 'Polygon',
+  'path': 'Line',
+
+  // Text and image mappings
+  'text': 'Txt',
+  'image': 'Img',
+  'picture': 'Img',
+  'photo': 'Img',
+  'svg': 'SVG',
+  'vector': 'SVG',
+  'equation': 'Latex',
+  'formula': 'Latex',
+  'math': 'Latex',
+  'code': 'Code',
+
+  // Layout mappings
+  'grid': 'Grid',
+  'layout': 'Layout',
+  'container': 'Layout',
+  'group': 'Node',
+
+  // Media mappings
+  'video': 'Video',
+  'movie': 'Video',
+  'camera': 'Camera',
+};

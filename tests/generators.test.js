@@ -11,22 +11,25 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const scripts = path.join(here, '../skills/motion-canvas-api/scripts');
 const repo = path.join(here, 'fixtures/mini-repo');
 
-// The generators need the `typescript` package. Point TS_PATH at a node_modules/typescript, or install it where require.resolve finds it.
+// The generators need the `typescript` package. Point TS_PATH at a node_modules/typescript, or run
+// `npm install --no-save typescript` where require.resolve finds it. Without it these tests FAIL,
+// unless SKIP_GENERATOR_TESTS=1 is set explicitly (then they skip visibly).
 function findTs() {
   if (process.env.TS_PATH) return process.env.TS_PATH;
-  const candidates = [
-    path.join(os.homedir(), 'github/canvas-commons-smoke/animations/node_modules/typescript'),
-  ];
   try {
     return path.dirname(createRequire(import.meta.url).resolve('typescript/package.json'));
   } catch {
-    return candidates.find((c) => fs.existsSync(c));
+    return undefined;
   }
 }
 const ts = findTs();
-const opts = {skip: ts ? false : 'typescript not found (set TS_PATH)'};
+const opts = {skip: process.env.SKIP_GENERATOR_TESTS === '1' ? 'SKIP_GENERATOR_TESTS=1' : false};
+function needTs() {
+  assert.ok(ts, 'typescript not found: set TS_PATH=<path to node_modules/typescript> or run `npm install --no-save typescript` (or set SKIP_GENERATOR_TESTS=1 to skip)');
+}
 
 function run(script, args) {
+  needTs();
   const r = spawnSync(process.execPath, [path.join(scripts, script), '--repo', repo, '--ts', ts, ...args], {encoding: 'utf8'});
   assert.equal(r.status, 0, r.stderr);
   return r;
@@ -69,8 +72,28 @@ test('search-api finds entries in the generated index, with synonym expansion', 
   const idx = JSON.parse(fs.readFileSync(out, 'utf8'));
   assert.equal(search(idx, 'shape')[0].name, 'Shape');
   assert.ok(search(idx, 'fill').some((e) => e.name === 'Shape'), 'member name match');
-  assert.ok(search(idx, 'box').length >= 0);
   const cli = spawnSync(process.execPath, [path.join(scripts, 'search-api.js'), 'Shape', '--index', out], {encoding: 'utf8'});
   assert.equal(cli.status, 0, cli.stderr);
   assert.match(cli.stdout, /class Shape/);
+});
+
+const realIndex = JSON.parse(fs.readFileSync(path.join(here, '../skills/motion-canvas-api/references/api-search-index.json'), 'utf8'));
+
+test('search-api: alias map finds the component ("box" and "rectangle" find Rect)', async () => {
+  const {search} = await import(path.join(scripts, 'search-api.js'));
+  assert.equal(search(realIndex, 'rectangle')[0].name, 'Rect');
+  assert.equal(search(realIndex, 'box')[0].name, 'Rect');
+});
+
+test('search-api: typo fallback finds Rect for "retangle" and Circle for "circel"', async () => {
+  const {search} = await import(path.join(scripts, 'search-api.js'));
+  assert.equal(search(realIndex, 'retangle')[0].name, 'Rect');
+  assert.equal(search(realIndex, 'circel')[0].name, 'Circle');
+});
+
+test('search-api: nonsense returns nothing and exact matches still rank first', async () => {
+  const {search} = await import(path.join(scripts, 'search-api.js'));
+  assert.deepEqual(search(realIndex, 'xyzzyqk'), []);
+  assert.equal(search(realIndex, 'Rect')[0].name, 'Rect');
+  assert.equal(search(realIndex, 'Polygon')[0].name, 'Polygon');
 });

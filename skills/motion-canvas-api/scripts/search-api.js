@@ -1,15 +1,18 @@
-#!/usr/bin/env node
 // Query references/api-search-index.json offline.
 //
 //   node search-api.js <query> [--limit 8] [--index <file.json>]
 //
-// No dependencies. Ranking: exact name, then prefix, substring, synonym or purpose expansion
-// (the ported PURPOSE_TO_API and API_SYNONYMS data), then member names and descriptions.
-// Simplified from mcp-node-motion-canvas: the hierarchy-validated term scoring is dropped.
+// No dependencies. Supported: exact name, alias (TERM_TO_COMPONENT: "rectangle" finds Rect),
+// prefix, substring, synonym and purpose expansion (API_SYNONYMS, PURPOSE_TO_API), member names,
+// descriptions, and a typo fallback: when fewer than 3 results match, the query is corrected to the
+// nearest known name, synonym or alias by bounded Levenshtein distance (at most length/3 edits).
+// Not supported: fuzzysort-style subsequence matching ("rct" will not find Rect), and the MCP
+// project's hierarchy-validated term scoring. Both were dropped in the port.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {TERM_TO_COMPONENT} from './search-data.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,24 +29,74 @@ export function expand(query, index) {
   return [...terms].map((t) => t.toLowerCase());
 }
 
-export function search(index, query, limit = 8) {
+/** Levenshtein distance, giving up (returning max + 1) once it must exceed `max`. */
+export function distance(a, b, max = 3) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({length: b.length + 1}, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    let best = i;
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      best = Math.min(best, cur[j]);
+    }
+    if (best > max) return max + 1;
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+// Exact, alias, prefix, substring, synonym/purpose, member and description matching.
+function scoreAll(index, query) {
   const q = query.toLowerCase().trim();
   const extra = expand(query, index);
-  const scored = [];
+  const alias = (TERM_TO_COMPONENT[q] || '').toLowerCase();
+  const scores = new Map();
   for (const e of index.entries) {
     const n = e.name.toLowerCase();
     let score = 0;
     if (n === q) score = 100;
+    else if (alias && n === alias) score = 90;
     else if (n.startsWith(q)) score = 60;
     else if (n.includes(q)) score = 40;
     else if (extra.includes(n)) score = 30;
     else if ((e.members || []).some((m) => m.name.toLowerCase() === q)) score = 20;
     else if ((e.description || '').toLowerCase().includes(q)) score = 10;
     if (score && e.kind === 'class') score += 5;
-    if (score) scored.push({score, e});
+    if (score) scores.set(e, score);
   }
-  scored.sort((a, b) => b.score - a.score || a.e.name.localeCompare(b.e.name));
-  return scored.slice(0, limit).map((s) => s.e);
+  return scores;
+}
+
+const FUZZY_BELOW = 3;
+
+export function search(index, query, limit = 8) {
+  const scores = scoreAll(index, query);
+  if (scores.size < FUZZY_BELOW) {
+    // Typo fallback: correct the query to the nearest known name, synonym key or alias, then score that.
+    const q = query.toLowerCase().trim();
+    const max = Math.max(1, Math.floor(q.length / 3));
+    const vocab = new Set([
+      ...index.entries.map((e) => e.name.toLowerCase()),
+      ...Object.keys(index.synonyms || {}).map((k) => k.toLowerCase()),
+      ...Object.keys(TERM_TO_COMPONENT),
+    ]);
+    const near = [...vocab]
+      .map((t) => [t, distance(q, t, max)])
+      .filter(([, d]) => d <= max && d > 0)
+      .sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]))
+      .slice(0, 3);
+    for (const [term, d] of near) {
+      for (const [e, sc] of scoreAll(index, term)) {
+        const fuzzy = Math.max(1, Math.floor(sc / 2) - d);
+        if (!scores.has(e)) scores.set(e, fuzzy);
+      }
+    }
+  }
+  return [...scores]
+    .sort((a, b) => b[1] - a[1] || a[0].name.localeCompare(b[0].name))
+    .slice(0, limit)
+    .map(([e]) => e);
 }
 
 function show(e) {
