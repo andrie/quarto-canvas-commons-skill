@@ -21,7 +21,7 @@ ls "$SEED/scenes"
 
 ### llm_app: a diagram plus a live code panel
 
-`<skill>/../../seed/diagrams/llm_app.drawio.svg` is User, App and LLM with one database below the App. `<skill>/../../seed/scenes/shiny-ellmer.tsx` keeps the same base layout and adds a `Code` panel on the left (`anchorX={-1}`, which was `offsetX` before 0.4.0) that reveals R code line by line through the custom `RHighlighter`. It is the worked example for combining a translated diagram with highlighted code, so read it with `skills/motion-canvas-r-code/SKILL.md`. The header comment of the scene lists the project files it expects.
+`<skill>/../../seed/diagrams/llm_app.drawio.svg` is User, App and LLM with one database below the App. `<skill>/../../seed/scenes/shiny-ellmer.tsx` keeps the same base layout and adds a `Code` panel on the left (`anchorX={-1}`, which was `offsetX` before 0.4.0) that reveals R code line by line through the custom `RHighlighter`. It is the worked example for combining a translated diagram with highlighted code, so read it with `skills/motion-canvas-r-code/SKILL.md`. The header comment of the scene lists the project files it expects. <!-- PORT-NOTE: deliberate migration note -->
 
 ## Stand-alone scenes
 

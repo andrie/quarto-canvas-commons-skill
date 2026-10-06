@@ -500,7 +500,7 @@ const rHighlighter = new RHighlighter(parser, {
 - `fontSize`: Text size
 - `fontFamily`: Font (JetBrains Mono recommended)
 - `width`: Container width for wrapping
-- `anchorX/anchorY`: Text alignment adjustments (named `offsetX/offsetY` before 0.4.0)
+- `anchorX/anchorY`: Text alignment adjustments (named `offsetX/offsetY` before 0.4.0) <!-- PORT-NOTE: deliberate migration note -->
 
 **Animation Capabilities:**
 ```typescript

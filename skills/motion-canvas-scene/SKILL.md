@@ -60,7 +60,7 @@ Output goes to `dist/animations/src/<name>.js`. The shortcode references it as `
 |-------|-------|-----|
 | `Cannot find module './scenes/<name>?scene'` | Scene file doesn't exist or path is wrong | Check filename matches import in .ts project file |
 | `Type 'X' is not assignable to type 'Y'` | Wrong property type | Check API for correct type (e.g., number vs string) |
-| `Property 'X' does not exist on type 'Y'` | Typo in property name or missing import | Check node type supports the property. `offset`, `offsetX` and `offsetY` are now `anchor`, `anchorX` and `anchorY` |
+| `Property 'X' does not exist on type 'Y'` | Typo in property name or missing import | Check node type supports the property. `offset`, `offsetX` and `offsetY` are now `anchor`, `anchorX` and `anchorY` | <!-- PORT-NOTE: deliberate migration note -->
 | `Cannot find module '@canvas-commons/2d/lib/components'` (or any `lib/...` path) | 0.4.0 has no deep imports; the package `exports` map only exposes the root | Import from `@canvas-commons/2d` or `@canvas-commons/core`. Fix these first: they cascade into misleading errors such as `Property 'width' does not exist on type 'Database'` |
 | `Could not find a declaration file for module 'chroma-js'` or `Export assignment cannot be used when targeting ECMAScript modules` | Type errors inside the library's own `.d.ts` files | Set `"skipLibCheck": true` in `animations/tsconfig.json` |
 | `Implicit 'any' type` for community parsers | Missing type declarations for `lezer-r` etc. | Add a `.d.ts` file: `declare module 'lezer-r' { ... }` |
