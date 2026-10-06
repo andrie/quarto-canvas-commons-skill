@@ -2,7 +2,7 @@
 
 Use `{{< motion-canvas ./animations/src/NAME.js background fullscreen loop=false >}}` for a section-divider background, and `{{< motion-canvas ./animations/src/NAME.js auto fullscreen >}}` for a full-slide animation. Everything below explains why, so you can pick options without guessing.
 
-This file describes the **fork-era** extension (version 0.2.0, element `canvas-commons-player`). The canonical copy for Canvas Commons projects is `skills/motion-canvas-scene/assets/project-template/_extensions/andrie/motion-canvas/` in the `quarto-canvas-commons-skill` repository. The canonical pre-fork version is the copy in the `conf-2025-working-with-infosec` project on the WSL machine. The two differ only in the element name: the pre-fork Lua emits `<motion-canvas-player>`, the fork-era Lua emits `<canvas-commons-player>`, and the option logic is identical line for line.
+This file describes the **fork-era** extension (version 0.2.0, element `canvas-commons-player`). The canonical copy for Canvas Commons projects is `~/.claude/skills/motion-canvas-scene/assets/project-template/_extensions/andrie/motion-canvas/` once the `motion-canvas-scene` skill is installed. The canonical pre-fork version is the copy in the `conf-2025-working-with-infosec` project on the WSL machine. The two differ only in the element name: the pre-fork Lua emits `<motion-canvas-player>`, the fork-era Lua emits `<canvas-commons-player>`, and the option logic is identical line for line.
 
 ## Paths and the player element
 
