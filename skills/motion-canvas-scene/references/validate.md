@@ -2,7 +2,7 @@
 
 Use this when the user asks whether their project works, or when an animation fails to build or render. These checks are read-only apart from the build and render outputs. Run them in order from the project root and stop at the first failure, except that check 5 first records the state of `dist/` and then rebuilds, and you continue after that. Name the fix, then ask before changing anything.
 
-`<skill>` means the directory that contains this skill (the folder with `SKILL.md` and `assets/`). `<deck>` is the deck that check 3 finds, and `<deck-html>` the same name ending in `.html`. The checks drive everything from that deck, never from a guessed name such as `smoke.qmd`.
+`<skill>` means the directory that contains this skill (the folder with `SKILL.md` and `assets/`). `<deck>` is the deck that check 3 finds, `<deck-html>` the same name ending in `.html`, and `<deck-base>` the name without its extension. The checks drive everything from that deck, never from a guessed name such as `smoke.qmd`.
 
 The `make` targets below are the `cc-` names, which exist in every project whose Makefile includes `canvas-commons.mk`, whatever short names it has. A project from an older template has no `canvas-commons.mk`: use the short names there (`make force-build`), and expect the player config to be a root `vite.config.ts`. That older layout still works.
 
@@ -41,13 +41,13 @@ The `make` targets below are the `cc-` names, which exist in every project whose
 
    ```bash
    ls <deck>
-   grep -nxE '/?<deck-html>' .gitignore
+   grep -nxE '/?<deck-html>' .gitignore; grep -nxE '/?(<deck-base>|\*)_files/?' .gitignore
    ls smoke.qmd 2>/dev/null; grep -nE 'smoke\.(qmd|html)' Makefile canvas-commons.mk .gitignore _quarto.yml 2>/dev/null
    ```
 
-   Expected: `canvas-commons.mk` is listed when the Makefile includes it, a deck name is printed, `ls` lists the deck, `.gitignore` has a `<deck-html>` line, and the last line prints nothing, unless the user has deliberately kept a `smoke.qmd` deck. Also list any other `.qmd` that embeds animations (`grep -l 'motion-canvas ' *.qmd`): checks 6 and 8 apply to each of them too.
+   Expected: `canvas-commons.mk` is listed when the Makefile includes it, a deck name is printed, `ls` lists the deck, `.gitignore` has a `<deck-html>` line and a `<deck-base>_files/` (or `*_files/`) line, and the last line prints nothing, unless the user has deliberately kept a `smoke.qmd` deck. Also list any other `.qmd` that embeds animations (`grep -l 'motion-canvas ' *.qmd`): checks 6 and 8 apply to each of them too.
 
-   Failure: a Makefile that includes `canvas-commons.mk` without the file: copy it from `<skill>/assets/project-template/canvas-commons.mk`. No deck name printed: set `QMD_FILE` (template Makefile) or `CC_QMD_FILE` (a Makefile that appended the include) to the deck. A deck that does not exist: ask the user which deck is meant and set the variable to it. A missing `.gitignore` line: append `<deck-html>`. A stray `smoke.qmd` or `smoke.html`: the variable or `.gitignore` still points at the old smoke deck, so point it at the real deck.
+   Failure: a Makefile that includes `canvas-commons.mk` without the file: copy it from `<skill>/assets/project-template/canvas-commons.mk`. No deck name printed: set `QMD_FILE` (template Makefile) or `CC_QMD_FILE` (a Makefile that appended the include) to the deck. A deck that does not exist: ask the user which deck is meant and set the variable to it. A missing `.gitignore` line: append `<deck-html>` or `<deck-base>_files/`. A stray `smoke.qmd` or `smoke.html`: the variable or `.gitignore` still points at the old smoke deck, so point it at the real deck.
 
 4. Every project file is registered in the vite config.
 
@@ -100,5 +100,7 @@ The `make` targets below are the `cc-` names, which exist in every project whose
    Render any other `.qmd` that embeds animations as well, and run the `grep` on each rendered `.html`. If `_quarto.yml` sets an `output-dir`, the `.html` is there.
 
    Expected: render exits 0, and every `src` listed maps to a built file: drop the leading `./` and prefix `dist/`, so `./animations/src/smoke.js` must exist as `dist/animations/src/smoke.js` (check with `ls dist/animations/src`).
+
+   If the `grep` prints nothing, the deck embeds no animation yet, so this check has proved nothing about the player: do not report it as passing. Run "Prove the player with a throwaway deck" in `bootstrap.md`, which renders a temporary copy of the deck's header with the smoke slide and deletes it afterwards, without touching the deck. Expected there: a `canvas-commons-player` count of 1 or more and the smoke `src`.
 
    Failure: a `src` path that does not match a built file is the "Blank animation player" case in `SKILL.md`: fix the shortcode path to `./animations/src/<name>.js`.

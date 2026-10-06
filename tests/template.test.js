@@ -45,7 +45,7 @@ test('template deck is deck.qmd and nothing names smoke.qmd or smoke.html', () =
 
 test('template .gitignore lists the build artefacts but no deck html', () => {
   const lines = read('.gitignore').split('\n');
-  for (const l of ['node_modules/', 'dist/', 'animations/src/lib']) assert.ok(lines.includes(l), l);
+  for (const l of ['node_modules/', 'dist/', '.quarto/', '*_files/', 'animations/src/lib']) assert.ok(lines.includes(l), l);
   assert.ok(!lines.some((l) => l.endsWith('.html')));
 });
 
@@ -65,6 +65,6 @@ test('template Makefile includes canvas-commons.mk and aliases every cc- target'
 test('skill docs no longer tell anyone to render smoke.qmd', () => {
   const skill = path.join(repo, 'skills', 'motion-canvas-scene');
   for (const f of ['SKILL.md', 'references/bootstrap.md', 'references/project-architecture.md']) {
-    assert.doesNotMatch(fs.readFileSync(path.join(skill, f), 'utf8'), /render smoke\.qmd|smoke\.html|QMD_FILE = smoke/, f);
+    assert.doesNotMatch(fs.readFileSync(path.join(skill, f), 'utf8'), /render smoke\.qmd|(?<![\w-])smoke\.html|QMD_FILE = smoke/, f);
   }
 });

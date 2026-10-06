@@ -2,7 +2,7 @@
 
 Use this when the user wants a new Quarto presentation project containing Canvas Commons animations, or wants to add Canvas Commons animations to a project that already exists (typically a Quarto deck or Quarto project, possibly with its own `Makefile`, `package.json`, Vite config and `.gitignore`). Either way Canvas Commons lives at the project root, with the same paths as a new project, so every path in the other skills holds. Follow the steps in order. Each step gives a command and its expected result. If a result differs, stop and use `validate.md`.
 
-`<skill>` below means the directory that contains this skill (the folder with `SKILL.md` and `assets/`), and `T` is shorthand for `<skill>/assets/project-template`. `<target>` is the project directory. `<deck>` is the deck's file name, for example `conf-talk.qmd`, and `<deck-html>` is the same name ending in `.html` (`conf-talk.html`).
+`<skill>` below means the directory that contains this skill (the folder with `SKILL.md` and `assets/`), and `T` is shorthand for `<skill>/assets/project-template`. `<target>` is the project directory. `<deck>` is the deck's file name, for example `conf-talk.qmd`, `<deck-html>` is the same name ending in `.html` (`conf-talk.html`), and `<deck-base>` is the name without its extension (`conf-talk`), so Quarto's support folder is `<deck-base>_files/`.
 
 ## Before you start
 
@@ -62,11 +62,11 @@ Ask for a title too for a new deck, or derive one from the name (`conf-talk.qmd`
    mv deck.qmd <deck>
    sed -i.bak 's/^QMD_FILE = .*/QMD_FILE = <deck>/' Makefile && rm Makefile.bak
    sed -i.bak 's/^title: .*/title: "<title>"/' <deck> && rm <deck>.bak
-   echo '<deck-html>' >> .gitignore
-   grep '^QMD_FILE' Makefile; grep '^title' <deck>; tail -1 .gitignore; ls *.qmd
+   printf '%s\n' '<deck-html>' '<deck-base>_files/' >> .gitignore
+   grep '^QMD_FILE' Makefile; grep '^title' <deck>; tail -2 .gitignore; ls *.qmd
    ```
 
-   Expected: `QMD_FILE = <deck>`, the title, `<deck-html>`, and `<deck>` as the only `.qmd`. `make quarto`, `make preview` and `make publish` all render `QMD_FILE`.
+   Expected: `QMD_FILE = <deck>`, the title, `<deck-html>` and `<deck-base>_files/`, and `<deck>` as the only `.qmd`. The template `.gitignore` already lists `.quarto/`, Quarto's cache. `make quarto`, `make preview` and `make publish` all render `QMD_FILE`.
 
 3. Install both dependency trees. They are independent.
 
@@ -149,17 +149,19 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
    make -s cc-deck
    ```
 
-   Expected: `make -s cc-deck` prints `<deck>`, and the user's default goal is unchanged (`canvas-commons.mk` never takes it). `make -p` reads the Makefile's real rule database, so it also finds targets declared several to a line. Tell the user which `collision:` lines appeared: those short names keep doing what their Makefile did, and the Canvas Commons version is `make cc-<name>` (for example `make cc-anim`, `make cc-quarto`). Every `cc-` target always exists: `cc-install`, `cc-anim`, `cc-build`, `cc-force-build`, `cc-quarto`, `cc-preview`, `cc-publish`, `cc-serve`, `cc-clean`, `cc-deck`.
+   Expected: `make -s cc-deck` prints `<deck>`, and the user's default goal is unchanged (`canvas-commons.mk` never takes it). `make -p` reads the Makefile's real rule database, so it also finds targets declared several to a line. Tell the user which `collision:` lines appeared: those short names keep doing what their Makefile did, and the Canvas Commons version is `make cc-<name>` (for example `make cc-anim`, `make cc-quarto`). Every `cc-` target always exists: `cc-install`, `cc-anim`, `cc-build`, `cc-force-build`, `cc-quarto`, `cc-preview`, `cc-publish`, `cc-serve`, `cc-clean`, `cc-deck`. One limitation to tell the user: their own `make clean` is untouched and does not remove `dist/`; `make cc-clean` does.
 
 4. Update `.gitignore`. Append each missing line, never replace the file (create it if absent):
 
    ```bash
-   for l in node_modules/ dist/ animations/src/lib '<deck-html>'; do
-     b=${l%/}; grep -qxE "/?${b//./\\.}/?" .gitignore 2>/dev/null || { echo "$l" >> .gitignore; echo "added: $l"; }
+   for l in node_modules/ dist/ .quarto/ animations/src/lib '<deck-html>' '<deck-base>_files/'; do
+     b=${l%/}; b=${b//./\\.}
+     case $l in *_files/) b="($b|\*_files)";; esac
+     grep -qxE "/?$b/?" .gitignore 2>/dev/null || { echo "$l" >> .gitignore; echo "added: $l"; }
    done
    ```
 
-   Expected: one `added:` line for each entry that was missing. An entry written with or without a leading or trailing `/` counts as present.
+   Expected: one `added:` line for each entry that was missing. An entry written with or without a leading or trailing `/` counts as present, and an existing `*_files/` line covers `<deck-base>_files/`.
 
 5. Prepare the deck.
 
@@ -188,7 +190,7 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
    quarto render <deck>
    ```
 
-   Expected: both `node_modules/` exist, `make cc-anim` exits 0 and writes `dist/motion-canvas-ts.js` and `dist/animations/src/smoke.js`, and the render exits 0. Then go to "Check the render". For an existing deck, the smoke scene is not on any slide yet: to see it play, add `{{< motion-canvas ./animations/src/smoke.js auto fullscreen=true >}}` on a slide, or skip straight to a real scene.
+   Expected: both `node_modules/` exist, `make cc-anim` exits 0 and writes `dist/motion-canvas-ts.js` and `dist/animations/src/smoke.js`, and the render exits 0. Then go to "Check the render". An existing deck has no animation slide yet, so that check cannot prove the player works: run "Prove the player with a throwaway deck" as well. Never add the smoke slide to the user's deck for this.
 
 7. Tell the user what changed: the files copied, the `package.json` additions and conflicts, the Makefile collisions and which `cc-` names to use, the `.gitignore` lines added, and the deck YAML entries added.
 
@@ -278,7 +280,37 @@ format:
       - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
 
-If the deck has no `revealjs` format at all, ask the user before changing `format:`. Check the result with `diff` against a copy taken before the edit: only added lines (and, for the shorthand, the expanded `format:` line) should appear.
+If the deck has no `revealjs` format at all, ask the user before changing `format:`.
+
+#### Verify the patch
+
+Copy the deck before you edit it, then compare and render straight after:
+
+```bash
+cp <deck> /tmp/cc-deck-before.qmd
+# ... edit the YAML header ...
+diff /tmp/cc-deck-before.qmd <deck>
+quarto render <deck> && grep -c 'dist/motion-canvas-ts.js' <deck-html>
+rm /tmp/cc-deck-before.qmd
+```
+
+Expected: `diff` prints only `>` (added) lines, apart from the shorthand case, where `< format: revealjs` is replaced by `> format:` and the added lines; every original entry is still there. The render exits 0 and the count is 1 or more. If `diff` shows any other `<` line, an original entry was lost: restore the copy and patch again.
+
+#### Optional helpers for the two common shapes
+
+These are examples, not a substitute for the check above. Each writes `<deck>.bak` first; delete it once "Verify the patch" passes.
+
+The `format: revealjs` shorthand string:
+
+```bash
+perl -0777 -pi.bak -e 's{^format:[ \t]*revealjs[ \t]*\n}{format:\n  revealjs:\n    resources:\n      - dist/*/*\n    include-in-header:\n      - text: <script src="./dist/motion-canvas-ts.js"></script>\n}m' <deck>
+```
+
+A `revealjs:` mapping that has neither `resources` nor `include-in-header` yet. The guard refuses when either key exists anywhere in the deck, because those lists must be appended to by hand. The new keys take the indentation of the first key under `revealjs:`:
+
+```bash
+grep -qE '^[[:space:]]+(resources|include-in-header):' <deck> && echo "keys already present: append by hand" || perl -0777 -pi.bak -e 's{^([ \t]*)revealjs:[ \t]*\n([ \t]+)}{$1revealjs:\n$2resources:\n$2  - dist/*/*\n$2include-in-header:\n$2  - text: <script src="./dist/motion-canvas-ts.js"></script>\n$2}m' <deck>
+```
 
 ## Check the render
 
@@ -286,7 +318,24 @@ If the deck has no `revealjs` format at all, ask the user before changing `forma
 grep -c "motion-canvas-ts.js" <deck-html>; grep -c "canvas-commons-player" <deck-html>; grep -o 'src="./animations/src/smoke.js"' <deck-html>; ls dist/animations/src/smoke.js
 ```
 
-Expected: both counts are 1 or more, the `src` attribute is printed (only when a slide uses the smoke scene, which the template deck does), and the file is listed. If the project's `_quarto.yml` sets an `output-dir`, or `_site/` exists, look for the rendered `.html` there. The player resolves the `src` relative to `dist/`, so the file that matters is `dist/animations/src/smoke.js`.
+Expected for a deck from the template (it has the smoke slide): both counts are 1 or more, the `src` attribute is printed, and the file is listed. If the project's `_quarto.yml` sets an `output-dir`, or `_site/` exists, look for the rendered `.html` there. The player resolves the `src` relative to `dist/`, so the file that matters is `dist/animations/src/smoke.js`.
+
+Expected for a deck that embeds no animation yet (an existing deck you only patched): the `motion-canvas-ts.js` count is 1 or more, but the `canvas-commons-player` count is 0 and no `src` prints. That proves only that the script tag is in place, not that the player works, so do not report it as a pass: run "Prove the player with a throwaway deck".
+
+## Prove the player with a throwaway deck
+
+This proves the player and the smoke scene in the deck's real format settings without touching the deck. It writes a temporary `_cc-smoke.qmd` with the deck's YAML header and one smoke slide, renders it, checks it, and deletes everything it made. If `_cc-smoke.qmd` already exists, stop and ask instead.
+
+```bash
+awk '{l=$0; sub(/\r$/,"",l)} NR==1 && l!="---"{exit} {print} NR>1 && l=="---"{exit}' <deck> > _cc-smoke.qmd
+printf '\n## Smoke test {.hidetitle}\n\n{{< motion-canvas ./animations/src/smoke.js auto fullscreen=true >}}\n' >> _cc-smoke.qmd
+quarto render _cc-smoke.qmd
+grep -c "canvas-commons-player" _cc-smoke.html; grep -o 'src="./animations/src/smoke.js"' _cc-smoke.html; ls dist/animations/src/smoke.js
+rm -rf _cc-smoke.qmd _cc-smoke.html _cc-smoke_files
+ls -d _cc-smoke* 2>/dev/null
+```
+
+Expected: the render exits 0, the count is 1 or more, the `src` attribute and the built file are printed, and the last command prints nothing. The leading `_` keeps a whole-project `quarto render` from picking the file up if the cleanup is interrupted. If `_quarto.yml` sets an `output-dir`, the `.html` and `_files/` folder are there: check and delete them there. Quarto may create `.quarto/`, its cache, in a project: leave it, `.gitignore` covers it. If the deck's header carries the two entries only through `_quarto.yml`, the copy inherits them the same way, which is the point.
 
 ## After the first real scene
 
