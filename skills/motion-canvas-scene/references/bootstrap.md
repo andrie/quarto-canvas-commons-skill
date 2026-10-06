@@ -62,4 +62,11 @@ Check the tools exist: `node --version` (22 or later), `npm --version`, `make --
 
 ## Adding scenes
 
-Create each new scene as described in `SKILL.md` (scene file, project file, vite registration), then run `make anim`. Reference the built file in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`.
+For each real scene, run `add-scene.js <name>` instead of copying files. From `<target>`:
+
+```bash
+node <skill>/scripts/add-scene.js <name>
+make anim
+```
+
+Expected: `dist/animations/src/<name>.js` exists. Reference it in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`. See `SKILL.md` for the details and for `remove-scene.js`.

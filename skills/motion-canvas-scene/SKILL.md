@@ -13,65 +13,27 @@ description: Use when starting a new Quarto presentation project that will conta
 - "Does my project work?", or an animation fails to build or render: follow `references/validate.md`, a read-only checklist that stops at the first failure and points back to the error tables below.
 - How the root project, `animations/` and the Makefile fit together: `references/project-architecture.md`.
 
-## Creating a New Scene
+## Creating a new scene
 
-### Step 1: Create the scene file
+1. Check `canvas-commons-library` first: the animation you want may already exist there.
+2. Run the script from the project root (the directory with the `Makefile`):
 
-`animations/src/scenes/<name>.tsx`:
+   ```bash
+   node ~/.claude/skills/motion-canvas-scene/scripts/add-scene.js <name>
+   ```
 
-```typescript
-import {makeScene2D} from '@canvas-commons/2d';
-import {createRef, waitFor, all} from '@canvas-commons/core';
-import {Rect, Txt} from '@canvas-commons/2d';
-import {Posit, Colors} from '../styles';
+   It writes `animations/src/scenes/<name>.tsx` (a skeleton scene) and `animations/src/<name>.ts` (the project file, with the required `?scene` import), and registers `./src/<name>.ts` in the `project` array of `animations/vite.config.ts`. It refuses to overwrite an existing scene. Use `--root <animationsDir>` when you are not in the project root.
+3. Edit the scene, then build:
 
-export default makeScene2D(function* (view) {
-  const rect = createRef<Rect>();
+   ```bash
+   make anim
+   ```
 
-  view.add(
-    <Rect ref={rect} width={200} height={200} fill={Posit.blue} scale={0} />
-  );
+   Reference the result in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`.
 
-  yield* rect().scale(1, 1);
-  yield* waitFor(2);
-});
-```
+To delete a scene, run `node ~/.claude/skills/motion-canvas-scene/scripts/remove-scene.js <name>`. It removes both files and the registration.
 
-### Step 2: Create the project file
-
-`animations/src/<name>.ts`:
-
-```typescript
-import {makeProject} from '@canvas-commons/core';
-import scene from './scenes/<name>?scene';
-
-export default makeProject({
-  scenes: [scene],
-});
-```
-
-The `?scene` suffix is required — it tells vite to process the file as a Motion Canvas scene.
-
-### Step 3: Register in vite config
-
-Add to the `project` array in `animations/vite.config.ts`:
-
-```typescript
-motionCanvas({
-  project: [
-    "./src/hexagons.ts",
-    "./src/posit_footer.ts",
-    // ... existing entries ...
-    "./src/<name>.ts",   // <-- add here
-  ],
-}),
-```
-
-### Step 4: Build to validate
-
-```bash
-make anim
-```
+The script prevents the two registration errors in the tables below (a missing `?scene` import and an unregistered project file).
 
 ## Build Commands
 
