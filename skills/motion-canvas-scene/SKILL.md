@@ -1,16 +1,16 @@
 ---
 name: motion-canvas-scene
-description: Use when starting a new Quarto presentation project that will contain Canvas Commons (Motion Canvas) animations, when adding, creating or removing a scene in an existing project, when checking that such a project builds, or when a scene fails to build or render.
+description: Use when starting a new Quarto presentation project that will contain Canvas Commons (Motion Canvas) animations, when adding Canvas Commons animations to an existing Quarto project, when adding, creating or removing a scene in an existing project, when checking that such a project builds, or when a scene fails to build or render.
 ---
 
 # Creating, Building, and Debugging Scenes
 
-> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
+> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds (`make cc-anim` where the project's own Makefile already had an `anim` target). If a project differs, say so before proceeding.
 
 ## Starting or checking a project
 
-- New presentation project (an empty directory, or "set up a project for animated slides"): follow `references/bootstrap.md`. It copies the template in `assets/project-template/`, installs, builds and renders a smoke deck.
-- "Does my project work?", or an animation fails to build or render: follow `references/validate.md`, a read-only checklist that stops at the first failure and points back to the error tables below.
+- New presentation project (an empty directory, or "set up a project for animated slides"), or adding Canvas Commons to an existing project such as a Quarto deck that already has its own `Makefile`, `package.json` or `.gitignore`: follow `references/bootstrap.md`. It asks the user for the deck name, copies the template in `assets/project-template/` into the project root without overwriting anything, merges where files already exist, then installs, builds and renders the deck.
+- "Does my project work?", or an animation fails to build or render: follow `references/validate.md`, a read-only checklist that starts from the deck the Makefile names, stops at the first failure and points back to the error tables below.
 - How the root project, `animations/` and the Makefile fit together: `references/project-architecture.md`.
 
 ## Creating a new scene
@@ -43,8 +43,10 @@ The script prevents the two registration errors in the tables below (a missing `
 | `make force-build` | Full rebuild (ignores timestamps) |
 | `npm --prefix ./animations run build` | Direct build (runs `tsc && vite build`) |
 | `make serve` | Live preview with hot reload (vite dev server) |
-| `make quarto` | Build animations + render Quarto presentation |
+| `make quarto` | Build animations + render the deck named by `QMD_FILE` (or `CC_QMD_FILE`) |
 | `make preview` | Build animations + live Quarto preview on port 4200 |
+
+The logic lives in `canvas-commons.mk` as `cc-` targets (`cc-anim`, `cc-force-build`, `cc-serve`, `cc-quarto`, `cc-preview` and so on), and the short names above are aliases. In a project whose own Makefile already defined one of those short names, it keeps its old meaning: use the `cc-` name instead. `make -s cc-deck` prints the deck.
 
 The build pipeline runs:
 1. **`tsc`** — TypeScript compilation (catches type errors)

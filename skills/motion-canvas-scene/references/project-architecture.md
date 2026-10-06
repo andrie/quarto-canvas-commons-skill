@@ -6,9 +6,11 @@ A Canvas Commons presentation project is a Quarto revealjs deck plus two small V
 
 The root project and `animations/` have separate `package.json` files, separate `node_modules`, and separate Vite configs. Both write into the root `dist/` folder.
 
+The root player config is `vite.player.config.ts`, built with `vite build -c vite.player.config.ts` (the `build:player` script), so it never collides with a project's own `vite.config.ts`. Projects from an older template have a root `vite.config.ts` and a `build` script instead; they still work.
+
 | Project | Builds | Output |
 |---------|--------|--------|
-| Root (`package.json`, `vite.config.ts`, `motion-canvas-ts.html`, `src/main.ts`) | The player bundle: `src/main.ts` imports `@canvas-commons/core` and `@canvas-commons/player`, which registers the `canvas-commons-player` custom element | `dist/motion-canvas-ts.js` |
+| Root (`package.json` script `build:player`, `vite.player.config.ts`, `motion-canvas-ts.html`, `src/main.ts`) | The player bundle: `src/main.ts` imports `@canvas-commons/core` and `@canvas-commons/player`, which registers the `canvas-commons-player` custom element | `dist/motion-canvas-ts.js` |
 | `animations/` (`package.json`, `vite.config.ts`, `tsconfig.json`) | The scenes, one JS file per project file registered in the `project` array of the Canvas Commons Vite plugin | `dist/animations/src/<name>.js`, plus shared chunks (`styles.js`, `_virtual_settings.js` and so on) |
 
 The animation output path is `dist/animations/src/<name>.js`, because the Rollup output directory is `../dist/animations` and the project files live in `src/`. Shortcode `src=` values must include `src/`, for example `{{< motion-canvas ./animations/src/smoke.js auto fullscreen=true >}}`. The player resolves `src` relative to the player bundle (`dist/motion-canvas-ts.js`), not relative to the HTML page, so `./animations/src/smoke.js` fetches `dist/animations/src/smoke.js`. Leaving out `src/` (for example `./animations/smoke.js`) gives a blank player.
@@ -30,19 +32,23 @@ Each project file `animations/src/<name>.ts` imports its scene with the `?scene`
 
 ## How the Makefile ties them together
 
+All the build logic lives in `canvas-commons.mk`, whose targets all start with `cc-` and whose variables all start with `CC_`. The project `Makefile` names the deck and includes it. A new project's `Makefile` sets `QMD_FILE = <deck>`, includes `canvas-commons.mk`, and defines the short names below as aliases. A project that already had a Makefile gets `CC_QMD_FILE = <deck>`, the `include` line and only the aliases that did not collide appended to it, so its own targets and default goal keep working (see `bootstrap.md`).
+
 | Target | Does |
 |--------|------|
-| `make anim` (alias of `make build`) | Builds the root project, then `animations/`, each only if its sources changed |
-| `make force-build` | Deletes both marker files, then runs `make build` |
-| `make quarto` | `make anim`, then `quarto render` on `QMD_FILE` |
-| `make preview` | `make anim`, then `quarto preview` on port 4200 |
-| `make serve` | The Canvas Commons editor with hot reload (`npm --prefix ./animations run serve`) |
-| `make install` | `npm install` in the root and in `animations/` |
-| `make clean` | `rm -rf dist` |
+| `make anim` (`cc-anim`, alias of `cc-build`) | Builds the root project, then `animations/`, each only if its sources changed |
+| `make force-build` (`cc-force-build`) | Deletes both marker files, then runs `make cc-build` |
+| `make quarto` (`cc-quarto`) | `cc-anim`, then `quarto render` on the deck |
+| `make preview` (`cc-preview`) | `cc-anim`, then `quarto preview` on port 4200 |
+| `make publish` (`cc-publish`) | `cc-anim`, then render and `quarto publish` the deck |
+| `make serve` (`cc-serve`) | The Canvas Commons editor with hot reload (`npm --prefix ./animations run serve`) |
+| `make install` (`cc-install`) | `npm install` in the root and in `animations/` |
+| `make clean` (`cc-clean`) | `rm -rf dist` |
+| `make -s cc-deck` | Prints the deck the other targets render |
 
-Incremental builds use two timestamp markers, `dist/.build-complete` (root) and `dist/animations/.build-complete` (animations). Each is touched after a successful build, and `make` rebuilds that half only when a source file (or `package.json` or the vite config) is newer than its marker. The root half watches `*.ts`, `*.js`, `package.json` and `vite.config.*` in the root folder only, so an edit to `src/main.ts` does not trigger a root rebuild: use `make force-build`. The animations half watches every `.ts`, `.tsx` and `.js` file under `animations/src`, following symlinks (`find -L`), so a linked shared library counts. Deleting `dist/` removes the markers, so the next `make anim` rebuilds everything.
+Incremental builds use two timestamp markers, `dist/.build-complete` (root) and `dist/animations/.build-complete` (animations). Each is touched after a successful build, and `make` rebuilds that half only when a source file (or `package.json` or the vite config) is newer than its marker. The root half watches `package.json`, `vite.player.config.ts`, `motion-canvas-ts.html` and `src/*.ts`. The animations half watches every `.ts`, `.tsx` and `.js` file under `animations/src`, following symlinks (`find -L`), so a linked shared library counts. Deleting `dist/` removes the markers, so the next `make anim` rebuilds everything.
 
-`animations/` builds with `tsc && vite build`, so type errors fail the build before Vite runs. The `QMD_FILE` variable at the top of the Makefile names the deck that `make quarto` renders: change it when you rename `smoke.qmd`.
+`animations/` builds with `tsc && vite build`, so type errors fail the build before Vite runs. The deck is `CC_QMD_FILE`, which falls back to `QMD_FILE`: change that variable, never the `cc-` rules, to render a different deck.
 
 ## Known quirk: lezer-r placement
 

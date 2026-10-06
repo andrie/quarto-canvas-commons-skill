@@ -61,3 +61,10 @@ test('template Makefile includes canvas-commons.mk and aliases every cc- target'
     if (m && !m[1].startsWith('.')) assert.ok(m[1].startsWith('cc-'), `target ${m[1]} in canvas-commons.mk lacks the cc- prefix`);
   }
 });
+
+test('skill docs no longer tell anyone to render smoke.qmd', () => {
+  const skill = path.join(repo, 'skills', 'motion-canvas-scene');
+  for (const f of ['SKILL.md', 'references/bootstrap.md', 'references/project-architecture.md']) {
+    assert.doesNotMatch(fs.readFileSync(path.join(skill, f), 'utf8'), /render smoke\.qmd|smoke\.html|QMD_FILE = smoke/, f);
+  }
+});
