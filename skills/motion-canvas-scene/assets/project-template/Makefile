@@ -1,67 +1,21 @@
-QMD_FILE = smoke.qmd
+QMD_FILE = deck.qmd
 PORT = 4200
 
-# Source file patterns
-ANIM_SOURCES := $(shell find -L animations/src -name "*.ts" -o -name "*.tsx" -o -name "*.js" 2>/dev/null)
-ROOT_SOURCES := $(shell find . -maxdepth 1 -name "*.ts" -o -name "*.js" -o -name "package.json" -o -name "vite.config.*" 2>/dev/null)
+# The build logic lives in canvas-commons.mk; this file only names the deck and
+# gives its cc- targets short names.
+CC_PORT = $(PORT)
+include canvas-commons.mk
 
-# Build output markers
-ANIM_BUILD_MARKER := dist/animations/.build-complete
-ROOT_BUILD_MARKER := dist/.build-complete
+.PHONY: all install build anim force-build quarto preview publish serve clean
 
-# Phony target to prevent file name conflict
-.PHONY: all install build anim quarto publish serve preview clean scene force-build
-
-# Default target
 all: anim quarto publish
 
-install:
-	npm install
-	npm --prefix ./animations install
-
-# Target for building animations
-scene:
-	./node_modules/.bin/vite build
-
-# Build root project only if sources changed
-$(ROOT_BUILD_MARKER): $(ROOT_SOURCES)
-	@echo "Building root project..."
-	npm run build
-	@mkdir -p dist
-	@touch $(ROOT_BUILD_MARKER)
-
-# Build animations only if sources changed
-$(ANIM_BUILD_MARKER): $(ANIM_SOURCES) animations/package.json animations/vite.config.ts
-	@echo "Building animations..."
-	npm --prefix ./animations run build
-	@mkdir -p dist/animations
-	@touch $(ANIM_BUILD_MARKER)
-
-# Main build target depends on both build markers
-build: $(ROOT_BUILD_MARKER) $(ANIM_BUILD_MARKER)
-
-# Force rebuild (ignores timestamps)
-force-build:
-	@rm -f $(ROOT_BUILD_MARKER) $(ANIM_BUILD_MARKER)
-	$(MAKE) build
-
-anim: build
-
-
-serve:
-	npm --prefix ./animations run serve
-
-quarto: anim
-	quarto render $(QMD_FILE)
-
-preview: anim
-	quarto preview $(QMD_FILE) --no-browser --port ${PORT}
-
-publish: anim
-	quarto render $(QMD_FILE)
-	quarto publish $(QMD_FILE) --no-prompt
-
-clean:
-	rm -rf dist
-	@echo "Cleaned build outputs and markers"
-
+install: cc-install
+build: cc-build
+anim: cc-anim
+force-build: cc-force-build
+quarto: cc-quarto
+preview: cc-preview
+publish: cc-publish
+serve: cc-serve
+clean: cc-clean

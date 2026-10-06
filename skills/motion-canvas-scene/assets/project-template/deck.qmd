@@ -1,5 +1,5 @@
 ---
-title: "Canvas Commons smoke test"
+title: "Untitled deck"
 format:
   revealjs:
     width: 1920
@@ -10,10 +10,8 @@ format:
       - text: <script src="./dist/motion-canvas-ts.js"></script>
 ---
 
-## Smoke test
+<!-- Toolchain proof: once the first real scene builds, delete the slide below and run `node ~/.claude/skills/motion-canvas-scene/scripts/remove-scene.js smoke`. -->
 
-If the next slide shows a spinning square, the toolchain works.
-
-## Animation {.hidetitle}
+## Smoke test {.hidetitle}
 
 {{< motion-canvas ./animations/src/smoke.js auto fullscreen=true >}}

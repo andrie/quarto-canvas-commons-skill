@@ -1,0 +1,8 @@
+---
+title: "Plain deck"
+format: revealjs
+---
+
+## Hello
+
+A plain slide.

@@ -2,5 +2,4 @@ node_modules/
 dist/
 _site/
 *_files/
-smoke.html
 animations/src/lib

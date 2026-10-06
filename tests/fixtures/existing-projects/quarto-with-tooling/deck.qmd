@@ -1,0 +1,14 @@
+---
+title: "Tooling deck"
+format:
+  revealjs:
+    slide-number: true
+    resources:
+      - data.csv
+    include-in-header:
+      - text: <meta name="deck-owner" content="fixture">
+---
+
+## First slide
+
+An existing slide that must survive.

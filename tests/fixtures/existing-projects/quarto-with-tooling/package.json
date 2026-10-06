@@ -1,0 +1,10 @@
+{
+  "name": "tooling-deck",
+  "private": true,
+  "scripts": {
+    "build": "quarto render deck.qmd"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
