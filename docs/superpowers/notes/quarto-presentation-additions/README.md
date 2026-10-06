@@ -13,11 +13,11 @@ cd ~/.claude/skills/quarto-presentation && cp /home/andrie/github/quarto-canvas-
 ## What each change does
 
 - `motion-canvas-shortcode.md` is the new `references/` file: option mechanics, the section-divider recipe, `.hidetitle`, and which extension generation it describes.
-- `extensions.md.patch` fixes the three example paths to `./animations/src/<name>.js`, renames `<motion-canvas-player>` to `<canvas-commons-player>`, adds one pointer to the animation skills, one link to the new file, and a provenance note.
+- `extensions.md.patch` fixes the example paths to `./animations/src/<name>.js`, drops the ineffective `width="50%"` example line and annotates the option list, renames `<motion-canvas-player>` to `<canvas-commons-player>`, adds one pointer to the animation skills, one link to the new file, and a provenance note.
 
 ## Where the code differs from the spec (the code wins)
 
-- `width="..."` is not just dropped under `fullscreen`: even without `fullscreen` it is emitted outside the `style` attribute (`width:50%;` as a bare attribute), so the browser ignores it and the player stays at the injected 75%. Verified in rendered HTML. The `kayak.js width="50%"` example in `extensions.md` therefore has no effect with this extension. The patch leaves that example alone (minimal patch), but the new file says so.
+- `width="..."` is not just dropped under `fullscreen`: even without `fullscreen` it is emitted outside the `style` attribute (`width:50%;` as a bare attribute), so the browser ignores it and the player stays at the injected 75%. Verified in rendered HTML. The `kayak.js width="50%"` example in `extensions.md` therefore has no effect with this extension. The patch drops that example line and annotates `width` in the option list.
 - `auto` omitted does not mean "do not autoplay": the JS sets `auto="true"` on the current slide on every slide change regardless. `auto=false` and omitting it produce the same HTML.
 - The section-divider recipe does not use `.hidetitle`: the real divider (`# Solutions` in infosec.qmd) keeps its heading visible over the animation. `.hidetitle` is for slides whose whole content is the animation.
 - `fullscreen`/`background`/`loop`/`auto` claims otherwise match the Lua. The Lua is identical between the pre-fork and vendored copies except for the element name.

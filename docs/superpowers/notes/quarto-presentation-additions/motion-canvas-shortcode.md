@@ -36,7 +36,7 @@ When it is not dropped, `width` is appended after the `style` attribute rather t
 
 ### `loop` and `auto` in the browser
 
-`motion-canvas-player.js` runs on every slide change. It sets `auto="true"` on the player in the current slide whatever the attributes say, so omitting `auto` (or writing `auto=false`) does not stop the animation playing when you arrive at the slide. The same handler runs once when Reveal is ready, so the first slide behaves the same way. In this extension generation `auto` is effectively decorative. If `loop="false"` is set, the script watches the frame counter and parks the animation on its last frame. The script handles one player per slide, and it pauses the previous slide's player when you move on.
+`motion-canvas-player.js` runs on every slide change. It sets `auto="true"` on the player in the current slide whatever the attributes say, so omitting `auto` (or writing `auto=false`) does not stop the animation playing when you arrive at the slide. The same handler runs once when Reveal is ready, so the first slide behaves the same way. In this extension generation `auto` is effectively decorative. If `loop="false"` is set, the script watches the frame counter and parks the animation on its last frame. The script handles one player per slide, and on each slide change it calls `togglePlayback()` (no argument) on the previous slide's player. That flips the play state, so a player that was playing is paused, but one that was already paused would be started.
 
 ## Section divider recipe
 

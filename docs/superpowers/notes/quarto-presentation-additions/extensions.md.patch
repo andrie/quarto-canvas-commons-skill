@@ -1,6 +1,6 @@
 --- references/extensions.md
 +++ references/extensions.md
-@@ -77,9 +77,9 @@
+@@ -77,25 +77,36 @@
  Then in the body:
  
  ```markdown
@@ -9,11 +9,13 @@
 -{{< motion-canvas ./animations/kayak.js width="50%" >}}
 +{{< motion-canvas ./animations/src/hexagons.js fullscreen=true loop=false >}}
 +{{< motion-canvas ./animations/src/posit_footer.js auto fullscreen=true >}}
-+{{< motion-canvas ./animations/src/kayak.js width="50%" >}}
  ```
  
  Arguments seen in real decks: `fullscreen` (bare or `=true`), `background`, `loop=false`,
-@@ -89,13 +89,23 @@
+-`auto`, `width="50%"`.
++`auto`, `width="50%"` (currently has no effect, see `references/motion-canvas-shortcode.md`).
+ 
+ The two half-right failures:
  
  - Omit the `resources: dist/*/*` entry and the built JS is never copied to the output, so the
    animation silently does not appear.
@@ -33,7 +35,9 @@
 +Provenance: the vendored copy in the `motion-canvas-scene` skill template
 +(`assets/project-template/_extensions/andrie/motion-canvas/`) is canonical for Canvas Commons
 +projects (element `canvas-commons-player`, build output `dist/animations/src/<name>.js`). The
-+infosec WSL copy is the canonical pre-fork version (element `motion-canvas-player`).
++canonical pre-fork version (element `motion-canvas-player`) is the infosec project's
++`_extensions/andrie/motion-canvas/` on the machine where it was built (WSL), so other machines
++may not have it.
 +
  ### `andrie/extent`: viewport and background control
  
