@@ -21,12 +21,14 @@ The `.qmd` loads the player bundle once, in the YAML header:
 format:
   revealjs:
     resources:
-      - dist/*/*
+      - dist/**
     include-in-header:
       - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
 
-`resources: dist/*/*` tells Quarto to treat the built scene files as site resources, so they are published alongside the deck (needed for `quarto publish` and project renders).
+`resources: dist/**` tells Quarto to treat the built scene files as site resources, so they are published alongside the deck (needed for `quarto publish` and project renders). The glob must be recursive: `dist/*/*` skips `dist/animations/src/`, where the scenes are, so a deployed deck loads the player but not its scene and shows nothing.
+
+Only `dist/` (built with `make anim`), `_extensions/`, `motion-canvas-ts.html` and the deck are needed on a host such as Posit Connect; `node_modules/` is not. `dist/` is gitignored, so a git-based deploy misses it unless it is built first. A Posit Publisher config lists its files, and the list must include `/dist` and `/motion-canvas-ts.html`. A second config for another deck does not inherit them.
 
 Each project file `animations/src/<name>.ts` imports its scene with the `?scene` suffix, for example `import smoke from './scenes/smoke?scene'`, which tells Vite to treat the file as a scene. Each project file needs a matching registration in `animations/vite.config.ts`, or it is never built.
 

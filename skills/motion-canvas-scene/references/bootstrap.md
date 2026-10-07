@@ -175,7 +175,7 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
    Either way, first look for the two entries in project-level YAML:
 
    ```bash
-   grep -nE 'dist/\*/\*|motion-canvas-ts\.js' _quarto.yml _metadata.yml <deck> 2>/dev/null
+   grep -nE 'dist/\*[*/]*|motion-canvas-ts\.js' _quarto.yml _metadata.yml <deck> 2>/dev/null
    ```
 
    An entry found in `_quarto.yml` (or a `_metadata.yml` next to the deck) applies to every deck in the project already, so do not add it to the deck too: for a new deck, delete that line from the copied deck's YAML. Loading the player script twice defines its custom element twice.
@@ -194,7 +194,7 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
 
 ### Patching an existing deck's YAML
 
-Two entries go under `format: revealjs:`, a `resources` entry `dist/*/*` and an `include-in-header` entry `text: <script src="./dist/motion-canvas-ts.js"></script>`. Append them to any list that already exists; never remove or replace an existing entry. Skip an entry the `grep` in step 5 found in `_quarto.yml`.
+Two entries go under `format: revealjs:`, a `resources` entry `dist/**` and an `include-in-header` entry `text: <script src="./dist/motion-canvas-ts.js"></script>`. Append them to any list that already exists; never remove or replace an existing entry. Skip an entry the `grep` in step 5 found in `_quarto.yml`.
 
 Keys absent:
 
@@ -208,7 +208,7 @@ format:
   revealjs:
     theme: dark
     resources:
-      - dist/*/*
+      - dist/**
     include-in-header:
       - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
@@ -228,7 +228,7 @@ format:
   revealjs:
     resources:
       - data.csv
-      - dist/*/*
+      - dist/**
     include-in-header:
       - text: <meta name="deck-owner" content="me">
       - text: <script src="./dist/motion-canvas-ts.js"></script>
@@ -239,7 +239,7 @@ A key present as a single value (`resources: data.csv` or `include-in-header: he
 ```yaml
     resources:
       - data.csv
-      - dist/*/*
+      - dist/**
     include-in-header:
       - header.html
       - text: <script src="./dist/motion-canvas-ts.js"></script>
@@ -254,7 +254,7 @@ format: revealjs
 format:
   revealjs:
     resources:
-      - dist/*/*
+      - dist/**
     include-in-header:
       - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
@@ -273,7 +273,7 @@ format:
   revealjs:
     slide-number: true
     resources:
-      - dist/*/*
+      - dist/**
     include-in-header:
       - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
@@ -301,13 +301,13 @@ These are examples, not a substitute for the check above. Each writes `<deck>.ba
 The `format: revealjs` shorthand string:
 
 ```bash
-perl -0777 -pi.bak -e 's{^format:[ \t]*revealjs[ \t]*\n}{format:\n  revealjs:\n    resources:\n      - dist/*/*\n    include-in-header:\n      - text: <script src="./dist/motion-canvas-ts.js"></script>\n}m' <deck>
+perl -0777 -pi.bak -e 's{^format:[ \t]*revealjs[ \t]*\n}{format:\n  revealjs:\n    resources:\n      - dist/**\n    include-in-header:\n      - text: <script src="./dist/motion-canvas-ts.js"></script>\n}m' <deck>
 ```
 
 A `revealjs:` mapping that has neither `resources` nor `include-in-header` yet. The guard refuses when either key exists anywhere in the deck, because those lists must be appended to by hand. The new keys take the indentation of the first key under `revealjs:`:
 
 ```bash
-grep -qE '^[[:space:]]+(resources|include-in-header):' <deck> && echo "keys already present: append by hand" || perl -0777 -pi.bak -e 's{^([ \t]*)revealjs:[ \t]*\n([ \t]+)}{$1revealjs:\n$2resources:\n$2  - dist/*/*\n$2include-in-header:\n$2  - text: <script src="./dist/motion-canvas-ts.js"></script>\n$2}m' <deck>
+grep -qE '^[[:space:]]+(resources|include-in-header):' <deck> && echo "keys already present: append by hand" || perl -0777 -pi.bak -e 's{^([ \t]*)revealjs:[ \t]*\n([ \t]+)}{$1revealjs:\n$2resources:\n$2  - dist/**\n$2include-in-header:\n$2  - text: <script src="./dist/motion-canvas-ts.js"></script>\n$2}m' <deck>
 ```
 
 ## Check the render

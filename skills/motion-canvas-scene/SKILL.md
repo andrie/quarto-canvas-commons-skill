@@ -60,6 +60,14 @@ Output goes to `dist/animations/src/<name>.js`. The shortcode references it as `
 
 Put images in `animations/src/assets/` and import them: `import logo from '../assets/logo.svg'`, then `<Img src={logo} />`. The build emits each image as a file in `dist/animations/`, and the template's `base: "./"` in `animations/vite.config.ts` makes the bundle find it there. Keep that setting: without it the animation is black in the rendered deck, with no build error, although `make serve` shows it. Do not try `assetsInlineLimit` or the `?inline` suffix: neither inlines the file in Vite 4.
 
+## Deploying to Posit Connect
+
+- Build first with `make anim`, then render and publish. `dist/` is gitignored, so a git-based deploy misses it unless it is built in the pipeline.
+- The host needs only `dist/`, `_extensions/`, `motion-canvas-ts.html` and the deck. It does not need `node_modules/`.
+- The deck's `resources` entry must be `dist/**`. The older `dist/*/*` skips `dist/animations/src/`, so the deck loads but the scene 404s and the slides show nothing (console: `Cannot read properties of null (reading 'togglePlayback')`).
+- A Posit Publisher config lists its files, and the list must include `/dist` and `/motion-canvas-ts.html`. A second config for another deck does not inherit them.
+- Check before publishing: `quarto render <deck> --output-dir /tmp/cc-out && ls /tmp/cc-out/dist/animations/src`. After deploying, `curl` the live `dist/animations/src/<name>.js`.
+
 ## Common Errors and Fixes
 
 ### TypeScript errors (from `tsc`)
@@ -87,6 +95,7 @@ Put images in `animations/src/assets/` and import them: `import logo from '../as
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | Blank animation player | Wrong `src` path in shortcode | The shortcode path must be `./animations/src/<name>.js`; the player resolves it relative to `dist/`, so it must map to the built file `dist/animations/src/<name>.js` |
+| Deployed deck is blank, console shows `Cannot read properties of null (reading 'togglePlayback')` | The scene `.js` returned 404 on the host: `resources` is not recursive, or `dist/` was not uploaded | Set `resources: - dist/**` (not `dist/*/*`), and `curl` the deployed `dist/animations/src/<name>.js`. See "How the Makefile ties them together" in `references/project-architecture.md` |
 | Animation doesn't appear | JS not loaded | Verify `include-in-header` in .qmd YAML has the script tag |
 | Colors wrong | Hardcoded hex instead of style constants | Use `Posit.blue`, `Colors.KEYWORD` etc. from styles.ts |
 

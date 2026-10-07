@@ -33,7 +33,7 @@ test('template builds the player from vite.player.config.ts, not a root vite.con
 test('template deck is deck.qmd and nothing names smoke.qmd or smoke.html', () => {
   assert.ok(!fs.existsSync(path.join(tplRoot, 'smoke.qmd')));
   const deck = read('deck.qmd');
-  assert.match(deck, /- dist\/\*\/\*/);
+  assert.match(deck, /- dist\/\*\*/);
   assert.match(deck, /- text: <script src="\.\/dist\/motion-canvas-ts\.js"><\/script>/);
   assert.match(deck, /motion-canvas \.\/animations\/src\/smoke\.js/);
   assert.match(deck, /remove-scene\.js smoke/);
@@ -85,6 +85,11 @@ test('template animations config keeps asset URLs relative and pre-bundles for t
 test('smoke scene imports an svg from src/assets, so a wrong vite base is caught', () => {
   assert.match(read('animations/src/assets/smoke.svg'), /<circle/);
   assert.match(read('animations/src/scenes/smoke.tsx'), /import dot from '\.\.\/assets\/smoke\.svg'/);
+});
+
+test('template deck publishes dist recursively, so deployed decks get dist/animations/src', () => {
+  assert.match(read('deck.qmd'), /^\s+- dist\/\*\*$/m);
+  assert.doesNotMatch(read('deck.qmd'), /dist\/\*\/\*/);
 });
 
 test('template deck has nothing between the YAML and the first slide heading (it would become an empty slide)', () => {

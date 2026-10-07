@@ -83,12 +83,12 @@ A project from an older template may have a root `vite.config.ts` as its player 
 6. The deck loads the player and copies the built files.
 
    ```bash
-   grep -nE 'dist/\*/\*|motion-canvas-ts\.js' <deck> _quarto.yml _metadata.yml 2>/dev/null
+   grep -nE 'dist/\*[*/]*|motion-canvas-ts\.js' <deck> _quarto.yml _metadata.yml 2>/dev/null
    ```
 
-   Expected: one line with `dist/*/*` (under `resources:`) and one with `./dist/motion-canvas-ts.js` (under `include-in-header:`), both under `format: revealjs:`, either in the deck or in the project's `_quarto.yml` (or a `_metadata.yml`), but not in both. Repeat for each deck that embeds animations.
+   Expected: one line with `dist/**` (under `resources:`) and one with `./dist/motion-canvas-ts.js` (under `include-in-header:`), both under `format: revealjs:`, either in the deck or in the project's `_quarto.yml` (or a `_metadata.yml`), but not in both. Repeat for each deck that embeds animations. The glob must be exactly `dist/**`: an older `dist/*/*` matches only files two levels deep, so it copies `dist/animations/*` but skips `dist/animations/src/`, where the built scenes are.
 
-   Failure: add the missing entry to the deck's YAML by appending to its existing lists, as shown in "Patching an existing deck's YAML" in `bootstrap.md`. Remove a duplicate from the deck when `_quarto.yml` already has it. Without the header script nothing registers the player element; without `resources:` the scene files are missing from the rendered output.
+   Failure: replace a `dist/*/*` entry with `dist/**`, and add any other missing entry to the deck's YAML by appending to its existing lists, as shown in "Patching an existing deck's YAML" in `bootstrap.md`. Remove a duplicate from the deck when `_quarto.yml` already has it. To confirm the scenes are copied, render to a temporary folder and list it: `quarto render <deck> --output-dir /tmp/cc-out && ls /tmp/cc-out/dist/animations/src`, which must list each scene `.js`. Without the header script nothing registers the player element; without `resources:` the scene files are missing from the rendered output.
 
 7. The Quarto extension is the current one.
 

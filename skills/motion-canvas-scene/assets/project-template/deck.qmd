@@ -5,7 +5,7 @@ format:
     width: 1920
     height: 1080
     resources:
-      - dist/*/*
+      - dist/**
     include-in-header:
       - text: <script src="./dist/motion-canvas-ts.js"></script>
 ---

@@ -20,7 +20,7 @@ R code in a `Code` node needs a highlighter that knows R, and canvas text ignore
 2. Copy `components/RHighlighter.ts` to `animations/src/components/`.
 3. Copy `assets/lezer-r.d.ts` to `animations/src/` (`lezer-r` ships no types).
 4. Copy `assets/global.css` to `animations/` and add `import '../global.css';` to the scene's project file (`animations/src/<name>.ts`).
-5. Load the built CSS in the deck. `make anim` emits it as `dist/animations/<name>.css` (check with `ls dist/animations/*.css`), and `resources: dist/*/*` already publishes it. Add to the qmd YAML. `<name>` in the CSS filename is the chunk name (`smoke.css` here, `global.css` when several projects share it), and the script path `./dist/motion-canvas-ts.js` is the template's:
+5. Load the built CSS in the deck. `make anim` emits it as `dist/animations/<name>.css` (check with `ls dist/animations/*.css`), and `resources: dist/**` already publishes it. Add to the qmd YAML. `<name>` in the CSS filename is the chunk name (`smoke.css` here, `global.css` when several projects share it), and the script path `./dist/motion-canvas-ts.js` is the template's:
 
 ```yaml
 include-in-header:
