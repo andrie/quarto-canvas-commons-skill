@@ -104,6 +104,16 @@ test('the CLI prints setup instructions and exits 2 when playwright is missing',
   assert.match(r.stderr, /npm i playwright && npx playwright install chromium/);
 });
 
+test('the CLI runs when started through a symlink', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-link-'));
+  const link = path.join(dir, 'screenshot-slide.mjs');
+  fs.symlinkSync(script, link);
+  const r = spawnSync('node', [link, '--slide', 'two'], {encoding: 'utf8'});
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /usage: screenshot-slide\.mjs/);
+  fs.rmSync(dir, {recursive: true});
+});
+
 test('the CLI prints usage and exits 1 on bad arguments', () => {
   const r = spawnSync('node', [script, '--slide', 'two'], {encoding: 'utf8'});
   assert.equal(r.status, 1);
