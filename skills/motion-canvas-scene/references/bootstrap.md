@@ -369,4 +369,4 @@ node <skill>/scripts/add-scene.js <name>
 make anim
 ```
 
-Use `make cc-anim` where the project's own Makefile already had an `anim` target. Expected: `dist/animations/src/<name>.js` exists. Reference it in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`. See `SKILL.md` for the details and for `remove-scene.js`.
+Expected: `dist/animations/src/<name>.js` exists. Reference it in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`. See `SKILL.md` for the details and for `remove-scene.js`.

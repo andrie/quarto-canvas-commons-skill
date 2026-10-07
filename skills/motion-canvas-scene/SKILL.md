@@ -56,6 +56,10 @@ The build pipeline runs:
 
 Output goes to `dist/animations/src/<name>.js`. The shortcode references it as `./animations/src/<name>.js`, which the player resolves relative to `dist/`.
 
+## Images in scenes
+
+Put images in `animations/src/assets/` and import them: `import logo from '../assets/logo.svg'`, then `<Img src={logo} />`. The build emits each image as a file in `dist/animations/`, and the template's `base: "./"` in `animations/vite.config.ts` makes the bundle find it there. Keep that setting: without it the animation is black in the rendered deck, with no build error, although `make serve` shows it. Do not try `assetsInlineLimit` or the `?inline` suffix: neither inlines the file in Vite 4.
+
 ## Common Errors and Fixes
 
 ### TypeScript errors (from `tsc`)

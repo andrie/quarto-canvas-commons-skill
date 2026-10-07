@@ -113,6 +113,8 @@ A project from an older template may have a root `vite.config.ts` as its player 
 
    If the `grep` prints nothing, the deck embeds no animation yet, so this check has proved nothing about the player: do not report it as passing. Run "Prove the player with a throwaway deck" in `bootstrap.md`, which renders a temporary copy of the deck's header with the smoke slide and deletes it afterwards, without touching the deck. Expected there: a `canvas-commons-player` count of 1 or more and the smoke `src`.
 
+   An animation that imports an image (`import logo from '../assets/logo.svg'`) needs `base: "./"` in `animations/vite.config.ts`. Without it the bundle asks for `/logo.svg` from the site root, which 404s in the deck, so the player stays black although `make serve` works and the build reports no error. Check `grep -c 'base:' animations/vite.config.ts`, and look for the image under `dist/animations/`. The template's smoke scene imports `src/assets/smoke.svg` for this reason: a screenshot of its slide (see below) shows a yellow circle above the square, and prints `page error: Failed to load an image` when `base` is wrong.
+
    Failure: a `src` path that does not match a built file is the "Blank animation player" case in `SKILL.md`: fix the shortcode path to `./animations/src/<name>.js`.
 
 ## Check the scene visually (optional)

@@ -76,6 +76,17 @@ test('template animations build owns dist/animations and empties it on rebuild',
   assert.match(read('vite.player.config.ts'), /emptyOutDir:\s*false/, 'the player build must not wipe dist/animations');
 });
 
+test('template animations config keeps asset URLs relative and pre-bundles for top-level await', () => {
+  const cfg = read('animations/vite.config.ts');
+  assert.match(cfg, /base:\s*"\.\/"/, 'imported images must not resolve from the site root');
+  assert.match(cfg, /optimizeDeps:\s*\{\s*esbuildOptions:\s*\{\s*target:\s*"esnext"/, 'yoga-layout needs top-level await in the dev server');
+});
+
+test('smoke scene imports an svg from src/assets, so a wrong vite base is caught', () => {
+  assert.match(read('animations/src/assets/smoke.svg'), /<circle/);
+  assert.match(read('animations/src/scenes/smoke.tsx'), /import dot from '\.\.\/assets\/smoke\.svg'/);
+});
+
 test('template deck has nothing between the YAML and the first slide heading (it would become an empty slide)', () => {
   const body = read('deck.qmd').split(/^---$/m)[2];
   assert.match(body, /^\s*## /);

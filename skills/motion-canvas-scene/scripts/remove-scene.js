@@ -22,6 +22,7 @@ const rm = (p) => { if (fs.existsSync(p)) { fs.rmSync(p, {force: true}); removed
 // The sources, and the .meta files the editor and vite plugin write next to them.
 for (const ext of ['.tsx', '.meta']) rm(path.join(root, 'src/scenes', `${name}${ext}`));
 for (const ext of ['.ts', '.meta']) rm(path.join(root, 'src', `${name}${ext}`));
+rm(path.join(root, 'src/assets', `${name}.svg`));
 // The built bundle and anything else named <name>.* (source map, assets) in the build output.
 const out = path.join(root, '../dist/animations/src');
 if (fs.existsSync(out)) {
