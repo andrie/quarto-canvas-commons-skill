@@ -24,7 +24,7 @@ test('template builds the player from vite.player.config.ts, not a root vite.con
   const pkg = JSON.parse(read('package.json'));
   assert.strictEqual(pkg.scripts['build:player'], 'vite build -c vite.player.config.ts');
   assert.strictEqual(pkg.scripts.build, undefined, 'no generic build script to collide with a project\'s own');
-  const mk = read('canvas-commons.mk');
+  const mk = read('Makefile');
   assert.match(mk, /npm run build:player/);
   assert.match(mk, /vite\.player\.config\.ts/);
   assert.match(mk, /find -L animations\/src/);
@@ -38,7 +38,7 @@ test('template deck is deck.qmd and nothing names smoke.qmd or smoke.html', () =
   assert.match(deck, /motion-canvas \.\/animations\/src\/smoke\.js/);
   assert.match(deck, /remove-scene\.js smoke/);
   assert.match(read('Makefile'), /^QMD_FILE = deck\.qmd$/m);
-  for (const f of ['Makefile', 'canvas-commons.mk', '.gitignore']) {
+  for (const f of ['Makefile', '.gitignore']) {
     assert.doesNotMatch(read(f), /smoke\.(qmd|html)/, f);
   }
 });
@@ -49,16 +49,15 @@ test('template .gitignore lists the build artefacts but no deck html', () => {
   assert.ok(!lines.some((l) => l.endsWith('.html')));
 });
 
-test('template Makefile includes canvas-commons.mk and aliases every cc- target', () => {
+test('template Makefile is self-contained and comments every target', () => {
+  assert.ok(!fs.existsSync(path.join(tplRoot, 'canvas-commons.mk')));
   const mk = read('Makefile');
-  assert.match(mk, /^include canvas-commons\.mk$/m);
-  for (const t of ['install', 'build', 'anim', 'force-build', 'quarto', 'preview', 'publish', 'serve', 'clean']) {
-    assert.match(mk, new RegExp(`^${t}: cc-${t}$`, 'm'), t);
-  }
-  const cc = read('canvas-commons.mk');
-  for (const line of cc.split('\n')) {
-    const m = line.match(/^([A-Za-z][\w.-]*)\s*:(?!=)/);
-    if (m && !m[1].startsWith('.')) assert.ok(m[1].startsWith('cc-'), `target ${m[1]} in canvas-commons.mk lacks the cc- prefix`);
+  assert.doesNotMatch(mk, /^include\b|cc-|CC_/m);
+  const lines = mk.split('\n');
+  for (const t of ['all', 'install', 'anim', 'force-build', 'serve', 'quarto', 'preview', 'publish', 'clean']) {
+    const at = lines.findIndex((l) => l.startsWith(`${t}:`));
+    assert.ok(at > 0, `target ${t}`);
+    assert.match(lines[at - 1], /^# /, `${t} has a comment above it`);
   }
 });
 

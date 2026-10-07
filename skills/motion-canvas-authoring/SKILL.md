@@ -5,7 +5,7 @@ description: Use when composing Canvas Commons (formerly Motion Canvas) componen
 
 # Motion Canvas Scene Authoring Patterns
 
-> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds (`make cc-anim` where the project's own Makefile already had an `anim` target). If a project differs, say so before proceeding.
+> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
 
 Before writing a scene, read `animations/src/styles.ts` (shipped by the `motion-canvas-scene` project template, a snapshot of `canvas-commons-library/styles.ts`) for current color and font values. Use the `Posit` and `Colors` objects rather than hardcoding hex values.
 

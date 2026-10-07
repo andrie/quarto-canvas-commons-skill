@@ -18,7 +18,7 @@ No output, or "No such file or directory", means a **new project**. Anything els
 
 ```bash
 cd <target>
-for f in package.json vite.config.* vite.player.config.ts Makefile canvas-commons.mk .gitignore _quarto.yml _extensions animations dist node_modules src/main.ts motion-canvas-ts.html; do [ -e "$f" ] && echo "present: $f"; done
+for f in package.json vite.config.* vite.player.config.ts Makefile .gitignore _quarto.yml _extensions animations dist node_modules src/main.ts motion-canvas-ts.html; do [ -e "$f" ] && echo "present: $f"; done
 ls *.qmd 2>/dev/null
 grep -l '@canvas-commons/' animations/package.json 2>/dev/null
 ```
@@ -26,7 +26,7 @@ grep -l '@canvas-commons/' animations/package.json 2>/dev/null
 Stop here in two cases:
 
 - `animations/package.json` mentions `@canvas-commons/` (the last command prints it): the project is already set up. Run `validate.md` instead.
-- `animations/` or `dist/` is present otherwise: the template needs both names. The build writes into `dist/` and `make cc-clean` deletes it. Ask the user: "Your project already has `animations/` (or `dist/`) for something else. Canvas Commons needs that folder name at the project root. Can you move or rename yours first?" Do not continue until they have.
+- `animations/` or `dist/` is present otherwise: the template needs both names. The build writes into `dist/` and `make clean` deletes it. Ask the user: "Your project already has `animations/` (or `dist/`) for something else. Canvas Commons needs that folder name at the project root. Can you move or rename yours first?" Do not continue until they have.
 
 The hard rule for an existing project: **never overwrite or delete a file**. For every template file, absent means copy, present means merge by the rules in "Adding to an existing project", and anything those rules cannot decide means asking the user the question given there.
 
@@ -54,7 +54,7 @@ Ask for a title too for a new deck, or derive one from the name (`conf-talk.qmd`
    mkdir -p <target> && cp -r <skill>/assets/project-template/. <target>/ && cd <target>
    ```
 
-   Expected: `ls -A` shows `Makefile`, `canvas-commons.mk`, `package.json`, `vite.player.config.ts`, `motion-canvas-ts.html`, `animations/`, `_extensions/`, `src/`, `.gitignore` and `deck.qmd`.
+   Expected: `ls -A` shows `Makefile`, `package.json`, `vite.player.config.ts`, `motion-canvas-ts.html`, `animations/`, `_extensions/`, `src/`, `.gitignore` and `deck.qmd`.
 
 2. Name the deck. The template deck is `deck.qmd`; rename it and point the `Makefile` and `.gitignore` at the new name. Run the `mv` only when `<deck>` is not `deck.qmd`.
 
@@ -98,7 +98,7 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
 
    ```bash
    T=<skill>/assets/project-template
-   for f in canvas-commons.mk vite.player.config.ts motion-canvas-ts.html src/main.ts; do
+   for f in vite.player.config.ts motion-canvas-ts.html src/main.ts; do
      if [ ! -e "$f" ]; then mkdir -p "$(dirname "$f")" && cp "$T/$f" "$f" && echo "copied: $f"
      elif cmp -s "$T/$f" "$f"; then echo "same: $f"
      else echo "DIFFERS: $f"; fi
@@ -115,7 +115,6 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
    For each `DIFFERS:` line, show `diff -r "$T/<path>" <path>` and ask:
 
    - `_extensions/andrie/motion-canvas/`: "Your project has an older copy of the motion-canvas extension. Shall I replace it with the current one?" A pre-fork copy uses the element `motion-canvas-player`, which the new player bundle never defines, so its animations stay blank.
-   - `canvas-commons.mk`: "Your `canvas-commons.mk` differs from the template's. Shall I replace it?"
    - `vite.player.config.ts`, `motion-canvas-ts.html` or `src/main.ts`: "Your project already has `<path>`, and Canvas Commons needs that name for its player bundle. Can you rename yours, or should I use your file as it is?"
 
 2. Merge `package.json`. If it is absent, copy it: `cp "$T/package.json" package.json`. If it is present, preview the merge, then write it:
@@ -136,20 +135,19 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
    sed -i.bak 's/^QMD_FILE = .*/QMD_FILE = <deck>/' Makefile && rm Makefile.bak
    ```
 
-   A `Makefile` already there: do not replace it. If it already contains `include canvas-commons.mk`, it is wired up: check `make -s cc-deck` prints `<deck>` and move on. Otherwise append the deck variable, the include, and a short alias for each target name the Makefile does not already define:
+   A `Makefile` already there: do not replace it. Find which of the template's target and variable names it already defines:
 
    ```bash
-   {
-     printf '\n# Canvas Commons animations (motion-canvas-scene skill)\nCC_QMD_FILE = %s\ninclude canvas-commons.mk\n' '<deck>'
-     for t in anim build force-build quarto preview serve; do
-       if make -pRrq -f Makefile 2>/dev/null | grep -qE "^$t:"; then echo "collision: $t, use make cc-$t" >&2
-       else printf '.PHONY: %s\n%s: cc-%s\n' "$t" "$t" "$t"; fi
-     done
-   } > /tmp/cc-makefile-append && cat /tmp/cc-makefile-append >> Makefile
-   make -s cc-deck
+   db=$(make -pRrq -f Makefile 2>/dev/null)
+   for t in all install anim force-build serve quarto preview publish clean; do echo "$db" | grep -qE "^$t:" && echo "collision: $t"; done
+   for v in QMD_FILE PORT; do echo "$db" | grep -qE "^$v " && echo "collision: $v"; done
    ```
 
-   Expected: `make -s cc-deck` prints `<deck>`, and the user's default goal is unchanged (`canvas-commons.mk` never takes it). `make -p` reads the Makefile's real rule database, so it also finds targets declared several to a line. Tell the user which `collision:` lines appeared: those short names keep doing what their Makefile did, and the Canvas Commons version is `make cc-<name>` (for example `make cc-anim`, `make cc-quarto`). Every `cc-` target always exists: `cc-install`, `cc-anim`, `cc-build`, `cc-force-build`, `cc-quarto`, `cc-preview`, `cc-publish`, `cc-serve`, `cc-clean`, `cc-deck`. One limitation to tell the user: their own `make clean` is untouched and does not remove `dist/`; `make cc-clean` does.
+   No collisions: ask "Shall I append the Canvas Commons rules from the template `Makefile` to yours?" On yes, append the template's `Makefile` from the `# Source files` line onwards, preceded by `QMD_FILE = <deck>` and `PORT = 4200`. The user's default goal stays theirs, because it is the first target in the file. Check `make -n anim` prints the build commands.
+
+   Collisions: do not append. Show the collisions and say the template's `Makefile` holds the rules, each commented. Ask whether the user wants to rename the clashing targets in the appended copy (for example `anim` to `cc-anim`) or merge by hand.
+
+   Expected: the user's own targets behave as before, and `make anim` builds. One limitation to tell the user: their own `make clean` is untouched if it collided, and does not remove `dist/`.
 
 4. Update `.gitignore`. Append each missing line, never replace the file (create it if absent):
 
@@ -186,13 +184,13 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
 
    ```bash
    npm install && npm --prefix ./animations install
-   make cc-anim
+   make anim
    quarto render <deck>
    ```
 
-   Expected: both `node_modules/` exist, `make cc-anim` exits 0 and writes `dist/motion-canvas-ts.js` and `dist/animations/src/smoke.js`, and the render exits 0. Then go to "Check the render". An existing deck has no animation slide yet, so that check cannot prove the player works: run "Prove the player with a throwaway deck" as well. Never add the smoke slide to the user's deck for this.
+   Expected: both `node_modules/` exist, `make anim` exits 0 and writes `dist/motion-canvas-ts.js` and `dist/animations/src/smoke.js`, and the render exits 0. Then go to "Check the render". An existing deck has no animation slide yet, so that check cannot prove the player works: run "Prove the player with a throwaway deck" as well. Never add the smoke slide to the user's deck for this.
 
-7. Tell the user what changed: the files copied, the `package.json` additions and conflicts, the Makefile collisions and which `cc-` names to use, the `.gitignore` lines added, and the deck YAML entries added.
+7. Tell the user what changed: the files copied, the `package.json` additions and conflicts, the Makefile targets appended or the collisions found, the `.gitignore` lines added, and the deck YAML entries added.
 
 ### Patching an existing deck's YAML
 
@@ -360,7 +358,7 @@ The template already ships `animations/src/styles.ts`, a snapshot copy of the li
 ln -s ~/.claude/skills/canvas-commons-library animations/src/lib
 ```
 
-Import from it in a scene, for example `import {Database} from '../lib/components/Database';` (a scene in `animations/src/scenes/`). The symlink holds an absolute path, so it dangles on any other machine: the `.gitignore` lists `animations/src/lib`, so it is not committed, and each machine re-creates it with the command above. The template's `animations/vite.config.ts` already sets `resolve.preserveSymlinks`, which the symlink needs for the build. `canvas-commons.mk` watches the library with `find -L`, so editing a library file triggers an incremental `make anim` (or `make cc-anim`). If a change to a linked file ever fails to rebuild (an older Makefile, say), run `make force-build` (or `make cc-force-build`).
+Import from it in a scene, for example `import {Database} from '../lib/components/Database';` (a scene in `animations/src/scenes/`). The symlink holds an absolute path, so it dangles on any other machine: the `.gitignore` lists `animations/src/lib`, so it is not committed, and each machine re-creates it with the command above. The template's `animations/vite.config.ts` already sets `resolve.preserveSymlinks`, which the symlink needs for the build. The `Makefile` watches the library with `find -L`, so editing a library file triggers an incremental `make anim`. If a change to a linked file ever fails to rebuild (an older Makefile, say), run `make force-build`.
 
 ## Adding scenes
 

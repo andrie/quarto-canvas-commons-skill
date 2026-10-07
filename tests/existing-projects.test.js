@@ -21,20 +21,6 @@ function tmpCopy(src) {
 }
 const makeN = (dir, ...args) => execFileSync('make', ['-n', ...args], {cwd: dir, encoding: 'utf8'});
 
-// The append block bootstrap.md tells Claude to add to an existing Makefile.
-function appendBlock(dir, deck) {
-  const aliases = [];
-  const collisions = [];
-  for (const t of ['anim', 'build', 'force-build', 'quarto', 'preview', 'serve']) {
-    const db = spawnSync('make', ['-pRrq', '-f', 'Makefile'], {cwd: dir, encoding: 'utf8'}).stdout;
-    if (new RegExp(`^${t}:`, 'm').test(db)) collisions.push(t);
-    else aliases.push(`.PHONY: ${t}\n${t}: cc-${t}\n`);
-  }
-  fs.appendFileSync(path.join(dir, 'Makefile'),
-    `\n# Canvas Commons animations (motion-canvas-scene skill)\nCC_QMD_FILE = ${deck}\ninclude canvas-commons.mk\n${aliases.join('')}`);
-  return collisions;
-}
-
 test('mergePackageJson adds missing deps and build:player, keeps user values', () => {
   const user = JSON.parse(fs.readFileSync(path.join(fixtures, 'quarto-with-tooling/package.json'), 'utf8'));
   const {merged, report} = mergePackageJson(tplPkg, user);
@@ -66,43 +52,23 @@ test('merge-package-json.js --dry-run writes nothing; a real run is idempotent',
   fs.rmSync(dir, {recursive: true});
 });
 
-test('template Makefile: short aliases drive the cc- targets with QMD_FILE', () => {
+test('template Makefile: targets drive the build and render QMD_FILE', () => {
   const dir = tmpCopy(tpl);
   const anim = makeN(dir, 'anim');
   assert.match(anim, /npm run build:player/);
   assert.match(anim, /npm --prefix \.\/animations run build/);
   assert.match(makeN(dir, 'quarto'), /quarto render deck\.qmd/);
-  assert.match(makeN(dir, 'cc-quarto', 'CC_QMD_FILE=conf-talk.qmd'), /quarto render conf-talk\.qmd/);
   assert.match(makeN(dir, 'quarto', 'QMD_FILE=conf-talk.qmd'), /quarto render conf-talk\.qmd/);
   assert.match(makeN(dir, 'preview'), /quarto preview deck\.qmd --no-browser --port 4200/);
-  assert.match(makeN(dir), /quarto publish deck\.qmd/, 'default goal stays all');
+  assert.match(makeN(dir), /quarto publish deck\.qmd/, 'default goal is all');
   fs.rmSync(dir, {recursive: true});
 });
 
-test('canvas-commons.mk on its own: cc-quarto stops without a deck name', () => {
-  const dir = tmpCopy(tpl);
-  const r = spawnSync('make', ['-n', '-f', 'canvas-commons.mk', 'cc-quarto'], {cwd: dir, encoding: 'utf8'});
-  assert.notEqual(r.status, 0);
-  assert.match(r.stderr, /Set CC_QMD_FILE/);
-  fs.rmSync(dir, {recursive: true});
-});
-
-test('existing Makefile: appended include keeps user targets and default goal', () => {
+test('the collision check bootstrap.md describes finds the fixture Makefile targets it shares with the template', () => {
   const dir = tmpCopy(path.join(fixtures, 'quarto-with-tooling'));
-  fs.copyFileSync(path.join(tpl, 'canvas-commons.mk'), path.join(dir, 'canvas-commons.mk'));
-  fs.cpSync(path.join(tpl, 'animations'), path.join(dir, 'animations'), {recursive: true});
-  const collisions = appendBlock(dir, 'deck.qmd');
-  assert.deepEqual(collisions, ['build']);
-  assert.equal(makeN(dir).trim(), 'quarto render deck.qmd', 'default goal is still the user\'s all');
-  assert.equal(makeN(dir, 'build').trim(), 'quarto render deck.qmd');
-  assert.equal(makeN(dir, 'clean').trim(), 'rm -rf deck.html deck_files');
-  assert.match(makeN(dir, 'anim'), /npm run build:player/);
-  assert.match(makeN(dir, 'cc-anim'), /npm run build:player/);
-  assert.match(makeN(dir, 'cc-build'), /npm --prefix \.\/animations run build/);
-  assert.match(makeN(dir, 'cc-quarto'), /quarto render deck\.qmd/);
-  assert.equal(execFileSync('make', ['-s', 'cc-deck'], {cwd: dir, encoding: 'utf8'}).trim(), 'deck.qmd');
-  const r = spawnSync('make', ['-n', 'anim'], {cwd: dir, encoding: 'utf8'});
-  assert.doesNotMatch(r.stderr, /overriding|ignoring old/, 'no recipe clashes');
+  const db = spawnSync('make', ['-pRrq', '-f', 'Makefile'], {cwd: dir, encoding: 'utf8'}).stdout;
+  const hits = ['all', 'install', 'anim', 'force-build', 'serve', 'quarto', 'preview', 'publish', 'clean'].filter((t) => new RegExp(`^${t}:`, 'm').test(db));
+  assert.deepEqual(hits, ['all', 'clean']);
   fs.rmSync(dir, {recursive: true});
 });
 

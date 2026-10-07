@@ -5,7 +5,7 @@ description: Use when starting a new Quarto presentation project that will conta
 
 # Creating, Building, and Debugging Scenes
 
-> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds (`make cc-anim` where the project's own Makefile already had an `anim` target). If a project differs, say so before proceeding.
+> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
 
 ## Starting or checking a project
 
@@ -45,10 +45,10 @@ The script prevents the two registration errors in the tables below (a missing `
 | `make force-build` | Full rebuild (ignores timestamps) |
 | `npm --prefix ./animations run build` | Direct build (runs `tsc && vite build`) |
 | `make serve` | Live preview with hot reload (vite dev server) |
-| `make quarto` | Build animations + render the deck named by `QMD_FILE` (or `CC_QMD_FILE`) |
+| `make quarto` | Build animations + render the deck named by `QMD_FILE` |
 | `make preview` | Build animations + live Quarto preview on port 4200 |
 
-The logic lives in `canvas-commons.mk` as `cc-` targets (`cc-anim`, `cc-force-build`, `cc-serve`, `cc-quarto`, `cc-preview` and so on), and the short names above are aliases. In a project whose own Makefile already defined one of those short names, it keeps its old meaning: use the `cc-` name instead. `make -s cc-deck` prints the deck.
+Every target in the `Makefile` has a comment saying what it does.
 
 The build pipeline runs:
 1. **`tsc`** — TypeScript compilation (catches type errors)

@@ -5,7 +5,7 @@ description: Use when translating a draw.io or SVG diagram into an animated Canv
 
 # SVG to Motion Canvas Translation
 
-> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds (`make cc-anim` where the project's own Makefile already had an `anim` target). If a project differs, say so before proceeding.
+> **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
 
 New scenes are created and registered with `~/.claude/skills/motion-canvas-scene/scripts/add-scene.js`.
 

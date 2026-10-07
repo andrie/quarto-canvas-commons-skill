@@ -4,7 +4,7 @@ Use this when the user asks whether their project works, or when an animation fa
 
 `<skill>` means the directory that contains this skill (the folder with `SKILL.md` and `assets/`). `<deck>` is the deck that check 3 finds, `<deck-html>` the same name ending in `.html`, and `<deck-base>` the name without its extension. The checks drive everything from that deck, never from a guessed name such as `smoke.qmd`.
 
-The `make` targets below are the `cc-` names, which exist in every project whose Makefile includes `canvas-commons.mk`, whatever short names it has. A project from an older template has no `canvas-commons.mk`: use the short names there (`make force-build`), and expect the player config to be a root `vite.config.ts`. That older layout still works.
+A project from an older template may have a root `vite.config.ts` as its player config, and may lack some of the `make` targets below. That older layout still works.
 
 ## Checks
 
@@ -34,7 +34,7 @@ The `make` targets below are the `cc-` names, which exist in every project whose
 3. The Makefile names a deck that exists, and the deck's output is ignored.
 
    ```bash
-   if grep -q '^include canvas-commons.mk' Makefile; then ls canvas-commons.mk && make -s cc-deck; else grep -E '^QMD_FILE' Makefile; fi
+   grep -E '^QMD_FILE' Makefile
    ```
 
    That prints `<deck>`. Then, with that name:
@@ -42,12 +42,12 @@ The `make` targets below are the `cc-` names, which exist in every project whose
    ```bash
    ls <deck>
    grep -nxE '/?<deck-html>' .gitignore; grep -nxE '/?(<deck-base>|\*)_files/?' .gitignore
-   ls smoke.qmd 2>/dev/null; grep -nE 'smoke\.(qmd|html)' Makefile canvas-commons.mk .gitignore _quarto.yml 2>/dev/null
+   ls smoke.qmd 2>/dev/null; grep -nE 'smoke\.(qmd|html)' Makefile .gitignore _quarto.yml 2>/dev/null
    ```
 
-   Expected: `canvas-commons.mk` is listed when the Makefile includes it, a deck name is printed, `ls` lists the deck, `.gitignore` has a `<deck-html>` line and a `<deck-base>_files/` (or `*_files/`) line, and the last line prints nothing, unless the user has deliberately kept a `smoke.qmd` deck. Also list any other `.qmd` that embeds animations (`grep -l 'motion-canvas ' *.qmd`): checks 6 and 8 apply to each of them too.
+   Expected: a deck name is printed, `ls` lists the deck, `.gitignore` has a `<deck-html>` line and a `<deck-base>_files/` (or `*_files/`) line, and the last line prints nothing, unless the user has deliberately kept a `smoke.qmd` deck. Also list any other `.qmd` that embeds animations (`grep -l 'motion-canvas ' *.qmd`): checks 6 and 8 apply to each of them too.
 
-   Failure: a Makefile that includes `canvas-commons.mk` without the file: copy it from `<skill>/assets/project-template/canvas-commons.mk`. No deck name printed: set `QMD_FILE` (template Makefile) or `CC_QMD_FILE` (a Makefile that appended the include) to the deck. A deck that does not exist: ask the user which deck is meant and set the variable to it. A missing `.gitignore` line: append `<deck-html>` or `<deck-base>_files/`. A stray `smoke.qmd` or `smoke.html`: the variable or `.gitignore` still points at the old smoke deck, so point it at the real deck.
+   Failure: no deck name printed: set `QMD_FILE` to the deck. A deck that does not exist: ask the user which deck is meant and set the variable to it. A missing `.gitignore` line: append `<deck-html>` or `<deck-base>_files/`. A stray `smoke.qmd` or `smoke.html`: the variable or `.gitignore` still points at the old smoke deck, so point it at the real deck.
 
 4. Every project file is registered in the vite config, and the config empties its output directory.
 
@@ -67,16 +67,16 @@ The `make` targets below are the `cc-` names, which exist in every project whose
 
    Expected: `outDir: "../dist/animations"` and `emptyOutDir: true`.
 
-   Failure: a config from an older template prints nothing. It sets the output only through `rollupOptions.output.dir`, so Vite will not empty a directory outside `animations/` (the build prints "outDir ... is not inside project root and will not be emptied"), and the bundle of every removed scene stays in `dist/animations/src/`. To patch it, add `outDir: "../dist/animations",` and `emptyOutDir: true,` as the first lines under `build: {`, delete the `dir: "../dist/animations",` line from `rollupOptions.output`, then `make cc-force-build`. Only set `emptyOutDir: true` when `outDir` is `../dist/animations`: pointed at `../dist` or `..` it would delete the player bundle or the project.
+   Failure: a config from an older template prints nothing. It sets the output only through `rollupOptions.output.dir`, so Vite will not empty a directory outside `animations/` (the build prints "outDir ... is not inside project root and will not be emptied"), and the bundle of every removed scene stays in `dist/animations/src/`. To patch it, add `outDir: "../dist/animations",` and `emptyOutDir: true,` as the first lines under `build: {`, delete the `dir: "../dist/animations",` line from `rollupOptions.output`, then `make force-build`. Only set `emptyOutDir: true` when `outDir` is `../dist/animations`: pointed at `../dist` or `..` it would delete the player bundle or the project.
 
 5. The build outputs exist, and the build succeeds from scratch.
 
    ```bash
    ls dist/motion-canvas-ts.js dist/animations/src/*.js
-   make cc-force-build && find dist -name "*.js" | sort
+   make force-build && find dist -name "*.js" | sort
    ```
 
-   Record the result of the `ls dist/...` command before running `make cc-force-build`, then continue. If it reports "No such file", `dist/` was missing: report that explicitly, because it alone explains a blank player, and the rebuild is the fix. Expected after the rebuild: the build exits 0, and the list includes `dist/motion-canvas-ts.js` and one `dist/animations/src/<name>.js` per project file.
+   Record the result of the `ls dist/...` command before running `make force-build`, then continue. If it reports "No such file", `dist/` was missing: report that explicitly, because it alone explains a blank player, and the rebuild is the fix. Expected after the rebuild: the build exits 0, and the list includes `dist/motion-canvas-ts.js` and one `dist/animations/src/<name>.js` per project file.
 
    Failure: match the error text against the "Common errors and fixes" tables in `SKILL.md`.
 

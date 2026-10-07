@@ -32,23 +32,22 @@ Each project file `animations/src/<name>.ts` imports its scene with the `?scene`
 
 ## How the Makefile ties them together
 
-All the build logic lives in `canvas-commons.mk`, whose targets all start with `cc-` and whose variables all start with `CC_`. The project `Makefile` names the deck and includes it. A new project's `Makefile` sets `QMD_FILE = <deck>`, includes `canvas-commons.mk`, and defines the short names below as aliases. A project that already had a Makefile gets `CC_QMD_FILE = <deck>`, the `include` line and only the aliases that did not collide appended to it, so its own targets and default goal keep working (see `bootstrap.md`).
+All the build logic lives in the project's `Makefile`, and every target has a comment. It sets `QMD_FILE = <deck>` and `PORT`, which the render and preview targets use.
 
 | Target | Does |
 |--------|------|
-| `make anim` (`cc-anim`, alias of `cc-build`) | Builds the root project, then `animations/`, each only if its sources changed |
-| `make force-build` (`cc-force-build`) | Deletes both marker files, then runs `make cc-build` |
-| `make quarto` (`cc-quarto`) | `cc-anim`, then `quarto render` on the deck |
-| `make preview` (`cc-preview`) | `cc-anim`, then `quarto preview` on port 4200 |
-| `make publish` (`cc-publish`) | `cc-anim`, then render and `quarto publish` the deck |
-| `make serve` (`cc-serve`) | The Canvas Commons editor with hot reload (`npm --prefix ./animations run serve`) |
-| `make install` (`cc-install`) | `npm install` in the root and in `animations/` |
-| `make clean` (`cc-clean`) | `rm -rf dist` |
-| `make -s cc-deck` | Prints the deck the other targets render |
+| `make anim` | Builds the root project, then `animations/`, each only if its sources changed |
+| `make force-build` | Deletes both marker files, then runs `make anim` |
+| `make quarto` | `anim`, then `quarto render` on the deck |
+| `make preview` | `anim`, then `quarto preview` on port 4200 |
+| `make publish` | `anim`, then render and `quarto publish` the deck |
+| `make serve` | The Canvas Commons editor with hot reload (`npm --prefix ./animations run serve`) |
+| `make install` | `npm install` in the root and in `animations/` |
+| `make clean` | `rm -rf dist` |
 
 Incremental builds use two timestamp markers, `dist/.build-complete` (root) and `dist/animations/.build-complete` (animations). Each is touched after a successful build, and `make` rebuilds that half only when a source file (or `package.json` or the vite config) is newer than its marker. The root half watches `package.json`, `vite.player.config.ts`, `motion-canvas-ts.html` and `src/*.ts`. The animations half watches every `.ts`, `.tsx` and `.js` file under `animations/src`, following symlinks (`find -L`), so a linked shared library counts. Deleting `dist/` removes the markers, so the next `make anim` rebuilds everything.
 
-`animations/` builds with `tsc && vite build`, so type errors fail the build before Vite runs. The deck is `CC_QMD_FILE`, which falls back to `QMD_FILE`: change that variable, never the `cc-` rules, to render a different deck.
+`animations/` builds with `tsc && vite build`, so type errors fail the build before Vite runs. The deck is `QMD_FILE`: change that variable to render a different deck.
 
 ## Known quirk: lezer-r placement
 
