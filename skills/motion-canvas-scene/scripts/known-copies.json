@@ -5,7 +5,7 @@
     "3d24e4cdbb59b60c066f3e9fc403dbdec98f46546fbc1691e67750e139d1a1e8": "0.2.0, template with the bundled player (2026-10-17)",
     "7295cd150a9fd4472e701a30dde1c71e6198947bdd885e5b759db49186d14239": "0.2.0, pre-fork copy (motion-canvas-player element)",
     "8fe2a21c7798c04aec1e5c356a8dcb165fab669c163a3dac9e9beb983bf51a17": "0.3.0",
-    "ad91104b7712265b51bcc792d05ec2443cd50c69f0552032416410a25412ee4d": "0.4.0"
+    "3c1b73b6a942fcced347a5bc62cbc4db927509967d1930333272d1ae62157504": "0.4.0"
   },
   "makefile": {
     "4de475bfdcb66731661a53d2ce2e9b049f05050d62a2246b45794d8999ace8dd": "0.2.0, original template Makefile (2026-10-06)",

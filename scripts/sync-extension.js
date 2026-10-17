@@ -92,7 +92,7 @@ function main(argv) {
   let tmp;
   if (!from && arg('--tag')) {
     tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-ext-src-'));
-    execFileSync('git', ['clone', '--quiet', '--depth', '1', '--branch', arg('--tag'), arg('--repo') ?? DEFAULT_REPO, tmp], {stdio: 'inherit'});
+    execFileSync('git', ['-c', 'advice.detachedHead=false', 'clone', '--quiet', '--depth', '1', '--branch', arg('--tag'), arg('--repo') ?? DEFAULT_REPO, tmp], {stdio: 'inherit'});
     from = tmp;
   }
   if (!from) { console.error('usage: sync-extension.js (--from DIR | --tag TAG) [--to DIR] [--check]'); process.exit(2); }
