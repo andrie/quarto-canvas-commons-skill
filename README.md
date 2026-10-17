@@ -51,22 +51,39 @@ The `seed/` folder holds worked examples of finished scenes and the diagrams the
 - [Claude Code](https://claude.com/claude-code), signed in
 - [Node.js](https://nodejs.org) version 22, to build the animations
 - `make`, which is already on macOS and Linux and comes with WSL on Windows
-- `git`, to download this repo
+- `git`, only if you install by cloning the repo
 
 These skills are tested on Linux (including WSL). They should work on macOS. They have not been tested on native Windows.
 
 ## Install
 
-You do this once.
+You do this once. There are two ways: as a Claude Code plugin, or by cloning the repo.
+
+### As a plugin (recommended)
 
 1. Open Positron, then open its terminal from the **Terminal** panel at the bottom
-2. Download this repo into a folder in your home directory
+2. Start Claude Code by typing `claude`, then add the marketplace and install the plugin
+
+   ```
+   /plugin marketplace add andrie/quarto-canvas-commons-skill
+   /plugin install canvas-commons@quarto-canvas-commons-skill
+   ```
+
+3. Start a new session so Claude picks up the skills. They appear as `/canvas-commons:motion-canvas-scene` and so on, and Claude uses them when your request matches
+
+To update later, run `claude plugin marketplace update` and then `claude plugin update canvas-commons@quarto-canvas-commons-skill`, and start a new session. A project you made earlier keeps its old copy of the extension and Makefile rules, so open it in Claude Code and ask it to "upgrade this project's Canvas Commons setup". The plugin is versioned, so you get an update when the version number in `.claude-plugin/plugin.json` changes. To remove it, run `claude plugin uninstall canvas-commons`.
+
+### By cloning the repo
+
+Use this if you want to change the skills yourself.
+
+1. Download this repo into a folder in your home directory, which needs `git`
 
    ```bash
    git clone https://github.com/andrie/quarto-canvas-commons-skill.git ~/quarto-canvas-commons-skill
    ```
 
-3. Preview what the installer will do, then run it
+2. Preview what the installer will do, then run it
 
    ```bash
    bash ~/quarto-canvas-commons-skill/scripts/install.sh --dry-run
@@ -75,7 +92,7 @@ You do this once.
 
    The installer links each skill into `~/.claude/skills`, which is where Claude Code looks for them. It never overwrites a folder that is already there.
 
-4. Start a new Claude Code session so it picks up the skills. Type `claude` in the terminal
+3. Start a new Claude Code session so it picks up the skills
 
 To update later, run `git pull` inside `~/quarto-canvas-commons-skill`. Because the skills are links, the update takes effect straight away. A project you made earlier keeps its old copy of the extension and Makefile rules, so open it in Claude Code and ask it to "upgrade this project's Canvas Commons setup". It prints a plan first, applies the safe steps, and asks before it deletes anything. To remove the skills, run the installer with `--uninstall`, which deletes only the links it made.
 

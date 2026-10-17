@@ -326,7 +326,7 @@ Hand deck writing and styling to the `quarto-presentation` skill. If a scene use
 The template already ships `animations/src/styles.ts`, a snapshot copy of the library's `styles.ts` (the library file is canonical, so a scene can `import {Posit} from '../styles'` with no symlink). The symlink adds the rest of the library: components, utils and scenes. If the `canvas-commons-library` skill is installed, symlink it into the animations source tree.
 
 ```bash
-ln -s ~/.claude/skills/canvas-commons-library animations/src/lib
+ln -s "$(readlink -f <skill>/../canvas-commons-library)" animations/src/lib
 ```
 
 Import from it in a scene, for example `import {Database} from '../lib/components/Database';` (a scene in `animations/src/scenes/`). The symlink holds an absolute path, so it dangles on any other machine: the `.gitignore` lists `animations/src/lib`, so it is not committed, and each machine re-creates it with the command above. The template's `animations/vite.config.ts` already sets `resolve.preserveSymlinks`, which the symlink needs for the build. The `Makefile` watches the library with `find -L`, so editing a library file triggers an incremental `make anim`. If a change to a linked file ever fails to rebuild (an older Makefile, say), run `make force-build`.

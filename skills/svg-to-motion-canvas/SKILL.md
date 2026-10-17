@@ -7,7 +7,7 @@ description: Use when translating a draw.io or SVG diagram into an animated Canv
 
 > **Project conventions assumed:** `animations/src/` holds scene sources, `animations/vite.config.ts` registers scenes in its `project` array, and `make anim` builds. If a project differs, say so before proceeding.
 
-New scenes are created and registered with `~/.claude/skills/motion-canvas-scene/scripts/add-scene.js`.
+New scenes are created and registered with `${CLAUDE_SKILL_DIR}/../motion-canvas-scene/scripts/add-scene.js`.
 
 A proven workflow for creating animated diagram scenes: design the static layout in draw.io, export as SVG, then translate to an animated Motion Canvas scene.
 
@@ -128,7 +128,7 @@ Three translated diagrams and one stand-alone scene are described in `references
 2. [ ] Map each element to a Motion Canvas component
 3. [ ] Read `animations/src/styles.ts` for current colors
 4. [ ] Check if library components exist (`Database`, etc., under the optional `animations/src/lib` symlink to `canvas-commons-library`) before building from scratch
-5. [ ] Create the scene file, project file and vite registration with `~/.claude/skills/motion-canvas-scene/scripts/add-scene.js <name>`
+5. [ ] Create the scene file, project file and vite registration with `${CLAUDE_SKILL_DIR}/../motion-canvas-scene/scripts/add-scene.js <name>`
 6. [ ] Position elements to fill 1920x1080 canvas with margins
 7. [ ] Connect elements using cardinal points
 8. [ ] Design animation sequence (progressive reveal)

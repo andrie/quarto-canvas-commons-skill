@@ -21,7 +21,7 @@ description: Use when starting a new Quarto presentation project that will conta
 2. Run the script from the project root (the directory with the `Makefile`):
 
    ```bash
-   node ~/.claude/skills/motion-canvas-scene/scripts/add-scene.js <name>
+   node ${CLAUDE_SKILL_DIR}/scripts/add-scene.js <name>
    ```
 
    It writes `animations/src/scenes/<name>.tsx` (a skeleton scene) and `animations/src/<name>.ts` (the project file, with the required `?scene` import), and registers `./src/<name>.ts` in the `project` array of `animations/vite.config.ts`. It refuses to overwrite an existing scene. Use `--root <animationsDir>` when you are not in the project root.
@@ -34,7 +34,7 @@ description: Use when starting a new Quarto presentation project that will conta
    Reference the result in the deck as `{{< canvas-commons ./animations/src/<name>.js fullscreen=true >}}`.
 4. Render the deck and look at the scene: "Check the scene visually" in `references/validate.md`.
 
-To delete a scene, run `node ~/.claude/skills/motion-canvas-scene/scripts/remove-scene.js <name>`. It removes the scene and project files, their `.meta` files (`src/<name>.meta`, `src/scenes/<name>.meta`, which the build writes), the registration, and the built bundle (`dist/animations/src/<name>.js` with any `<name>.*` file next to it, such as a source map), and prints each file it deleted. The next `make anim` empties `dist/animations/` and rebuilds it, so nothing stale survives; a project from an older template needs the `emptyOutDir` patch in `references/validate.md`, check 4.
+To delete a scene, run `node ${CLAUDE_SKILL_DIR}/scripts/remove-scene.js <name>`. It removes the scene and project files, their `.meta` files (`src/<name>.meta`, `src/scenes/<name>.meta`, which the build writes), the registration, and the built bundle (`dist/animations/src/<name>.js` with any `<name>.*` file next to it, such as a source map), and prints each file it deleted. The next `make anim` empties `dist/animations/` and rebuilds it, so nothing stale survives; a project from an older template needs the `emptyOutDir` patch in `references/validate.md`, check 4.
 
 The script prevents the two registration errors in the tables below (a missing `?scene` import and an unregistered project file).
 

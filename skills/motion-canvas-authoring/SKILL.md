@@ -9,7 +9,7 @@ description: Use when composing Canvas Commons (formerly Motion Canvas) componen
 
 Before writing a scene, read `animations/src/styles.ts` (shipped by the `motion-canvas-scene` project template, a snapshot of `canvas-commons-library/styles.ts`) for current color and font values. Use the `Posit` and `Colors` objects rather than hardcoding hex values.
 
-New scenes are created and registered with `~/.claude/skills/motion-canvas-scene/scripts/add-scene.js` (see the `motion-canvas-scene` skill). `Database`, `pulse` and the library scenes are not in a fresh project: they come from the optional library symlink at `animations/src/lib` (import from `../lib/...`), and `RHighlighter` comes from the `motion-canvas-r-code` skill.
+New scenes are created and registered with `${CLAUDE_SKILL_DIR}/../motion-canvas-scene/scripts/add-scene.js` (see the `motion-canvas-scene` skill). `Database`, `pulse` and the library scenes are not in a fresh project: they come from the optional library symlink at `animations/src/lib` (import from `../lib/...`), and `RHighlighter` comes from the `motion-canvas-r-code` skill.
 
 ## Standard Scene Skeleton
 

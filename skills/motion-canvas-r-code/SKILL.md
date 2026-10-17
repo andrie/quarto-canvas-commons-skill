@@ -48,7 +48,7 @@ const rHighlighter = new RHighlighter(parser, {
 <Code highlighter={rHighlighter} code={rCode} fontSize={24} fontFamily="'Fira Code', monospace" />
 ```
 
-All eight colour keys are read, so supply all of them. `assets/shiny-ellmer-code.R` is the sample R code. The worked example scene is `<skill>/../../seed/scenes/shiny-ellmer.tsx`, where `<skill>` is this skill's directory. The installed skill is a symlink into the repository, so resolve it first: `$(readlink -f ~/.claude/skills/motion-canvas-r-code)/../../seed/scenes/shiny-ellmer.tsx` (a lexical `..` from `~/.claude/skills/` would miss the repository).
+All eight colour keys are read, so supply all of them. `assets/shiny-ellmer-code.R` is the sample R code. The worked example scene is `<skill>/../../seed/scenes/shiny-ellmer.tsx`, where `<skill>` is this skill's directory. If the skill was installed as a symlink, resolve it first: `$(readlink -f ${CLAUDE_SKILL_DIR})/../../seed/scenes/shiny-ellmer.tsx` (a lexical `..` from the symlink would miss the repository).
 
 ## Other languages: Python
 

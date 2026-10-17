@@ -1,0 +1,12 @@
+{
+  "name": "quarto-canvas-commons-skill",
+  "owner": { "name": "Andrie" },
+  "description": "Claude Code skills for animated Canvas Commons scenes in Quarto decks",
+  "plugins": [
+    {
+      "name": "canvas-commons",
+      "source": ".",
+      "description": "Build, review and upgrade animated Canvas Commons scenes in Quarto revealjs decks"
+    }
+  ]
+}

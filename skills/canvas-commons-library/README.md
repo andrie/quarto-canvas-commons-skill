@@ -11,10 +11,10 @@ Shared styles, components, scenes and utilities for Canvas Commons (0.4.0) anima
 
 ## Importing from a project
 
-Symlink the library into the animations source tree, so imports stay short and do not depend on where the skill is installed:
+Symlink the library into the animations source tree, so imports stay short and do not depend on where the skills are installed. `<library>` is the folder that holds this README (`~/.claude/skills/canvas-commons-library` for a symlink install, or `skills/canvas-commons-library` inside the plugin's folder):
 
 ```bash
-ln -s ~/.claude/skills/canvas-commons-library animations/src/lib
+ln -s <library> animations/src/lib
 ```
 
 Then import from `./lib/...` (adjust the relative path for the importing file):
@@ -46,6 +46,6 @@ export default makeProject({
 });
 ```
 
-Then register `./src/hexagons.ts` in the `project` array of `animations/vite.config.ts`, either by hand or by running `node ~/.claude/skills/motion-canvas-scene/scripts/add-scene.js hexagons` and then replacing the scene import in the generated `animations/src/hexagons.ts` with the one above. Note that `add-scene.js` also writes a skeleton `animations/src/scenes/hexagons.tsx`, which you can delete once the project file no longer imports it. Build with `make anim` and reference `./animations/src/hexagons.js` in the shortcode.
+Then register `./src/hexagons.ts` in the `project` array of `animations/vite.config.ts`, either by hand or by running `node <library>/../motion-canvas-scene/scripts/add-scene.js hexagons` and then replacing the scene import in the generated `animations/src/hexagons.ts` with the one above. Note that `add-scene.js` also writes a skeleton `animations/src/scenes/hexagons.tsx`, which you can delete once the project file no longer imports it. Build with `make anim` and reference `./animations/src/hexagons.js` in the shortcode.
 
 Building a library scene through the `animations/src/lib` symlink makes the tooling write a `<scene>.meta` file next to the library file (for example `hexagons.meta`). The library folder therefore collects untracked `.meta` files, which its `.gitignore` ignores, and the metadata is shared by every project that links the library. If a project wants its own meta and timing events, copy the scene into the project's own `animations/src/scenes/` and import that copy instead.

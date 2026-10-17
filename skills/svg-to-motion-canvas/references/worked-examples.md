@@ -2,10 +2,10 @@
 
 Three draw.io diagrams and the scenes translated from them live in the repository's `<skill>/../../seed/` directory, plus one stand-alone scene. Read the pair closest to your diagram before starting. For the basics (shapes, easing, timing, layout, code), the short scenes in `seed/tour/` are the better start. The scenes assume the project layout in the `canvas-commons-library` skill's `README.md` (the library symlinked at `animations/src/lib`).
 
-Paths below are written `<skill>/../../seed/...`, where `<skill>` is this skill's directory. The installed skill is a symlink into the repository, so `<skill>/../../seed/` is the repo's `<skill>/../../seed/` directory. Do not follow `..` lexically from `~/.claude/skills/svg-to-motion-canvas`, which would give `~/.claude/seed`. Resolve the symlink first:
+Paths below are written `<skill>/../../seed/...`, where `<skill>` is this skill's directory. The skill folder sits at `skills/svg-to-motion-canvas` in the repository, whether it was installed as a symlink into a clone or as a plugin, so `<skill>/../../seed/` is the repository's `seed/` directory. If your install is a symlink, do not follow `..` lexically from `~/.claude/skills/svg-to-motion-canvas`, which would give `~/.claude/seed`. Resolve the symlink first:
 
 ```bash
-SEED="$(readlink -f ~/.claude/skills/svg-to-motion-canvas)/../../seed"
+SEED="$(readlink -f <skill>)/../../seed"
 ls "$SEED/scenes"
 ```
 
