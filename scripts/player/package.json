@@ -1,0 +1,16 @@
+{
+  "name": "canvas-commons-player-bundle",
+  "private": true,
+  "type": "module",
+  "description": "Builds the prebuilt player bundle that ships inside the Quarto extension.",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@canvas-commons/core": "0.4.0",
+    "@canvas-commons/player": "0.4.0"
+  },
+  "devDependencies": {
+    "vite": "^7.1.5"
+  }
+}

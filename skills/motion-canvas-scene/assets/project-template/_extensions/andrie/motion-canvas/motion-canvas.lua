@@ -10,7 +10,7 @@ return {
     quarto.doc.add_html_dependency({
       name = "motion-canvas", 
       version = "0.2.0",
-      scripts = {'motion-canvas-player.js'},
+      scripts = {'canvas-commons-bundle.js', 'motion-canvas-player.js'},
       head = mc_style,
     })
 
