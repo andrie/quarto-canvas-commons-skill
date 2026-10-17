@@ -93,8 +93,9 @@ function stopAnimation(event) {
     const prevPlayer = event.previousSlide.querySelector('canvas-commons-player');
     debugLog('DEBUG: previous player found:', !!prevPlayer);
     if (prevPlayer) {
-      debugLog('DEBUG: toggling playback on previous player');
-      prevPlayer.player.togglePlayback();
+      debugLog('DEBUG: pausing previous player');
+      // pass false explicitly: with no argument the call toggles, which restarts a finished loop=false scene
+      prevPlayer.player?.togglePlayback(false);
     }
   }
 }
