@@ -18,23 +18,30 @@ test('library styles.ts keeps Colors.TEXT at #ACB3BF', () => {
 const tplRoot = path.join(repo, 'skills', 'motion-canvas-scene', 'assets', 'project-template');
 const read = (rel) => fs.readFileSync(path.join(tplRoot, rel), 'utf8');
 
-test('template builds the player from vite.player.config.ts, not a root vite.config.ts', () => {
-  assert.ok(fs.existsSync(path.join(tplRoot, 'vite.player.config.ts')));
-  assert.ok(!fs.existsSync(path.join(tplRoot, 'vite.config.ts')));
-  const pkg = JSON.parse(read('package.json'));
-  assert.strictEqual(pkg.scripts['build:player'], 'vite build -c vite.player.config.ts');
-  assert.strictEqual(pkg.scripts.build, undefined, 'no generic build script to collide with a project\'s own');
+test('template has no root build: the player bundle ships inside the extension', () => {
+  for (const f of ['package.json', 'vite.player.config.ts', 'vite.config.ts', 'motion-canvas-ts.html', 'src/main.ts']) {
+    assert.ok(!fs.existsSync(path.join(tplRoot, f)), `${f} must not be in the template`);
+  }
   const mk = read('Makefile');
-  assert.match(mk, /npm run build:player/);
-  assert.match(mk, /vite\.player\.config\.ts/);
+  assert.doesNotMatch(mk, /build:player|ROOT_|motion-canvas-ts|vite\.player/);
   assert.match(mk, /find -L animations\/src/);
+  assert.match(mk, /^install:\n\tnpm --prefix \.\/animations install$/m);
+});
+
+test('extension ships the prebuilt player and the Lua loads it before the slide script', () => {
+  const ext = path.join(tplRoot, '_extensions/andrie/motion-canvas');
+  const bundle = fs.readFileSync(path.join(ext, 'canvas-commons-bundle.js'), 'utf8');
+  assert.match(bundle, /canvas-commons-player/, 'the bundle defines the player element');
+  assert.match(bundle, /new URL\(\w+,new URL\("dist\/"/, 'the bundle resolves a relative src against dist/');
+  assert.match(fs.readFileSync(path.join(ext, 'motion-canvas.lua'), 'utf8'),
+    /scripts = \{'canvas-commons-bundle\.js', 'motion-canvas-player\.js'\}/);
 });
 
 test('template deck is deck.qmd and nothing names smoke.qmd or smoke.html', () => {
   assert.ok(!fs.existsSync(path.join(tplRoot, 'smoke.qmd')));
   const deck = read('deck.qmd');
   assert.match(deck, /- dist\/\*\*/);
-  assert.match(deck, /- text: <script src="\.\/dist\/motion-canvas-ts\.js"><\/script>/);
+  assert.doesNotMatch(deck, /include-in-header|motion-canvas-ts/, 'the extension loads the player');
   assert.match(deck, /motion-canvas \.\/animations\/src\/smoke\.js/);
   assert.match(deck, /remove-scene\.js smoke/);
   assert.match(read('Makefile'), /^QMD_FILE = deck\.qmd$/m);
@@ -73,7 +80,6 @@ test('template animations build owns dist/animations and empties it on rebuild',
   assert.match(cfg, /outDir:\s*"\.\.\/dist\/animations"/);
   assert.match(cfg, /emptyOutDir:\s*true/);
   assert.doesNotMatch(cfg, /\bdir:\s*"/, 'no second output dir in rollupOptions.output');
-  assert.match(read('vite.player.config.ts'), /emptyOutDir:\s*false/, 'the player build must not wipe dist/animations');
 });
 
 test('template animations config keeps asset URLs relative and pre-bundles for top-level await', () => {

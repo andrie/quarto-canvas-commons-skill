@@ -6,8 +6,6 @@ format:
     height: 1080
     resources:
       - dist/**
-    include-in-header:
-      - text: <script src="./dist/motion-canvas-ts.js"></script>
 ---
 
 ## Smoke test {.hidetitle}
