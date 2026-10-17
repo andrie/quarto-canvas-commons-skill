@@ -31,7 +31,7 @@ description: Use when starting a new Quarto presentation project that will conta
    make anim
    ```
 
-   Reference the result in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`.
+   Reference the result in the deck as `{{< canvas-commons ./animations/src/<name>.js fullscreen=true >}}`.
 4. Render the deck and look at the scene: "Check the scene visually" in `references/validate.md`.
 
 To delete a scene, run `node ~/.claude/skills/motion-canvas-scene/scripts/remove-scene.js <name>`. It removes the scene and project files, their `.meta` files (`src/<name>.meta`, `src/scenes/<name>.meta`, which the build writes), the registration, and the built bundle (`dist/animations/src/<name>.js` with any `<name>.*` file next to it, such as a source map), and prints each file it deleted. The next `make anim` empties `dist/animations/` and rebuilds it, so nothing stale survives; a project from an older template needs the `emptyOutDir` patch in `references/validate.md`, check 4.
@@ -97,7 +97,7 @@ Put images in `animations/src/assets/` and import them: `import logo from '../as
 |---------|-------|-----|
 | Blank animation player | Wrong `src` path in shortcode | The shortcode path must be `./animations/src/<name>.js`; the player resolves it relative to `dist/`, so it must map to the built file `dist/animations/src/<name>.js` |
 | Deployed deck is blank, network tab shows a 404 for `dist/animations/src/<name>.js` | The scene `.js` returned 404 on the host: `resources` is not recursive, or `dist/` was not uploaded | Set `resources: - dist/**` (not `dist/*/*`), and `curl` the deployed `dist/animations/src/<name>.js`. See "How the Makefile ties them together" in `references/project-architecture.md` |
-| Animation doesn't appear | Player not loaded | Check the slide uses the `{{< motion-canvas >}}` shortcode (the extension adds the player only then) and that the rendered output lists `canvas-commons-bundle.js` under `<deck>_files/`. A project with an old `include-in-header` script for `motion-canvas-ts.js`: see "Moving a project to the bundled player" in `references/validate.md` |
+| Animation doesn't appear | Player not loaded | Check the slide uses the `{{< canvas-commons >}}` shortcode (the extension adds the player only then) and that the rendered output lists `canvas-commons-bundle.js` under `<deck>_files/`. A project with an old `include-in-header` script for `motion-canvas-ts.js`: see "Moving a project to the bundled player" in `references/validate.md` |
 | Colors wrong | Hardcoded hex instead of style constants | Use `Posit.blue`, `Colors.KEYWORD` etc. from styles.ts |
 
 ## Style configuration

@@ -25,7 +25,7 @@ grep -l '@canvas-commons/' animations/package.json 2>/dev/null
 
 Stop here in two cases:
 
-- `animations/package.json` mentions `@canvas-commons/` (the last command prints it): the project is already set up. Run `upgrade.md` to check it is current, then `validate.md`.
+- `animations/package.json` mentions `@canvas-commons/` (the last command prints it), or `_extensions/andrie/motion-canvas` exists: the project is already set up. Run `upgrade.md` to check it is current, then `validate.md`.
 - `animations/` or `dist/` is present otherwise: the template needs both names. The build writes into `dist/` and `make clean` deletes it. Ask the user: "Your project already has `animations/` (or `dist/`) for something else. Canvas Commons needs that folder name at the project root. Can you move or rename yours first?" Do not continue until they have.
 
 The hard rule for an existing project: **never overwrite or delete a file**. For every template file, absent means copy, present means merge by the rules in "Adding to an existing project", and anything those rules cannot decide means asking the user the question given there.
@@ -99,17 +99,17 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
    ```bash
    T=<skill>/assets/project-template
    [ -e animations ] || { cp -r "$T/animations" animations && echo "copied: animations/"; }
-   if [ ! -e _extensions/andrie/motion-canvas ]; then
-     mkdir -p _extensions/andrie && cp -r "$T/_extensions/andrie/motion-canvas" _extensions/andrie/ && echo "copied: _extensions/andrie/motion-canvas/"
-   elif diff -rq "$T/_extensions/andrie/motion-canvas" _extensions/andrie/motion-canvas >/dev/null; then echo "same: _extensions/andrie/motion-canvas/"
-   else echo "DIFFERS: _extensions/andrie/motion-canvas/"; fi
+   if [ ! -e _extensions/andrie/canvas-commons ]; then
+     mkdir -p _extensions/andrie && cp -r "$T/_extensions/andrie/canvas-commons" _extensions/andrie/ && echo "copied: _extensions/andrie/canvas-commons/"
+   elif diff -rq "$T/_extensions/andrie/canvas-commons" _extensions/andrie/canvas-commons >/dev/null; then echo "same: _extensions/andrie/canvas-commons/"
+   else echo "DIFFERS: _extensions/andrie/canvas-commons/"; fi
    ```
 
    Expected: only `copied:` and `same:` lines. The copied `animations/` includes the `smoke` scene, the toolchain proof. A root `vite.config.*` or `package.json` is the project's own: leave it alone. Canvas Commons adds nothing at the root except the extension, because the scenes build in `animations/` and the player bundle ships inside the extension.
 
    For each `DIFFERS:` line, show `diff -r "$T/<path>" <path>` and ask:
 
-   - `_extensions/andrie/motion-canvas/`: "Your project has an older copy of the motion-canvas extension. Shall I replace it with the current one?" A pre-fork copy uses the element `motion-canvas-player`, which the current player bundle never defines, so its animations stay blank. A copy from before the bundled player has no `canvas-commons-bundle.js`, so it needs the old `include-in-header` script and a `build:player` step: replacing it means following "Moving a project to the bundled player" in `validate.md`.
+   - `_extensions/andrie/canvas-commons/`: "Your project has a different copy of the Canvas Commons extension. Shall I replace it with the current one?" The extension's old name was `motion-canvas`; a project with `_extensions/andrie/motion-canvas` was set up by an older version of this skill, so stop and follow `upgrade.md` instead.
 
 2. Wire up the Makefile.
 
@@ -297,7 +297,7 @@ This proves the player and the smoke scene in the deck's real format settings wi
 
 ```bash
 awk '{l=$0; sub(/\r$/,"",l)} NR==1 && l!="---"{exit} {print} NR>1 && l=="---"{exit}' <deck> > _cc-smoke.qmd
-printf '\n## Smoke test {.hidetitle}\n\n{{< motion-canvas ./animations/src/smoke.js auto fullscreen=true >}}\n' >> _cc-smoke.qmd
+printf '\n## Smoke test {.hidetitle}\n\n{{< canvas-commons ./animations/src/smoke.js fullscreen=true >}}\n' >> _cc-smoke.qmd
 quarto render _cc-smoke.qmd
 grep -c "canvas-commons-player" _cc-smoke.html; grep -o 'src="./animations/src/smoke.js"' _cc-smoke.html; ls dist/animations/src/smoke.js
 rm -rf _cc-smoke.qmd _cc-smoke.html _cc-smoke_files
@@ -340,4 +340,4 @@ node <skill>/scripts/add-scene.js <name>
 make anim
 ```
 
-Expected: `dist/animations/src/<name>.js` exists. Reference it in the deck as `{{< motion-canvas ./animations/src/<name>.js auto fullscreen=true >}}`. See `SKILL.md` for the details and for `remove-scene.js`.
+Expected: `dist/animations/src/<name>.js` exists. Reference it in the deck as `{{< canvas-commons ./animations/src/<name>.js fullscreen=true >}}`. See `SKILL.md` for the details and for `remove-scene.js`.

@@ -28,7 +28,7 @@ Tell the user what the plan says, in plain words, then run:
 node <skill>/scripts/upgrade-project.js --root <target> --apply
 ```
 
-That replaces an untouched older extension, replaces the Makefile rules block between the `# >>> canvas-commons` and `# <<< canvas-commons` markers (the user's own rules around it stay), rewrites a Makefile that is an unedited older template while keeping its `QMD_FILE` and `PORT`, and deletes stale build output in `dist/`.
+That replaces an untouched older extension (including the rename from `_extensions/andrie/motion-canvas` to `_extensions/andrie/canvas-commons`, since the two cannot coexist), replaces the Makefile rules block between the `# >>> canvas-commons` and `# <<< canvas-commons` markers (the user's own rules around it stay), rewrites a Makefile that is an unedited older template while keeping its `QMD_FILE` and `PORT`, and deletes stale build output in `dist/`.
 
 If the project is under git, suggest committing first, or review `git diff` afterwards.
 
@@ -37,7 +37,8 @@ If the project is under git, suggest committing first, or review `git diff` afte
 Each of these needs an explicit yes. Never run the flag without one.
 
 - `remove:` lines. Ask "Your project builds its own player bundle, which the extension now provides. Shall I remove the old files and the script tag in the deck?" On yes, run the same command with `--remove-legacy` added. It removes only files it recognises as the template's, deletes the one script line in the deck (and the `include-in-header:` key if that leaves it empty) and leaves every other header entry alone.
-- `decide: the extension ... has been edited`. Show `diff -r` of the two folders, as the line says, and ask whether to replace the user's copy. The usual cause is a fix the user made in `motion-canvas-player.js`: check whether the template already has it before replacing. On yes, add `--replace-extension`.
+- `note: ... still uses {{< motion-canvas >}}`. The old shortcode name works but warns on every render. Offer to rename it, and on yes add `--rename-shortcode` (it leaves the escaped `{{{< ... >}}}` examples in a deck alone).
+- `decide: the extension ... has been edited`. Show `diff -r` of the two folders, as the line says, and ask whether to replace the user's copy. The usual cause is a fix the user made in the extension's player script (`motion-canvas-player.js`, now `canvas-commons-slides.js`): check whether the template already has it before replacing. On yes, add `--replace-extension`.
 - `decide: ... mentions motion-canvas-ts.js in a form this script does not recognise`. Find the `<script>` tag and remove it by hand.
 - `decide: the Makefile has Canvas Commons rules without the managed markers`. Follow "Upgrading a Makefile by hand" below.
 - `decide: ... no "resources: dist/**" entry`. Patch the deck as in "Patching an existing deck's YAML" in `bootstrap.md`.

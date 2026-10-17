@@ -27,7 +27,7 @@ Canvas Commons animations sit in between. They are drawn from shapes and text ra
 Quarto ships a web player for it, so an animation drops into a `revealjs` slide with one line:
 
 ```
-{{< motion-canvas ./animations/src/my-scene.js auto fullscreen=true >}}
+{{< canvas-commons ./animations/src/my-scene.js fullscreen=true >}}
 ```
 
 Writing those scripts is a developer skill. That is the gap these skills fill: Claude writes the script, builds it, drops it into your slide and checks how it looks. You describe, review and ask for changes.

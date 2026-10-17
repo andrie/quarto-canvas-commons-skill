@@ -1,43 +1,68 @@
 --- references/extensions.md
 +++ references/extensions.md
-@@ -77,25 +77,36 @@
- Then in the body:
+@@ -58,44 +58,45 @@
+ Pairs with the house `.agenda` class for sizing. Skip it on a five-minute lightning talk: an
+ agenda for three slides is noise.
+ 
+-### `andrie/motion-canvas`: Motion Canvas animations
++### `andrie/canvas-commons`: Canvas Commons animations
+ 
+-A shortcode embedding programmatic animations. **This is the one that is easy to get
+-half-right:** it needs three things, not one.
++A shortcode embedding programmatic animations built with Canvas Commons (called Motion Canvas
++before the rename). The extension, from <https://github.com/andrie/quarto-canvas-commons>
++(`quarto add andrie/quarto-canvas-commons`), ships the player and loads it itself, so a deck needs
++one entry:
+ 
+ ```yaml
+ format:
+   revealjs:
+     resources:
+-      - dist/*/*
+-    include-in-header:
+-      - text: <script src="dist/motion-canvas-ts.js"></script>
+-    filters:
+-      - motion-canvas
++      - dist/**
+ ```
+ 
+-Then in the body:
++No `include-in-header` script tag and no `filters:` entry are needed. Then in the body:
  
  ```markdown
 -{{< motion-canvas ./animations/hexagons.js fullscreen=true loop=false >}}
 -{{< motion-canvas ./animations/posit_footer.js auto fullscreen=true >}}
 -{{< motion-canvas ./animations/kayak.js width="50%" >}}
-+{{< motion-canvas ./animations/src/hexagons.js fullscreen=true loop=false >}}
-+{{< motion-canvas ./animations/src/posit_footer.js auto fullscreen=true >}}
++{{< canvas-commons ./animations/src/hexagons.js fullscreen=true loop=false >}}
++{{< canvas-commons ./animations/src/posit_footer.js fullscreen=true >}}
++{{< canvas-commons ./animations/src/kayak.js width=50% >}}
  ```
  
- Arguments seen in real decks: `fullscreen` (bare or `=true`), `background`, `loop=false`,
+-Arguments seen in real decks: `fullscreen` (bare or `=true`), `background`, `loop=false`,
 -`auto`, `width="50%"`.
-+`auto`, `width="50%"` (currently has no effect, see `references/motion-canvas-shortcode.md`).
- 
- The two half-right failures:
- 
- - Omit the `resources: dist/*/*` entry and the built JS is never copied to the output, so the
-   animation silently does not appear.
+-
+-The two half-right failures:
+-
+-- Omit the `resources: dist/*/*` entry and the built JS is never copied to the output, so the
+-  animation silently does not appear.
 -- Omit the `include-in-header` script tag and `<motion-canvas-player>` is an undefined custom
-+- Omit the `include-in-header` script tag and `<canvas-commons-player>` is an undefined custom
-   element (inert, no error).
+-  element (inert, no error).
++Options: `fullscreen` (bare or `=true`), `background`, `loop=false`, `auto=false` (do not start when
++the slide is shown) and `width=50%` (ignored with `fullscreen`). Without `auto=false` the animation
++starts when its slide is shown. The old `{{< motion-canvas >}}` name still works but warns.
++
++The half-right failure is the `resources` entry. It must be `dist/**`: with `dist/*/*` the built
++scenes under `dist/animations/src/` are never copied to the output, so the animation silently does
++not appear once the deck is published.
  
  This is also the machinery behind the `animation:` title-slide metadata hook documented in
  `andrie-style.md`. Reach for it for a title-slide footer, a section-divider background, or one
  genuinely illustrative animation, not for decoration on every slide.
  
 +To design that animation, use the `svg-to-motion-canvas` and `motion-canvas-authoring` skills,
-+plus `motion-canvas-r-code` when it displays code, and `motion-canvas-scene` to bootstrap or
-+validate the project. For what each shortcode option really does, read
++plus `motion-canvas-r-code` when it displays code, and `motion-canvas-scene` to bootstrap, upgrade
++or validate the project. For what each shortcode option really does, read
 +`references/motion-canvas-shortcode.md`.
-+
-+Provenance: the vendored copy in the `motion-canvas-scene` skill template
-+(`assets/project-template/_extensions/andrie/motion-canvas/`) is canonical for Canvas Commons
-+projects (element `canvas-commons-player`, build output `dist/animations/src/<name>.js`). The
-+canonical pre-fork version (element `motion-canvas-player`) is the infosec project's
-+`_extensions/andrie/motion-canvas/` on the machine where it was built (WSL), so other machines
-+may not have it.
 +
  ### `andrie/extent`: viewport and background control
  
