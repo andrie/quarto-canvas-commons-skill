@@ -67,3 +67,11 @@ export const BlackLabel = {
   ...BaseFont,
   fill: Colors.blackLabel,
 };
+
+// Font stacks and neutrals shared by the scenes
+export const UI = "'Segoe UI', 'Open Sans', system-ui, sans-serif";
+export const MONO = "'Cascadia Code', Consolas, 'DejaVu Sans Mono', monospace";
+export const MUTED = '#A2B8CB';
+export const PANEL = '#0B0F14';
+export const CLEAR = 'rgba(0, 0, 0, 0)';
+export const BORDER = '#2B2B2B';
