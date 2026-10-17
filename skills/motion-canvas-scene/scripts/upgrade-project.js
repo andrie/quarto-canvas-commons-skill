@@ -8,6 +8,7 @@
 //                        template, drop the stale built player in dist/
 //   --replace-extension  also replace an extension copy the user has edited (ask first)
 //   --remove-legacy      also delete the old root player build and the old script tag (ask first)
+//   --rename-shortcode   also rewrite {{< motion-canvas >}} to {{< canvas-commons >}} in the decks
 //
 // The script never edits a file it cannot recognise. Those cases print a "decide:" line.
 import crypto from 'node:crypto';
@@ -17,7 +18,8 @@ import {fileURLToPath} from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const templateDir = path.join(here, '../assets/project-template');
-const EXT = '_extensions/andrie/motion-canvas';
+const EXT = '_extensions/andrie/canvas-commons';
+const OLD_EXT = '_extensions/andrie/motion-canvas';
 const BLOCK = /^# >>> canvas-commons[^\n]*\n[\s\S]*?^# <<< canvas-commons[^\n]*(\n|$)/m;
 const OLD_TAG = /^[ \t]*-[ \t]*text:[ \t]*<script src="\.\/dist\/motion-canvas-ts\.js"><\/script>[ \t]*$/;
 
@@ -75,7 +77,7 @@ function stripOldTag(text) {
   return {text: out.join(eol), removed};
 }
 
-export function upgrade(root, {apply = false, replaceExtension = false, removeLegacy = false} = {}) {
+export function upgrade(root, {apply = false, replaceExtension = false, removeLegacy = false, renameShortcode = false} = {}) {
   const log = [];
   const say = (kind, msg) => log.push(`${kind}: ${msg}`);
   const known = loadKnownCopies();
@@ -90,30 +92,63 @@ export function upgrade(root, {apply = false, replaceExtension = false, removeLe
     return {log, pending, decisions: 1};
   }
 
-  // 1. The extension
+  // 1. The extension. It was called motion-canvas before 0.4.0, and the two folders must not coexist:
+  // both would define the player.
   const projExt = path.join(root, EXT);
+  const oldExt = path.join(root, OLD_EXT);
+  const tplHash = hashDir(tplExt);
   const copyExt = () => {
     fs.rmSync(projExt, {recursive: true, force: true});
     fs.mkdirSync(path.dirname(projExt), {recursive: true});
     fs.cpSync(tplExt, projExt, {recursive: true});
   };
-  if (!exists(projExt)) {
-    say('upgrade', `the extension is missing: copy it from the template (version ${tplVersion})`);
-    pending++;
-    if (apply) { copyExt(); say('done', 'copied the extension'); pending--; }
-  } else {
-    const h = hashDir(projExt);
-    if (h === hashDir(tplExt)) say('ok', `extension is current (${tplVersion})`);
-    else if (known.extension[h]) {
-      say('upgrade', `extension is an older copy (${known.extension[h]}): replace it with ${tplVersion}`);
+  const removeOld = () => fs.rmSync(oldExt, {recursive: true, force: true});
+  const classify = (dir) => {
+    const h = hashDir(dir);
+    return h === tplHash ? {state: 'current'} : known.extension[h] ? {state: 'known', label: known.extension[h]} : {state: 'modified'};
+  };
+  const editedNote = (dir) => `has been edited (version ${extensionVersion(dir) ?? 'unknown'}). Review it against ${tplExt} before replacing: a fix of yours may already be in the template`;
+
+  if (exists(projExt)) {
+    const c = classify(projExt);
+    if (c.state === 'current') say('ok', `extension is current (${tplVersion})`);
+    else if (c.state === 'known') {
+      say('upgrade', `extension is an older copy (${c.label}): replace it with ${tplVersion}`);
       pending++;
       if (apply) { copyExt(); say('done', `replaced the extension with ${tplVersion}`); pending--; }
     } else {
-      say('decide', `the extension in ${EXT} has been edited (version ${extensionVersion(projExt) ?? 'unknown'}, template is ${tplVersion}). Review: diff -r ${path.join(templateDir, EXT)} ${projExt}`);
+      say('decide', `the extension in ${EXT} ${editedNote(projExt)}`);
       pending++;
       if (apply && replaceExtension) { copyExt(); say('done', 'replaced the edited extension, as asked'); pending--; }
       else decisions++;
     }
+    if (exists(oldExt)) {
+      const o = classify(oldExt);
+      if (o.state === 'modified' && !(apply && replaceExtension)) {
+        say('decide', `${OLD_EXT} still exists next to ${EXT}, and it ${editedNote(oldExt)}. Two copies define the player twice`);
+        pending++; decisions++;
+      } else {
+        say('upgrade', `${OLD_EXT} is the extension's old name and must go: ${EXT} replaces it`);
+        pending++;
+        if (apply) { removeOld(); say('done', `removed ${OLD_EXT}`); pending--; }
+      }
+    }
+  } else if (exists(oldExt)) {
+    const o = classify(oldExt);
+    if (o.state === 'modified') {
+      say('decide', `the extension in ${OLD_EXT} ${editedNote(oldExt)}. It is now ${EXT}`);
+      pending++;
+      if (apply && replaceExtension) { removeOld(); copyExt(); say('done', `replaced the edited extension with ${EXT}, as asked`); pending--; }
+      else decisions++;
+    } else {
+      say('upgrade', `extension ${OLD_EXT} (${o.label ?? tplVersion}) is now ${EXT} ${tplVersion}: replace it`);
+      pending++;
+      if (apply) { removeOld(); copyExt(); say('done', `replaced ${OLD_EXT} with ${EXT} ${tplVersion}`); pending--; }
+    }
+  } else {
+    say('upgrade', `the extension is missing: copy it from the template (version ${tplVersion})`);
+    pending++;
+    if (apply) { copyExt(); say('done', 'copied the extension'); pending--; }
   }
 
   // 2. The Makefile
@@ -224,7 +259,20 @@ export function upgrade(root, {apply = false, replaceExtension = false, removeLe
     if (apply) { for (const f of stale) fs.rmSync(path.join(root, f)); say('done', 'deleted the stale build output'); pending--; }
   }
 
-  // 5. Report, never change: a deck that uses the shortcode but would lose its scenes when published
+  // 5. Decks that still use the old shortcode name (it works, with a warning)
+  const OLD_SHORTCODE = /(?<!\{)\{\{<\s*motion-canvas\b/g;
+  for (const f of deckFiles(root).filter((n) => n.endsWith('.qmd'))) {
+    const text = read(path.join(root, f));
+    if (!OLD_SHORTCODE.test(text)) continue;
+    OLD_SHORTCODE.lastIndex = 0;
+    if (apply && renameShortcode) {
+      fs.writeFileSync(path.join(root, f), text.replace(OLD_SHORTCODE, (m) => m.replace('motion-canvas', 'canvas-commons')));
+      say('done', `${f}: renamed the {{< motion-canvas >}} shortcodes to {{< canvas-commons >}}`);
+    } else say('note', `${f} still uses {{< motion-canvas >}}, which works but warns: --rename-shortcode updates it`);
+  }
+  OLD_SHORTCODE.lastIndex = 0;
+
+  // 6. Report, never change: a deck that uses the shortcode but would lose its scenes when published
   const projectYaml = ['_quarto.yml', '_metadata.yml'].filter((f) => exists(path.join(root, f))).map((f) => read(path.join(root, f)));
   const projectHasResources = projectYaml.some((t) => /dist\/\*\*/.test(t));
   for (const f of deckFiles(root).filter((n) => n.endsWith('.qmd'))) {
@@ -245,6 +293,7 @@ function main(argv) {
     apply: opt('--apply'),
     replaceExtension: opt('--replace-extension'),
     removeLegacy: opt('--remove-legacy'),
+    renameShortcode: opt('--rename-shortcode'),
   });
   for (const line of log) console.log(line);
   if (pending === 0 && decisions === 0) console.log('up to date');

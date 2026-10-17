@@ -4,12 +4,14 @@
     "c9a97a124e7e6f4e2ab352ccbcf0eedcda766fcdc91ac703851a07ff8b416756": "0.2.0, template with the pause fix (2026-10-17)",
     "3d24e4cdbb59b60c066f3e9fc403dbdec98f46546fbc1691e67750e139d1a1e8": "0.2.0, template with the bundled player (2026-10-17)",
     "7295cd150a9fd4472e701a30dde1c71e6198947bdd885e5b759db49186d14239": "0.2.0, pre-fork copy (motion-canvas-player element)",
-    "8fe2a21c7798c04aec1e5c356a8dcb165fab669c163a3dac9e9beb983bf51a17": "0.3.0 (current template)"
+    "8fe2a21c7798c04aec1e5c356a8dcb165fab669c163a3dac9e9beb983bf51a17": "0.3.0",
+    "ad91104b7712265b51bcc792d05ec2443cd50c69f0552032416410a25412ee4d": "0.4.0"
   },
   "makefile": {
     "4de475bfdcb66731661a53d2ce2e9b049f05050d62a2246b45794d8999ace8dd": "0.2.0, original template Makefile (2026-10-06)",
     "092472fc757336738beef4daff1af44827cdcc0dc45800f1cc65dce0840e30c0": "0.2.0, self-contained template Makefile with the root player build",
     "1f9cac04043a272c09423f25272e16f6d3868c68fd2e17754ea64e2816004770": "0.2.0, template Makefile without the root player build",
-    "974e1bff5e97c8777a5a7d2bb89057aa46e78900fa22278d2fe9801cb3c40f83": "0.3.0 template Makefile"
+    "974e1bff5e97c8777a5a7d2bb89057aa46e78900fa22278d2fe9801cb3c40f83": "0.3.0",
+    "92afab19dcb4c3d0bef391e0df40d1718ced04045f1580f1e03c19daa19ad533": "0.4.0"
   }
 }

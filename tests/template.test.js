@@ -28,19 +28,21 @@ test('template has no root build: the player bundle ships inside the extension',
   assert.match(mk, /^install:\n\tnpm --prefix \.\/animations install$/m);
 });
 
-test('extension ships the prebuilt player and the Lua loads it before the slide script', () => {
-  const ext = path.join(tplRoot, '_extensions/andrie/motion-canvas');
-  const bundle = fs.readFileSync(path.join(ext, 'canvas-commons-bundle.js'), 'utf8');
-  assert.match(bundle, /canvas-commons-player/, 'the bundle defines the player element');
-  assert.match(bundle, /new URL\(\w+,new URL\("dist\/"/, 'the bundle resolves a relative src against dist/');
-  assert.match(fs.readFileSync(path.join(ext, 'motion-canvas.lua'), 'utf8'),
-    /scripts = \{'canvas-commons-bundle\.js', 'motion-canvas-player\.js'\}/);
+test('the template carries the extension recorded in extension-source.json, under its new name', () => {
+  const ext = path.join(tplRoot, '_extensions/andrie/canvas-commons');
+  for (const f of ['_extension.yml', 'canvas-commons.lua', 'canvas-commons-bundle.js', 'canvas-commons-slides.js']) {
+    assert.ok(fs.existsSync(path.join(ext, f)), f);
+  }
+  assert.ok(!fs.existsSync(path.join(tplRoot, '_extensions/andrie/motion-canvas')), 'the old folder name must be gone');
+  const source = JSON.parse(fs.readFileSync(path.join(tplRoot, '..', 'extension-source.json'), 'utf8'));
+  assert.equal(source.version, read('_extensions/andrie/canvas-commons/_extension.yml').match(/^version:\s*(\S+)/m)[1]);
+  assert.equal(source.dirty, false, 'sync from a clean checkout so the recorded commit is true');
 });
 
 test('extension, Lua and the Makefile block carry one version', () => {
-  const ext = '_extensions/andrie/motion-canvas';
+  const ext = '_extensions/andrie/canvas-commons';
   const yml = read(`${ext}/_extension.yml`).match(/^version:\s*(\S+)/m)[1];
-  assert.equal(read(`${ext}/motion-canvas.lua`).match(/version = "([^"]+)"/)[1], yml);
+  assert.equal(read(`${ext}/canvas-commons.lua`).match(/local VERSION = "([^"]+)"/)[1], yml);
   const mk = read('Makefile');
   assert.equal(mk.match(/^# >>> canvas-commons (\S+)/m)[1], yml);
   assert.match(mk, /^# <<< canvas-commons$/m);
@@ -52,8 +54,7 @@ test('template deck is deck.qmd and nothing names smoke.qmd or smoke.html', () =
   const deck = read('deck.qmd');
   assert.match(deck, /- dist\/\*\*/);
   assert.doesNotMatch(deck, /include-in-header|motion-canvas-ts/, 'the extension loads the player');
-  assert.match(deck, /motion-canvas \.\/animations\/src\/smoke\.js/);
-  assert.match(deck, /remove-scene\.js smoke/);
+  assert.match(deck, /\{\{< canvas-commons \.\/animations\/src\/smoke\.js/);
   assert.match(read('Makefile'), /^QMD_FILE = deck\.qmd$/m);
   for (const f of ['Makefile', '.gitignore']) {
     assert.doesNotMatch(read(f), /smoke\.(qmd|html)/, f);

@@ -19,7 +19,8 @@ import {hashDir, hashText, normaliseMakefile, loadKnownCopies, templateDir} from
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const tplRel = 'skills/motion-canvas-scene/assets/project-template';
 const outPath = path.join(repo, 'skills/motion-canvas-scene/scripts/known-copies.json');
-const EXT = '_extensions/andrie/motion-canvas';
+const EXT = '_extensions/andrie/canvas-commons';
+const OLD_EXT = '_extensions/andrie/motion-canvas';
 
 const known = fs.existsSync(outPath) ? loadKnownCopies() : {extension: {}, makefile: {}};
 const add = (kind, hash, label) => {
@@ -32,9 +33,15 @@ const version = (dir) => fs.readFileSync(path.join(dir, '_extension.yml'), 'utf8
 function recordRev(rev, label) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-known-'));
   try {
-    const files = execFileSync('git', ['ls-tree', '-r', '--name-only', rev, '--', `${tplRel}/${EXT}`], {cwd: repo, encoding: 'utf8'}).split('\n').filter(Boolean);
+    // the folder was called motion-canvas before 0.4.0
+    let extDir = EXT;
+    let files = execFileSync('git', ['ls-tree', '-r', '--name-only', rev, '--', `${tplRel}/${EXT}`], {cwd: repo, encoding: 'utf8'}).split('\n').filter(Boolean);
+    if (files.length === 0) {
+      extDir = OLD_EXT;
+      files = execFileSync('git', ['ls-tree', '-r', '--name-only', rev, '--', `${tplRel}/${OLD_EXT}`], {cwd: repo, encoding: 'utf8'}).split('\n').filter(Boolean);
+    }
     for (const f of files) {
-      const dest = path.join(tmp, EXT, path.relative(`${tplRel}/${EXT}`, f));
+      const dest = path.join(tmp, EXT, path.relative(`${tplRel}/${extDir}`, f));
       fs.mkdirSync(path.dirname(dest), {recursive: true});
       fs.writeFileSync(dest, execFileSync('git', ['show', `${rev}:${f}`], {cwd: repo, maxBuffer: 1 << 26}));
     }
@@ -54,7 +61,7 @@ for (let i = 0; i < argv.length; i++) {
 }
 if (pairs.length === 0) {
   const ext = path.join(templateDir, EXT);
-  const label = `${version(ext)} (current template)`;
+  const label = version(ext);
   add('extension', hashDir(ext), label);
   add('makefile', hashText(normaliseMakefile(fs.readFileSync(path.join(templateDir, 'Makefile'), 'utf8'))), label);
 }

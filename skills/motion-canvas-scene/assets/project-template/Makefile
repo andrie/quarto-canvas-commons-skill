@@ -5,7 +5,7 @@
 QMD_FILE = deck.qmd
 PORT = 4200
 
-# >>> canvas-commons 0.3.0 (managed block: the motion-canvas-skill upgrade replaces everything up to the closing marker, so keep your own rules outside it)
+# >>> canvas-commons 0.4.0 (managed block: the motion-canvas-skill upgrade replaces everything up to the closing marker, so keep your own rules outside it)
 # Source files. find -L follows the optional animations/src/lib symlink.
 ANIM_SOURCES := $(shell find -L animations/src -name "*.ts" -o -name "*.tsx" -o -name "*.js" 2>/dev/null)
 

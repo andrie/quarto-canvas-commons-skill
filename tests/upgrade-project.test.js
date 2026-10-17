@@ -10,8 +10,10 @@ import {hashDir, hashText, normaliseMakefile, loadKnownCopies, templateDir, upgr
 const here = path.dirname(fileURLToPath(import.meta.url));
 const legacy = path.join(here, 'fixtures/legacy-project');
 const script = path.join(here, '../skills/motion-canvas-scene/scripts/upgrade-project.js');
-const EXT = '_extensions/andrie/motion-canvas';
+const EXT = '_extensions/andrie/canvas-commons';
+const OLD_EXT = '_extensions/andrie/motion-canvas';
 
+const tplVersion = fs.readFileSync(path.join(templateDir, EXT, '_extension.yml'), 'utf8').match(/^version:\s*(\S+)/m)[1];
 const copy = (src) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-upgrade-'));
   fs.cpSync(src, dir, {recursive: true});
@@ -33,7 +35,7 @@ test('plan mode on a legacy project changes nothing and lists every step', () =>
   const {log, pending} = upgrade(dir);
   assert.equal(hashDir(dir), before);
   const text = log.join('\n');
-  assert.match(text, /upgrade: extension is an older copy/);
+  assert.match(text, /upgrade: extension _extensions\/andrie\/motion-canvas \(.*\) is now _extensions\/andrie\/canvas-commons/);
   assert.match(text, /upgrade: Makefile is an unedited older template/);
   assert.match(text, /remove: vite\.player\.config\.ts/);
   assert.match(text, /remove: package\.json/);
@@ -46,6 +48,7 @@ test('--apply replaces the extension and Makefile but keeps the legacy files unt
   const dir = copy(legacy);
   upgrade(dir, {apply: true});
   assert.equal(hashDir(path.join(dir, EXT)), hashDir(path.join(templateDir, EXT)));
+  assert.ok(!fs.existsSync(path.join(dir, OLD_EXT)), 'the old folder name is removed');
   const mk = read(dir, 'Makefile');
   assert.match(mk, /^QMD_FILE = talk\.qmd$/m, 'the deck name survives');
   assert.match(mk, /^# >>> canvas-commons /m);
@@ -65,19 +68,22 @@ test('--apply --remove-legacy finishes the migration, and a second run has nothi
   assert.match(deck, /\{\{< motion-canvas/, 'the slide content stays');
   const again = upgrade(dir);
   assert.equal(again.pending, 0);
-  assert.deepEqual(kinds(again.log).filter((k) => k !== 'ok'), []);
+  assert.deepEqual(kinds(again.log).filter((k) => k !== 'ok'), ['note'], 'only the shortcode name is left, and it still works');
+  assert.match(again.log.join('\n'), /still uses \{\{< motion-canvas >\}\}/);
   fs.rmSync(dir, {recursive: true});
 });
 
 test('an edited extension is not replaced without --replace-extension', () => {
   const dir = copy(legacy);
-  fs.appendFileSync(path.join(dir, EXT, 'motion-canvas-player.js'), '\n// my edit\n');
-  const hash = hashDir(path.join(dir, EXT));
+  fs.appendFileSync(path.join(dir, OLD_EXT, 'motion-canvas-player.js'), '\n// my edit\n');
+  const hash = hashDir(path.join(dir, OLD_EXT));
   const first = upgrade(dir, {apply: true});
-  assert.equal(hashDir(path.join(dir, EXT)), hash);
-  assert.match(first.log.join('\n'), /decide: the extension .* has been edited/);
+  assert.equal(hashDir(path.join(dir, OLD_EXT)), hash);
+  assert.ok(!fs.existsSync(path.join(dir, EXT)));
+  assert.match(first.log.join('\n'), /decide: the extension in _extensions\/andrie\/motion-canvas has been edited/);
   upgrade(dir, {apply: true, replaceExtension: true});
   assert.equal(hashDir(path.join(dir, EXT)), hashDir(path.join(templateDir, EXT)));
+  assert.ok(!fs.existsSync(path.join(dir, OLD_EXT)));
   fs.rmSync(dir, {recursive: true});
 });
 
@@ -101,7 +107,7 @@ test('the managed block is replaced in place and the user\'s own rules survive',
   const next = read(dir, 'Makefile');
   assert.match(next, /^mine:\n\techo first/m);
   assert.match(next, /^after:\n\techo last/m);
-  assert.match(next, /^# >>> canvas-commons 0\.3\.0/m);
+  assert.match(next, new RegExp(`^# >>> canvas-commons ${tplVersion.replace(/\./g, '\\.')}`, 'm'));
   assert.equal(next.split('\n').filter((l) => l.startsWith('# >>> canvas-commons')).length, 1);
   fs.rmSync(dir, {recursive: true});
 });
@@ -116,5 +122,35 @@ test('the command line prints the plan and exits 0', () => {
 test('a folder without animations/ is not upgraded', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-upgrade-'));
   assert.match(upgrade(dir).log[0], /decide: no animations\/ folder/);
+  fs.rmSync(dir, {recursive: true});
+});
+
+test('both folder names present: an untouched old one is removed, an edited one is not', () => {
+  const dir = copy(legacy);
+  fs.cpSync(path.join(templateDir, EXT), path.join(dir, EXT), {recursive: true});
+  const plan = upgrade(dir);
+  assert.match(plan.log.join('\n'), /upgrade: _extensions\/andrie\/motion-canvas is the extension's old name and must go/);
+  upgrade(dir, {apply: true});
+  assert.ok(!fs.existsSync(path.join(dir, OLD_EXT)));
+  fs.cpSync(path.join(legacy, OLD_EXT), path.join(dir, OLD_EXT), {recursive: true});
+  fs.appendFileSync(path.join(dir, OLD_EXT, 'motion-canvas.lua'), '\n-- mine\n');
+  const {log} = upgrade(dir, {apply: true});
+  assert.ok(fs.existsSync(path.join(dir, OLD_EXT)), 'an edited old copy is kept');
+  assert.match(log.join('\n'), /decide: _extensions\/andrie\/motion-canvas still exists next to/);
+  fs.rmSync(dir, {recursive: true});
+});
+
+test('--rename-shortcode rewrites the old shortcode but not the escaped example', () => {
+  const dir = copy(legacy);
+  fs.appendFileSync(path.join(dir, 'talk.qmd'), '\n{{< motion-canvas ./animations/src/b.js loop=false >}}\n\n{{{< motion-canvas ./animations/src/example.js >}}}\n');
+  upgrade(dir, {apply: true});
+  assert.match(read(dir, 'talk.qmd'), /\{\{< motion-canvas /, 'not renamed without the flag');
+  const {log} = upgrade(dir, {apply: true, renameShortcode: true});
+  const deck = read(dir, 'talk.qmd');
+  assert.doesNotMatch(deck, /(?<!\{)\{\{< motion-canvas/);
+  assert.match(deck, /\{\{< canvas-commons \.\/animations\/src\/smoke\.js/);
+  assert.match(deck, /\{\{< canvas-commons \.\/animations\/src\/b\.js loop=false >\}\}/);
+  assert.match(deck, /\{\{\{< motion-canvas \.\/animations\/src\/example\.js >\}\}\}/, 'the escaped example is left alone');
+  assert.match(log.join('\n'), /done: talk\.qmd: renamed/);
   fs.rmSync(dir, {recursive: true});
 });

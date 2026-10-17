@@ -10,6 +10,6 @@ format:
 
 ## Smoke test {.hidetitle}
 
-<!-- Toolchain proof: once the first real scene builds, delete this slide and run `node ~/.claude/skills/motion-canvas-scene/scripts/remove-scene.js smoke`. -->
+<!-- Toolchain proof. Once your first real scene builds, delete this slide, then delete animations/src/smoke.ts and animations/src/scenes/smoke.tsx, and remove "./src/smoke.ts" from animations/vite.config.ts. -->
 
-{{< motion-canvas ./animations/src/smoke.js auto fullscreen=true >}}
+{{< canvas-commons ./animations/src/smoke.js fullscreen=true >}}
