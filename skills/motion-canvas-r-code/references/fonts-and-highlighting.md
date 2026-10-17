@@ -20,7 +20,7 @@ import <name> from './scenes/<name>?scene';
 import '../global.css';
 ```
 
-Importing it there is not enough for a deployed deck. Verified in a copy of the bootstrap template (a Quarto deck that loads `./dist/motion-canvas-ts.js`, with `resources: dist/**`): `vite build` emits the CSS as a separate file, `dist/animations/<name>.css` (here `smoke.css`; it can be `global.css` when several projects share it, so run `ls dist/animations/*.css`), and the scene bundle does not inject it. Rendered in headless Chromium, with no further change, `document.fonts` listed no Fira Code or Open Sans face at all, and a canvas `measureText` for `80px 'Fira Code', serif` matched the plain serif fallback (323.4 px for the same string). The deck page must load the CSS. Add one line to the qmd:
+Importing it there is not enough for a deployed deck. Verified in a copy of the bootstrap template (a Quarto deck with `resources: dist/**`): `vite build` emits the CSS as a separate file, `dist/animations/<name>.css` (here `smoke.css`; it can be `global.css` when several projects share it, so run `ls dist/animations/*.css`), and the scene bundle does not inject it. Rendered in headless Chromium, with no further change, `document.fonts` listed no Fira Code or Open Sans face at all, and a canvas `measureText` for `80px 'Fira Code', serif` matched the plain serif fallback (323.4 px for the same string). The deck page must load the CSS. Add one line to the qmd:
 
 ```yaml
 format:
@@ -28,7 +28,6 @@ format:
     resources:
       - dist/**
     include-in-header:
-      - text: <script src="./dist/motion-canvas-ts.js"></script>
       - text: <link rel="stylesheet" href="./dist/animations/<name>.css">
 ```
 

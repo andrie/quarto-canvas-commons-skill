@@ -4,32 +4,32 @@ Use this when the user asks whether their project works, or when an animation fa
 
 `<skill>` means the directory that contains this skill (the folder with `SKILL.md` and `assets/`). `<deck>` is the deck that check 3 finds, `<deck-html>` the same name ending in `.html`, and `<deck-base>` the name without its extension. The checks drive everything from that deck, never from a guessed name such as `smoke.qmd`.
 
-A project from an older template may have a root `vite.config.ts` as its player config, and may lack some of the `make` targets below. That older layout still works.
+A project from an older template may build the player itself (a root `package.json`, `vite.player.config.ts` or `vite.config.ts`, `motion-canvas-ts.html` and `src/main.ts`) and may lack some of the `make` targets below. That layout still works until the extension is replaced: then follow "Moving a project to the bundled player" at the end of this file.
 
 ## Checks
 
-1. Both package files exist, and nothing refers to the old scope.
+1. The animations package file exists, and nothing refers to the old scope.
 
    ```bash
-   ls package.json animations/package.json
-   grep -rn "@motion-canvas/" package.json animations/package.json animations/src # PORT-NOTE: deliberate old scope
+   ls animations/package.json
+   grep -rn "@motion-canvas/" animations/package.json animations/src # PORT-NOTE: deliberate old scope
    grep -rln "lezer-r" animations/src
    grep -n "lezer-r" animations/package.json
    ```
 
-   Expected: both files listed; the first `grep` prints nothing; if the second `grep` lists any file, the third prints a `lezer-r` line. A `grep` that prints nothing exits 1, which is the expected clean result here, not a failure.
+   Expected: the file listed; the first `grep` prints nothing; if the second `grep` lists any file, the third prints a `lezer-r` line. A `grep` that prints nothing exits 1, which is the expected clean result here, not a failure.
 
-   Failure: a missing `package.json` means this is not a project (use `bootstrap.md`). Any `@motion-canvas/` hit is a stale scope: replace it with `@canvas-commons/` (the `lib/...` import and `offset` rules in the `SKILL.md` error tables also apply). A missing `lezer-r` line: `npm --prefix ./animations install lezer-r`. <!-- PORT-NOTE: deliberate old scope -->
+   Failure: a missing `animations/package.json` means this is not a project (use `bootstrap.md`). Any `@motion-canvas/` hit is a stale scope: replace it with `@canvas-commons/` (the `lib/...` import and `offset` rules in the `SKILL.md` error tables also apply). A missing `lezer-r` line: `npm --prefix ./animations install lezer-r`. <!-- PORT-NOTE: deliberate old scope -->
 
-2. Both dependency trees are installed.
+2. The dependencies are installed.
 
    ```bash
-   ls -d node_modules animations/node_modules
+   ls -d animations/node_modules
    ```
 
-   Expected: both directories listed.
+   Expected: the directory listed.
 
-   Failure: `npm install && npm --prefix ./animations install`.
+   Failure: `npm --prefix ./animations install`.
 
 3. The Makefile names a deck that exists, and the deck's output is ignored.
 
@@ -67,28 +67,28 @@ A project from an older template may have a root `vite.config.ts` as its player 
 
    Expected: `outDir: "../dist/animations"` and `emptyOutDir: true`.
 
-   Failure: a config from an older template prints nothing. It sets the output only through `rollupOptions.output.dir`, so Vite will not empty a directory outside `animations/` (the build prints "outDir ... is not inside project root and will not be emptied"), and the bundle of every removed scene stays in `dist/animations/src/`. To patch it, add `outDir: "../dist/animations",` and `emptyOutDir: true,` as the first lines under `build: {`, delete the `dir: "../dist/animations",` line from `rollupOptions.output`, then `make force-build`. Only set `emptyOutDir: true` when `outDir` is `../dist/animations`: pointed at `../dist` or `..` it would delete the player bundle or the project.
+   Failure: a config from an older template prints nothing. It sets the output only through `rollupOptions.output.dir`, so Vite will not empty a directory outside `animations/` (the build prints "outDir ... is not inside project root and will not be emptied"), and the bundle of every removed scene stays in `dist/animations/src/`. To patch it, add `outDir: "../dist/animations",` and `emptyOutDir: true,` as the first lines under `build: {`, delete the `dir: "../dist/animations",` line from `rollupOptions.output`, then `make force-build`. Only set `emptyOutDir: true` when `outDir` is `../dist/animations`: pointed at `../dist` or `..` it would delete everything else in `dist/` or the project.
 
 5. The build outputs exist, and the build succeeds from scratch.
 
    ```bash
-   ls dist/motion-canvas-ts.js dist/animations/src/*.js
+   ls dist/animations/src/*.js
    make force-build && find dist -name "*.js" | sort
    ```
 
-   Record the result of the `ls dist/...` command before running `make force-build`, then continue. If it reports "No such file", `dist/` was missing: report that explicitly, because it alone explains a blank player, and the rebuild is the fix. Expected after the rebuild: the build exits 0, and the list includes `dist/motion-canvas-ts.js` and one `dist/animations/src/<name>.js` per project file.
+   Record the result of the `ls dist/...` command before running `make force-build`, then continue. If it reports "No such file", `dist/` was missing: report that explicitly, because it alone explains a blank player, and the rebuild is the fix. Expected after the rebuild: the build exits 0, and the list includes one `dist/animations/src/<name>.js` per project file.
 
    Failure: match the error text against the "Common errors and fixes" tables in `SKILL.md`.
 
-6. The deck loads the player and copies the built files.
+6. The deck copies the built files.
 
    ```bash
    grep -nE 'dist/\*[*/]*|motion-canvas-ts\.js' <deck> _quarto.yml _metadata.yml 2>/dev/null
    ```
 
-   Expected: one line with `dist/**` (under `resources:`) and one with `./dist/motion-canvas-ts.js` (under `include-in-header:`), both under `format: revealjs:`, either in the deck or in the project's `_quarto.yml` (or a `_metadata.yml`), but not in both. Repeat for each deck that embeds animations. The glob must be exactly `dist/**`: an older `dist/*/*` matches only files two levels deep, so it copies `dist/animations/*` but skips `dist/animations/src/`, where the built scenes are.
+   Expected: one line with `dist/**` (under `resources:`) under `format: revealjs:`, either in the deck or in the project's `_quarto.yml` (or a `_metadata.yml`), but not in both. Repeat for each deck that embeds animations. The glob must be exactly `dist/**`: an older `dist/*/*` matches only files two levels deep, so it copies `dist/animations/*` but skips `dist/animations/src/`, where the built scenes are. No `motion-canvas-ts.js` line should appear: the extension loads the player now.
 
-   Failure: replace a `dist/*/*` entry with `dist/**`, and add any other missing entry to the deck's YAML by appending to its existing lists, as shown in "Patching an existing deck's YAML" in `bootstrap.md`. Remove a duplicate from the deck when `_quarto.yml` already has it. To confirm the scenes are copied, render to a temporary folder and list it: `quarto render <deck> --output-dir /tmp/cc-out && ls /tmp/cc-out/dist/animations/src`, which must list each scene `.js`. Without the header script nothing registers the player element; without `resources:` the scene files are missing from the rendered output.
+   Failure: replace a `dist/*/*` entry with `dist/**`, and add a missing entry to the deck's YAML by appending to its existing list, as shown in "Patching an existing deck's YAML" in `bootstrap.md`. Remove a duplicate from the deck when `_quarto.yml` already has it. A `motion-canvas-ts.js` line means the project predates the bundled player: follow "Moving a project to the bundled player" below. To confirm the scenes are copied, render to a temporary folder and list it: `quarto render <deck> --output-dir /tmp/cc-out && ls /tmp/cc-out/dist/animations/src`, which must list each scene `.js`. Without `resources:` the scene files are missing from the rendered output.
 
 7. The Quarto extension is the current one.
 
@@ -138,3 +138,15 @@ mkdir -p ~/.cache/canvas-commons-tools && cd ~/.cache/canvas-commons-tools && np
 On Linux without `libasound.so.2` (common in WSL and containers), Chromium fails to start: the script exits 3 and prints a no-sudo workaround that unpacks the library from `apt-get download libasound2t64` (or `libasound2`) into `~/.cache/canvas-commons-tools/libasound`, which the script then finds by itself. An `LD_LIBRARY_PATH` you set yourself is passed through to the browser. Exit 4 means the deck loaded but a slide or player problem stopped it: the message says which.
 
 Do not use a browser's own headless screenshot with `--virtual-time-budget` instead. The player advances on the real clock, so virtual time races through page loading while the scene has barely started: a 5-second budget still captures one of the first frames.
+
+## Moving a project to the bundled player
+
+Projects bootstrapped before the extension shipped its own player built it themselves: a root `package.json` with a `build:player` script, `vite.player.config.ts`, `motion-canvas-ts.html`, `src/main.ts`, and an `include-in-header` entry `text: <script src="./dist/motion-canvas-ts.js"></script>` in the deck or `_quarto.yml`. Once the extension is replaced with the current copy, which carries `canvas-commons-bundle.js`, those are redundant, and the old script tag must go: the page would load two players and the second `customElements.define` throws.
+
+Never delete the user's files unasked. Show the list and ask "Your project builds its own player bundle, which the extension now provides. Shall I remove these?":
+
+1. Delete the `include-in-header` entry that loads `dist/motion-canvas-ts.js` from the deck or `_quarto.yml`. Keep any other `include-in-header` entries.
+2. Delete `vite.player.config.ts`, `motion-canvas-ts.html` and `src/main.ts` (and `src/` if that leaves it empty), but only when `grep -l motion-canvas-ts` shows nothing else uses them.
+3. Remove the `build:player` script from the root `package.json`, and the `@canvas-commons/*` and `vite` dependencies it added if nothing else at the root imports them. Leave the file in place if it holds anything else.
+4. In the `Makefile`, remove the root build rule (the one that runs `npm run build:player`) and its marker, `dist/.build-complete`, so `anim` depends on the animations marker only. Replacing the `Makefile` with the template's is fine only if the user has not edited it.
+5. Run `make force-build && quarto render <deck>`, then "Prove the player with a throwaway deck" in `bootstrap.md`.

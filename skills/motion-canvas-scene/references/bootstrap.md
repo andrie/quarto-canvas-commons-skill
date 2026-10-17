@@ -18,7 +18,7 @@ No output, or "No such file or directory", means a **new project**. Anything els
 
 ```bash
 cd <target>
-for f in package.json vite.config.* vite.player.config.ts Makefile .gitignore _quarto.yml _extensions animations dist node_modules src/main.ts motion-canvas-ts.html; do [ -e "$f" ] && echo "present: $f"; done
+for f in vite.config.* Makefile .gitignore _quarto.yml _extensions animations dist node_modules; do [ -e "$f" ] && echo "present: $f"; done
 ls *.qmd 2>/dev/null
 grep -l '@canvas-commons/' animations/package.json 2>/dev/null
 ```
@@ -54,7 +54,7 @@ Ask for a title too for a new deck, or derive one from the name (`conf-talk.qmd`
    mkdir -p <target> && cp -r <skill>/assets/project-template/. <target>/ && cd <target>
    ```
 
-   Expected: `ls -A` shows `Makefile`, `package.json`, `vite.player.config.ts`, `motion-canvas-ts.html`, `animations/`, `_extensions/`, `src/`, `.gitignore` and `deck.qmd`.
+   Expected: `ls -A` shows `Makefile`, `animations/`, `_extensions/`, `.gitignore` and `deck.qmd`.
 
 2. Name the deck. The template deck is `deck.qmd`; rename it and point the `Makefile` and `.gitignore` at the new name. Run the `mv` only when `<deck>` is not `deck.qmd`.
 
@@ -68,21 +68,21 @@ Ask for a title too for a new deck, or derive one from the name (`conf-talk.qmd`
 
    Expected: `QMD_FILE = <deck>`, the title, `<deck-html>` and `<deck-base>_files/`, and `<deck>` as the only `.qmd`. The template `.gitignore` already lists `.quarto/`, Quarto's cache. `make quarto`, `make preview` and `make publish` all render `QMD_FILE`.
 
-3. Install both dependency trees. They are independent.
+3. Install the dependencies of the scenes. The player bundle ships inside the extension, so there is nothing to install at the project root.
 
    ```bash
-   npm install && npm --prefix ./animations install
+   npm --prefix ./animations install
    ```
 
-   Expected: `node_modules/` exists in `<target>` and in `<target>/animations`. npm warnings about vulnerabilities are expected and can be ignored.
+   Expected: `node_modules/` exists in `<target>/animations`. npm warnings about vulnerabilities are expected and can be ignored.
 
-4. Build the animations and the player bundle.
+4. Build the animations.
 
    ```bash
    make anim
    ```
 
-   Expected: the command exits 0 and these files exist: `dist/motion-canvas-ts.js`, `dist/animations/src/smoke.js`.
+   Expected: the command exits 0 and `dist/animations/src/smoke.js` exists.
 
 5. Render the deck, then go to "Check the render".
 
@@ -94,15 +94,10 @@ Ask for a title too for a new deck, or derive one from the name (`conf-talk.qmd`
 
 Work from `<target>`. Each step copies what is absent and reports what is present.
 
-1. Copy the files that only Canvas Commons uses.
+1. Copy the folders that only Canvas Commons uses.
 
    ```bash
    T=<skill>/assets/project-template
-   for f in vite.player.config.ts motion-canvas-ts.html src/main.ts; do
-     if [ ! -e "$f" ]; then mkdir -p "$(dirname "$f")" && cp "$T/$f" "$f" && echo "copied: $f"
-     elif cmp -s "$T/$f" "$f"; then echo "same: $f"
-     else echo "DIFFERS: $f"; fi
-   done
    [ -e animations ] || { cp -r "$T/animations" animations && echo "copied: animations/"; }
    if [ ! -e _extensions/andrie/motion-canvas ]; then
      mkdir -p _extensions/andrie && cp -r "$T/_extensions/andrie/motion-canvas" _extensions/andrie/ && echo "copied: _extensions/andrie/motion-canvas/"
@@ -110,23 +105,13 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
    else echo "DIFFERS: _extensions/andrie/motion-canvas/"; fi
    ```
 
-   Expected: only `copied:` and `same:` lines. The copied `animations/` includes the `smoke` scene, the toolchain proof. A root `vite.config.*` is the project's own: leave it alone. The player builds from `vite.player.config.ts` instead.
+   Expected: only `copied:` and `same:` lines. The copied `animations/` includes the `smoke` scene, the toolchain proof. A root `vite.config.*` or `package.json` is the project's own: leave it alone. Canvas Commons adds nothing at the root except the extension, because the scenes build in `animations/` and the player bundle ships inside the extension.
 
    For each `DIFFERS:` line, show `diff -r "$T/<path>" <path>` and ask:
 
-   - `_extensions/andrie/motion-canvas/`: "Your project has an older copy of the motion-canvas extension. Shall I replace it with the current one?" A pre-fork copy uses the element `motion-canvas-player`, which the new player bundle never defines, so its animations stay blank.
-   - `vite.player.config.ts`, `motion-canvas-ts.html` or `src/main.ts`: "Your project already has `<path>`, and Canvas Commons needs that name for its player bundle. Can you rename yours, or should I use your file as it is?"
+   - `_extensions/andrie/motion-canvas/`: "Your project has an older copy of the motion-canvas extension. Shall I replace it with the current one?" A pre-fork copy uses the element `motion-canvas-player`, which the current player bundle never defines, so its animations stay blank. A copy from before the bundled player has no `canvas-commons-bundle.js`, so it needs the old `include-in-header` script and a `build:player` step: replacing it means following "Moving a project to the bundled player" in `validate.md`.
 
-2. Merge `package.json`. If it is absent, copy it: `cp "$T/package.json" package.json`. If it is present, preview the merge, then write it:
-
-   ```bash
-   node <skill>/scripts/merge-package-json.js "$T/package.json" package.json --dry-run
-   node <skill>/scripts/merge-package-json.js "$T/package.json" package.json
-   ```
-
-   The script adds the template's missing `dependencies` and the `build:player` script, keeps every value already there, and never touches other fields. A package listed under either `dependencies` or `devDependencies` counts as present. Report every `conflict:` line to the user. A version conflict keeps the user's version: say so, and that the player bundle builds with it. A `scripts.build:player` conflict needs a decision, because the Makefile runs `npm run build:player`: ask "Your `package.json` already has a `build:player` script. Can I rename yours?" The root `"type"` field does not matter: Vite bundles the `.ts` config either way.
-
-3. Wire up the Makefile.
+2. Wire up the Makefile.
 
    No `Makefile`: copy the template's and name the deck.
 
@@ -149,7 +134,7 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
 
    Expected: the user's own targets behave as before, and `make anim` builds. One limitation to tell the user: their own `make clean` is untouched if it collided, and does not remove `dist/`.
 
-4. Update `.gitignore`. Append each missing line, never replace the file (create it if absent):
+3. Update `.gitignore`. Append each missing line, never replace the file (create it if absent):
 
    ```bash
    for l in node_modules/ dist/ .quarto/ animations/src/lib '<deck-html>' '<deck-base>_files/'; do
@@ -161,7 +146,7 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
 
    Expected: one `added:` line for each entry that was missing. An entry written with or without a leading or trailing `/` counts as present, and an existing `*_files/` line covers `<deck-base>_files/`.
 
-5. Prepare the deck.
+4. Prepare the deck.
 
    A new deck: copy the template deck under its name, then set its title.
 
@@ -172,31 +157,31 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
 
    An existing deck: do not add slides to it. Patch its YAML header only, as described in "Patching an existing deck's YAML" below.
 
-   Either way, first look for the two entries in project-level YAML:
+   Either way, first look for the `resources` entry in project-level YAML:
 
    ```bash
-   grep -nE 'dist/\*[*/]*|motion-canvas-ts\.js' _quarto.yml _metadata.yml <deck> 2>/dev/null
+   grep -nE 'dist/\*[*/]*' _quarto.yml _metadata.yml <deck> 2>/dev/null
    ```
 
-   An entry found in `_quarto.yml` (or a `_metadata.yml` next to the deck) applies to every deck in the project already, so do not add it to the deck too: for a new deck, delete that line from the copied deck's YAML. Loading the player script twice defines its custom element twice.
+   An entry found in `_quarto.yml` (or a `_metadata.yml` next to the deck) applies to every deck in the project already, so do not add it to the deck too: for a new deck, delete that line from the copied deck's YAML.
 
-6. Install, build and render.
+5. Install, build and render.
 
    ```bash
-   npm install && npm --prefix ./animations install
+   npm --prefix ./animations install
    make anim
    quarto render <deck>
    ```
 
-   Expected: both `node_modules/` exist, `make anim` exits 0 and writes `dist/motion-canvas-ts.js` and `dist/animations/src/smoke.js`, and the render exits 0. Then go to "Check the render". An existing deck has no animation slide yet, so that check cannot prove the player works: run "Prove the player with a throwaway deck" as well. Never add the smoke slide to the user's deck for this.
+   Expected: `animations/node_modules/` exists, `make anim` exits 0 and writes `dist/animations/src/smoke.js`, and the render exits 0. Then go to "Check the render". An existing deck has no animation slide yet, so that check cannot prove the player works: run "Prove the player with a throwaway deck" as well. Never add the smoke slide to the user's deck for this.
 
-7. Tell the user what changed: the files copied, the `package.json` additions and conflicts, the Makefile targets appended or the collisions found, the `.gitignore` lines added, and the deck YAML entries added.
+6. Tell the user what changed: the folders copied, the Makefile targets appended or the collisions found, the `.gitignore` lines added, and the deck YAML entry added.
 
 ### Patching an existing deck's YAML
 
-Two entries go under `format: revealjs:`, a `resources` entry `dist/**` and an `include-in-header` entry `text: <script src="./dist/motion-canvas-ts.js"></script>`. Append them to any list that already exists; never remove or replace an existing entry. Skip an entry the `grep` in step 5 found in `_quarto.yml`.
+One entry goes under `format: revealjs:`, a `resources` entry `dist/**`. The player script needs no entry: the extension adds it to any deck that uses the shortcode. Append to a list that already exists; never remove or replace an existing entry. Skip the entry if the `grep` in step 4 found it in `_quarto.yml`.
 
-Keys absent:
+Key absent:
 
 ```yaml
 # before
@@ -209,11 +194,9 @@ format:
     theme: dark
     resources:
       - dist/**
-    include-in-header:
-      - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
 
-Keys present as lists: append.
+Key present as a list: append.
 
 ```yaml
 # before
@@ -221,28 +204,20 @@ format:
   revealjs:
     resources:
       - data.csv
-    include-in-header:
-      - text: <meta name="deck-owner" content="me">
 # after
 format:
   revealjs:
     resources:
       - data.csv
       - dist/**
-    include-in-header:
-      - text: <meta name="deck-owner" content="me">
-      - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
 
-A key present as a single value (`resources: data.csv` or `include-in-header: header.html`) becomes a list with the old value first:
+A key present as a single value (`resources: data.csv`) becomes a list with the old value first:
 
 ```yaml
     resources:
       - data.csv
       - dist/**
-    include-in-header:
-      - header.html
-      - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
 
 The `format: revealjs` shorthand string, or `revealjs: default`, must become a mapping:
@@ -255,11 +230,9 @@ format:
   revealjs:
     resources:
       - dist/**
-    include-in-header:
-      - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
 
-Other formats alongside: add the entries under `revealjs:` only and leave the other formats alone.
+Other formats alongside: add the entry under `revealjs:` only and leave the other formats alone.
 
 ```yaml
 # before
@@ -274,8 +247,6 @@ format:
     slide-number: true
     resources:
       - dist/**
-    include-in-header:
-      - text: <script src="./dist/motion-canvas-ts.js"></script>
 ```
 
 If the deck has no `revealjs` format at all, ask the user before changing `format:`.
@@ -288,11 +259,11 @@ Copy the deck before you edit it, then compare and render straight after:
 cp <deck> /tmp/cc-deck-before.qmd
 # ... edit the YAML header ...
 diff /tmp/cc-deck-before.qmd <deck>
-quarto render <deck> && grep -c 'dist/motion-canvas-ts.js' <deck-html>
+quarto render <deck> && grep -c 'dist/\*\*' <deck>
 rm /tmp/cc-deck-before.qmd
 ```
 
-Expected: `diff` prints only `>` (added) lines, apart from the shorthand case, where `< format: revealjs` is replaced by `> format:` and the added lines; every original entry is still there. The render exits 0 and the count is 1 or more. If `diff` shows any other `<` line, an original entry was lost: restore the copy and patch again.
+Expected: `diff` prints only `>` (added) lines, apart from the shorthand case, where `< format: revealjs` is replaced by `> format:` and the added lines; every original entry is still there. The render exits 0 and the count is 1 or more (or the entry is in `_quarto.yml`). If `diff` shows any other `<` line, an original entry was lost: restore the copy and patch again.
 
 #### Optional helpers for the two common shapes
 
@@ -301,24 +272,24 @@ These are examples, not a substitute for the check above. Each writes `<deck>.ba
 The `format: revealjs` shorthand string:
 
 ```bash
-perl -0777 -pi.bak -e 's{^format:[ \t]*revealjs[ \t]*\n}{format:\n  revealjs:\n    resources:\n      - dist/**\n    include-in-header:\n      - text: <script src="./dist/motion-canvas-ts.js"></script>\n}m' <deck>
+perl -0777 -pi.bak -e 's{^format:[ \t]*revealjs[ \t]*\n}{format:\n  revealjs:\n    resources:\n      - dist/**\n}m' <deck>
 ```
 
-A `revealjs:` mapping that has neither `resources` nor `include-in-header` yet. The guard refuses when either key exists anywhere in the deck, because those lists must be appended to by hand. The new keys take the indentation of the first key under `revealjs:`:
+A `revealjs:` mapping that has no `resources` yet. The guard refuses when the key exists anywhere in the deck, because that list must be appended to by hand. The new key takes the indentation of the first key under `revealjs:`:
 
 ```bash
-grep -qE '^[[:space:]]+(resources|include-in-header):' <deck> && echo "keys already present: append by hand" || perl -0777 -pi.bak -e 's{^([ \t]*)revealjs:[ \t]*\n([ \t]+)}{$1revealjs:\n$2resources:\n$2  - dist/**\n$2include-in-header:\n$2  - text: <script src="./dist/motion-canvas-ts.js"></script>\n$2}m' <deck>
+grep -qE '^[[:space:]]+resources:' <deck> && echo "key already present: append by hand" || perl -0777 -pi.bak -e 's{^([ \t]*)revealjs:[ \t]*\n([ \t]+)}{$1revealjs:\n$2resources:\n$2  - dist/**\n$2}m' <deck>
 ```
 
 ## Check the render
 
 ```bash
-grep -c "motion-canvas-ts.js" <deck-html>; grep -c "canvas-commons-player" <deck-html>; grep -o 'src="./animations/src/smoke.js"' <deck-html>; ls dist/animations/src/smoke.js
+grep -c "canvas-commons-player" <deck-html>; grep -o 'src="./animations/src/smoke.js"' <deck-html>; grep -rl "canvas-commons-bundle.js" <deck-base>_files | head -1; ls dist/animations/src/smoke.js
 ```
 
-Expected for a deck from the template (it has the smoke slide): both counts are 1 or more, the `src` attribute is printed, and the file is listed. If the project's `_quarto.yml` sets an `output-dir`, or `_site/` exists, look for the rendered `.html` there. The player resolves the `src` relative to `dist/`, so the file that matters is `dist/animations/src/smoke.js`.
+Expected for a deck from the template (it has the smoke slide): the count is 1 or more, the `src` attribute is printed, the bundle is listed under the support folder (Quarto copies it there from the extension), and the file is listed. If the project's `_quarto.yml` sets an `output-dir`, or `_site/` exists, look for the rendered `.html` there. The player resolves a relative `src` against the document's `dist/` folder, so `./animations/src/smoke.js` fetches `dist/animations/src/smoke.js`.
 
-Expected for a deck that embeds no animation yet (an existing deck you only patched): the `motion-canvas-ts.js` count is 1 or more, but the `canvas-commons-player` count is 0 and no `src` prints. That proves only that the script tag is in place, not that the player works, so do not report it as a pass: run "Prove the player with a throwaway deck".
+Expected for a deck that embeds no animation yet (an existing deck you only patched): the count is 0 and the bundle is not in the output, because the extension adds the player only to a deck that uses the shortcode. Do not report that as a pass: run "Prove the player with a throwaway deck".
 
 ## Prove the player with a throwaway deck
 
@@ -333,7 +304,7 @@ rm -rf _cc-smoke.qmd _cc-smoke.html _cc-smoke_files
 ls -d _cc-smoke* 2>/dev/null
 ```
 
-Expected: the render exits 0, the count is 1 or more, the `src` attribute and the built file are printed, and the last command prints nothing. The leading `_` keeps a whole-project `quarto render` from picking the file up if the cleanup is interrupted. If `_quarto.yml` sets an `output-dir`, the `.html` and `_files/` folder are there: check and delete them there. Quarto may create `.quarto/`, its cache, in a project: leave it, `.gitignore` covers it. If the deck's header carries the two entries only through `_quarto.yml`, the copy inherits them the same way, which is the point.
+Expected: the render exits 0, the count is 1 or more, the `src` attribute and the built file are printed, and the last command prints nothing. The leading `_` keeps a whole-project `quarto render` from picking the file up if the cleanup is interrupted. If `_quarto.yml` sets an `output-dir`, the `.html` and `_files/` folder are there: check and delete them there. Quarto may create `.quarto/`, its cache, in a project: leave it, `.gitignore` covers it. If the deck's header carries the `resources` entry only through `_quarto.yml`, the copy inherits it the same way, which is the point.
 
 ## After the first real scene
 
@@ -344,11 +315,11 @@ node <skill>/scripts/remove-scene.js smoke
 make anim
 ```
 
-`remove-scene.js` deletes `animations/src/smoke.ts`, `animations/src/scenes/smoke.tsx`, the `smoke.meta` files next to each, the `./src/smoke.ts` entry in `animations/vite.config.ts`, and `dist/animations/src/smoke.js` (plus any other `smoke.*` file there). It prints each file it deleted. `make anim` then rebuilds `dist/animations/` from scratch. Expected: `ls dist/animations/src` no longer lists `smoke.js`, and `dist/motion-canvas-ts.js` still exists.
+`remove-scene.js` deletes `animations/src/smoke.ts`, `animations/src/scenes/smoke.tsx`, the `smoke.meta` files next to each, the `./src/smoke.ts` entry in `animations/vite.config.ts`, and `dist/animations/src/smoke.js` (plus any other `smoke.*` file there). It prints each file it deleted. `make anim` then rebuilds `dist/animations/` from scratch. Expected: `ls dist/animations/src` no longer lists `smoke.js`.
 
 To see that the real scene looks right, not only that it builds, take screenshots of its slide: "Check the scene visually" in `validate.md`.
 
-Hand deck writing and styling to the `quarto-presentation` skill. If a scene uses custom fonts through `animations/global.css`, the deck also needs a stylesheet link to that CSS in `include-in-header:`, next to the player script line. The `motion-canvas-r-code` skill's `references/fonts-and-highlighting.md` has the exact line, but you do not need that skill for anything else here.
+Hand deck writing and styling to the `quarto-presentation` skill. If a scene uses custom fonts through `animations/global.css`, the deck also needs a stylesheet link to that CSS in `include-in-header:`. The `motion-canvas-r-code` skill's `references/fonts-and-highlighting.md` has the exact line, but you do not need that skill for anything else here.
 
 ## Optional: link the shared library
 

@@ -6,9 +6,9 @@ This file describes the **fork-era** extension (version 0.2.0, element `canvas-c
 
 ## Paths and the player element
 
-The shortcode's first argument is the path to the built animation, and it is `./animations/src/<name>.js`. The build writes the file to `dist/animations/src/<name>.js`, and the player resolves the shortcode path relative to the bundle in `dist/`, so the `dist/` prefix is not written in the shortcode.
+The shortcode's first argument is the path to the built animation, and it is `./animations/src/<name>.js`. The build writes the file to `dist/animations/src/<name>.js`, and the player bundle resolves the shortcode path against the document's `dist/` folder, so the `dist/` prefix is not written in the shortcode.
 
-The shortcode emits a `<canvas-commons-player>` custom element. It is defined by the player bundle that `include-in-header` loads (`dist/motion-canvas-ts.js`), so a missing script tag leaves the element inert, with no error.
+The shortcode emits a `<canvas-commons-player>` custom element. It is defined by the player bundle (`canvas-commons-bundle.js`) that the extension ships and the shortcode adds to the page, so the deck needs no `include-in-header` entry. A project from an older template that still loads `dist/motion-canvas-ts.js` that way defines the element twice, and the second definition throws.
 
 ## Option mechanics
 
