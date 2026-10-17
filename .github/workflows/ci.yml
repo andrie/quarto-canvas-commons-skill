@@ -14,7 +14,11 @@ jobs:
           node-version: 22
       - uses: quarto-dev/quarto-actions/setup@v2
       - name: Install TypeScript for the generator tests
-        run: npm install --prefix "$RUNNER_TEMP/ts" typescript
+        run: |
+          mkdir "$RUNNER_TEMP/ts"
+          cd "$RUNNER_TEMP/ts"
+          npm init -y > /dev/null
+          npm install --no-save typescript
       - name: Tests
         run: TS_PATH="$RUNNER_TEMP/ts/node_modules/typescript" node --test tests/*.test.js
       - name: Port check
