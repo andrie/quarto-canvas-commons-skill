@@ -6,7 +6,7 @@ Shared styles, components, scenes and utilities for Canvas Commons (0.4.0) anima
 
 - `styles.ts`: `Posit`, `Colors`, `BaseFont`, `WhiteLabel`, `BlackLabel`. `Colors.TEXT` is `#ACB3BF`. This file is canonical: the `motion-canvas-scene` project template ships a snapshot copy at `animations/src/styles.ts`, so a bootstrapped project has styles without the symlink, and a test checks that the two are byte-identical. Change this file and the template copy together.
 - `components/Database.tsx`: the `Database` node.
-- `scenes/`: reusable scenes (`hexagons`, `pipeline`, `posit_footer`, `quarto_mc`). They import `../styles` and `../components/Database`, so they work unchanged through the symlink below.
+- `scenes/`: reusable scenes (`hexagons`, `pipeline`, `posit_footer`). They import `../styles` and `../components/Database`, so they work unchanged through the symlink below.
 - `utils/pulse.ts`: `pulse(node, {scaleGrowth, duration})`, which scales a node up and then back.
 
 ## Importing from a project

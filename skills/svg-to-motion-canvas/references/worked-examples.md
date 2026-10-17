@@ -1,6 +1,6 @@
 # Worked examples
 
-Three draw.io diagrams and the scenes translated from them live in the repository's `<skill>/../../seed/` directory, plus four stand-alone scenes. Read the pair closest to your diagram before starting. The scenes assume the project layout in the `canvas-commons-library` skill's `README.md` (the library symlinked at `animations/src/lib`).
+Three draw.io diagrams and the scenes translated from them live in the repository's `<skill>/../../seed/` directory, plus two stand-alone scenes. Read the pair closest to your diagram before starting. For the basics (shapes, easing, timing, layout, code), the short scenes in `seed/tour/` are the better start. The scenes assume the project layout in the `canvas-commons-library` skill's `README.md` (the library symlinked at `animations/src/lib`).
 
 Paths below are written `<skill>/../../seed/...`, where `<skill>` is this skill's directory. The installed skill is a symlink into the repository, so `<skill>/../../seed/` is the repo's `<skill>/../../seed/` directory. Do not follow `..` lexically from `~/.claude/skills/svg-to-motion-canvas`, which would give `~/.claude/seed`. Resolve the symlink first:
 
@@ -25,7 +25,5 @@ ls "$SEED/scenes"
 
 ## Stand-alone scenes
 
-- `<skill>/../../seed/scenes/posit_logo-pmds.tsx`: the Posit logo built from `Path` nodes, with chevrons that morph and move in sequence.
-- `<skill>/../../seed/scenes/posit_logo-paddling-boat.tsx`: the same logo as a path morph into a boat, paced by `waitUntil('text')`, `waitUntil('boat')` and `waitUntil('end')` so the timing can be set in the editor.
-- `<skill>/../../seed/scenes/kayak.tsx`: a hand-built vector character, drawn from keypoint arrays as `Line` and `Circle` nodes and moved between poses by tweening one signal.
+- `<skill>/../../seed/scenes/posit_logo-paddling-boat.tsx`: the Posit logo built from `Path` nodes, with chevrons that morph into a boat, paced by `waitUntil('text')`, `waitUntil('boat')` and `waitUntil('end')` so the timing can be set in the editor.
 - `<skill>/../../seed/scenes/one23.tsx`: the smallest example, a few shapes and lines in 22 lines, the best place to start reading.
