@@ -18,9 +18,8 @@ jobs:
           mkdir "$RUNNER_TEMP/ts"
           cd "$RUNNER_TEMP/ts"
           npm init -y > /dev/null
-          npm install --no-save typescript
-          ls node_modules | head -5
-          node -e "console.log(require.resolve('./node_modules/typescript'))"
+          # TypeScript 5: the newest releases have no JavaScript API for the generators to load
+          npm install --no-save typescript@5
       - name: Tests
         run: TS_PATH="$RUNNER_TEMP/ts/node_modules/typescript" node --test tests/*.test.js
       - name: Port check
