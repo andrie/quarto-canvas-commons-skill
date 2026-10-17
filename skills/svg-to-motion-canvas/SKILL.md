@@ -120,7 +120,7 @@ yield* all(
 
 ## Proven examples
 
-Three translated diagrams and two stand-alone scenes are described in `references/worked-examples.md`, with the files under `<skill>/../../seed/` (the repository's `seed/` directory, reached through the install symlink: see the top of that file for the exact command).
+Three translated diagrams and one stand-alone scene are described in `references/worked-examples.md`, with the files under `<skill>/../../seed/` (the repository's `seed/` directory, reached through the install symlink: see the top of that file for the exact command).
 
 ## Checklist for SVG Translation
 

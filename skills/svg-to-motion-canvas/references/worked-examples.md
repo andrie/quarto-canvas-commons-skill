@@ -1,6 +1,6 @@
 # Worked examples
 
-Three draw.io diagrams and the scenes translated from them live in the repository's `<skill>/../../seed/` directory, plus two stand-alone scenes. Read the pair closest to your diagram before starting. For the basics (shapes, easing, timing, layout, code), the short scenes in `seed/tour/` are the better start. The scenes assume the project layout in the `canvas-commons-library` skill's `README.md` (the library symlinked at `animations/src/lib`).
+Three draw.io diagrams and the scenes translated from them live in the repository's `<skill>/../../seed/` directory, plus one stand-alone scene. Read the pair closest to your diagram before starting. For the basics (shapes, easing, timing, layout, code), the short scenes in `seed/tour/` are the better start. The scenes assume the project layout in the `canvas-commons-library` skill's `README.md` (the library symlinked at `animations/src/lib`).
 
 Paths below are written `<skill>/../../seed/...`, where `<skill>` is this skill's directory. The installed skill is a symlink into the repository, so `<skill>/../../seed/` is the repo's `<skill>/../../seed/` directory. Do not follow `..` lexically from `~/.claude/skills/svg-to-motion-canvas`, which would give `~/.claude/seed`. Resolve the symlink first:
 
@@ -23,7 +23,6 @@ ls "$SEED/scenes"
 
 `<skill>/../../seed/diagrams/llm_app.drawio.svg` is User, App and LLM with one database below the App. `<skill>/../../seed/scenes/shiny-ellmer.tsx` keeps the same base layout and adds a `Code` panel on the left (`anchorX={-1}`, which was `offsetX` before 0.4.0) that reveals R code line by line through the custom `RHighlighter`. It is the worked example for combining a translated diagram with highlighted code, so read it with `skills/motion-canvas-r-code/SKILL.md`. The header comment of the scene lists the project files it expects. <!-- PORT-NOTE: deliberate migration note -->
 
-## Stand-alone scenes
+## Stand-alone scene
 
 - `<skill>/../../seed/scenes/posit_logo-paddling-boat.tsx`: the Posit logo built from `Path` nodes, with chevrons that morph into a boat, paced by `waitUntil('text')`, `waitUntil('boat')` and `waitUntil('end')` so the timing can be set in the editor.
-- `<skill>/../../seed/scenes/one23.tsx`: the smallest example, a few shapes and lines in 22 lines, the best place to start reading.
