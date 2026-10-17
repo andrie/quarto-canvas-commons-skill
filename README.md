@@ -43,7 +43,7 @@ Once the skills are installed, you can say things like:
 - "Take a screenshot of the slide and check that the text fits"
 - "Remove the smoke test slide"
 
-The `seed/` folder holds worked examples of finished scenes and the diagrams they came from, so you can see what is possible.
+The `seed/` folder holds worked examples of finished scenes and the diagrams they came from, so you can see what is possible. `seed/tour/` is the best place to start: ten short scenes, one per thing you can ask for.
 
 ## What you need
 
