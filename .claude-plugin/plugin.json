@@ -2,8 +2,17 @@
   "name": "canvas-commons",
   "version": "0.1.0",
   "description": "Skills for building animated Canvas Commons scenes inside Quarto revealjs decks: bootstrap and upgrade a project, write and review scenes, translate draw.io diagrams, show R code.",
-  "author": { "name": "Andrie" },
+  "author": {
+    "name": "Andrie"
+  },
   "homepage": "https://github.com/andrie/quarto-canvas-commons-skill",
   "repository": "https://github.com/andrie/quarto-canvas-commons-skill",
-  "keywords": ["quarto", "revealjs", "canvas-commons", "motion-canvas", "animation"]
+  "keywords": [
+    "quarto",
+    "revealjs",
+    "canvas-commons",
+    "motion-canvas",
+    "animation"
+  ],
+  "license": "MIT"
 }

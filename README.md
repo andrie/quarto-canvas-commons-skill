@@ -132,3 +132,8 @@ You do not need to pick a skill. Claude chooses the right one from what you ask.
 ## Contributing
 
 To change the skills, run the tests or add a new one, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Licence
+
+MIT, see `LICENSE`. The Quarto extension that the project template installs is a separate project, [quarto-canvas-commons](https://github.com/andrie/quarto-canvas-commons), also MIT.
+

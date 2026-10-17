@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: quarto-dev/quarto-actions/setup@v2
+      - name: Install TypeScript for the generator tests
+        run: npm install --prefix "$RUNNER_TEMP/ts" typescript
+      - name: Tests
+        run: TS_PATH="$RUNNER_TEMP/ts/node_modules/typescript" node --test tests/*.test.js
+      - name: Port check
+        run: bash scripts/check-ported.sh
+      - name: The template is the extension release it says it is
+        run: |
+          version=$(node -p "require('./skills/motion-canvas-scene/assets/extension-source.json').version")
+          node scripts/sync-extension.js --tag "v$version" --check
