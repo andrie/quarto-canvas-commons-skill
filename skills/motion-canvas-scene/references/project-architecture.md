@@ -53,8 +53,8 @@ Incremental builds use one timestamp marker, `dist/animations/.build-complete`. 
 
 `lezer-r` (the R grammar used for syntax highlighting) belongs in `animations/package.json` only. The scenes import it, and the scenes build in `animations/`. Older versions of this project carried it in the root `package.json` too, which does nothing: nothing at the root imports it. If `Cannot find module 'lezer-r'` appears during `make anim`, install it in the animations tree: `npm --prefix ./animations install lezer-r`.
 
-The template already lists `lezer-r` in `animations/package.json`, although the smoke scene does not import it, so scenes that highlight R code work without further setup. If a scene needs R highlighting, it also needs a declaration file (`declare module 'lezer-r'`) in `animations/src`, as noted in the `SKILL.md` error tables.
+The template already lists `lezer-r` in `animations/package.json`, although the smoke scene does not import it, so scenes that highlight R code work without further setup. If a scene needs R highlighting, it also needs a declaration file (`declare module 'lezer-r'`) in `animations/src`, as noted in `errors.md`.
 
 ## Package scope
 
-Everything uses the `@canvas-commons/*` scope at `^0.4.0` (the fork of Motion Canvas). `@canvas-commons/editor` replaces the old `ui` package and must be listed in `animations/package.json` (the Vite plugin needs it but does not declare it). `animations/package.json` needs `"type": "module"` and `animations/tsconfig.json` needs `"skipLibCheck": true`. The error tables in `SKILL.md` cover what happens without them.
+Everything uses the `@canvas-commons/*` scope at `^0.4.0` (the fork of Motion Canvas). `@canvas-commons/editor` replaces the old `ui` package and must be listed in `animations/package.json` (the Vite plugin needs it but does not declare it). `animations/package.json` needs `"type": "module"` and `animations/tsconfig.json` needs `"skipLibCheck": true`. `errors.md` covers what happens without them.

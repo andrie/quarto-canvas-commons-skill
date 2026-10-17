@@ -48,5 +48,5 @@ The spec (`docs/superpowers/specs/2026-10-06-quarto-canvas-commons-skill-design.
 
 - `docs/superpowers/specs/2026-10-06-reusable-component-patterns-addendum.md` is untracked and unreviewed; leave it alone until its owner decides.
 - Template: `.hidetitle` has no CSS in the template, so the class does nothing there. Removing the smoke slide has no command. The screenshot docs lack a pre-flight setup hint and advice on choosing `--at` offsets.
-- The seed scenes build but were never played in a browser. `check-ported.sh` only checks `.ts` and `.tsx` for deep imports. `add-scene.js` prepends rather than appends. Most `SKILL.md` files exceed 500 words.
+- The seed scenes build but were never played in a browser. `check-ported.sh` only checks `.ts` and `.tsx` for deep imports. `add-scene.js` prepends rather than appends. The `SKILL.md` files run from about 640 to 1040 words after the rarely needed sections moved into `references/`: `motion-canvas-api` and `motion-canvas-scene` are the longest.
 - Commit trailers on the last six commits say Opus 5.5; earlier ones say Sonnet 5.5.

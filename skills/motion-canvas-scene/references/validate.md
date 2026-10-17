@@ -19,7 +19,7 @@ A project from an older template may build the player itself (a root `package.js
 
    Expected: the file listed; the first `grep` prints nothing; if the second `grep` lists any file, the third prints a `lezer-r` line. A `grep` that prints nothing exits 1, which is the expected clean result here, not a failure.
 
-   Failure: a missing `animations/package.json` means this is not a project (use `bootstrap.md`). Any `@motion-canvas/` hit is a stale scope: replace it with `@canvas-commons/` (the `lib/...` import and `offset` rules in the `SKILL.md` error tables also apply). A missing `lezer-r` line: `npm --prefix ./animations install lezer-r`. <!-- PORT-NOTE: deliberate old scope -->
+   Failure: a missing `animations/package.json` means this is not a project (use `bootstrap.md`). Any `@motion-canvas/` hit is a stale scope: replace it with `@canvas-commons/` (the `lib/...` import and `offset` rules in `references/errors.md` also apply). A missing `lezer-r` line: `npm --prefix ./animations install lezer-r`. <!-- PORT-NOTE: deliberate old scope -->
 
 2. The dependencies are installed.
 
@@ -78,7 +78,7 @@ A project from an older template may build the player itself (a root `package.js
 
    Record the result of the `ls dist/...` command before running `make force-build`, then continue. If it reports "No such file", `dist/` was missing: report that explicitly, because it alone explains a blank player, and the rebuild is the fix. Expected after the rebuild: the build exits 0, and the list includes one `dist/animations/src/<name>.js` per project file.
 
-   Failure: match the error text against the "Common errors and fixes" tables in `SKILL.md`.
+   Failure: match the error text against the tables in `references/errors.md`.
 
 6. The deck copies the built files.
 
@@ -115,7 +115,7 @@ A project from an older template may build the player itself (a root `package.js
 
    An animation that imports an image (`import logo from '../assets/logo.svg'`) needs `base: "./"` in `animations/vite.config.ts`. Without it the bundle asks for `/logo.svg` from the site root, which 404s in the deck, so the player stays black although `make serve` works and the build reports no error. Check `grep -c 'base:' animations/vite.config.ts`, and look for the image under `dist/animations/`. The template's smoke scene imports `src/assets/smoke.svg` for this reason: a screenshot of its slide (see below) shows a yellow circle above the square, and prints `page error: Failed to load an image` when `base` is wrong.
 
-   Failure: a `src` path that does not match a built file is the "Blank animation player" case in `SKILL.md`: fix the shortcode path to `./animations/src/<name>.js`.
+   Failure: a `src` path that does not match a built file is the "Blank animation player" case in `references/errors.md`: fix the shortcode path to `./animations/src/<name>.js`.
 
 ## Check the scene visually (optional)
 
