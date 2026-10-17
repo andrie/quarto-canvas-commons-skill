@@ -25,7 +25,7 @@ grep -l '@canvas-commons/' animations/package.json 2>/dev/null
 
 Stop here in two cases:
 
-- `animations/package.json` mentions `@canvas-commons/` (the last command prints it): the project is already set up. Run `validate.md` instead.
+- `animations/package.json` mentions `@canvas-commons/` (the last command prints it): the project is already set up. Run `upgrade.md` to check it is current, then `validate.md`.
 - `animations/` or `dist/` is present otherwise: the template needs both names. The build writes into `dist/` and `make clean` deletes it. Ask the user: "Your project already has `animations/` (or `dist/`) for something else. Canvas Commons needs that folder name at the project root. Can you move or rename yours first?" Do not continue until they have.
 
 The hard rule for an existing project: **never overwrite or delete a file**. For every template file, absent means copy, present means merge by the rules in "Adding to an existing project", and anything those rules cannot decide means asking the user the question given there.

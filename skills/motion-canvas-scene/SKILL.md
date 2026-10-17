@@ -1,6 +1,6 @@
 ---
 name: motion-canvas-scene
-description: Use when starting a new Quarto presentation project that will contain Canvas Commons (Motion Canvas) animations, when adding Canvas Commons animations to an existing Quarto project, when adding, creating or removing a scene in an existing project, when checking that such a project builds, or when a scene fails to build or render.
+description: Use when starting a new Quarto presentation project that will contain Canvas Commons (Motion Canvas) animations, when adding Canvas Commons animations to an existing Quarto project, when adding, creating or removing a scene in an existing project, when checking that such a project builds, when a scene fails to build or render, or when updating a project that an older version of this skill set up.
 ---
 
 # Creating, Building, and Debugging Scenes
@@ -10,6 +10,7 @@ description: Use when starting a new Quarto presentation project that will conta
 ## Starting or checking a project
 
 - New presentation project (an empty directory, or "set up a project for animated slides"), or adding Canvas Commons to an existing project such as a Quarto deck that already has its own `Makefile`, `package.json` or `.gitignore`: follow `references/bootstrap.md`. It asks the user for the deck name, copies the template in `assets/project-template/` into the project root without overwriting anything, merges where files already exist, then installs, builds and renders the deck.
+- The skill was updated and an existing project should catch up ("upgrade", "update my Canvas Commons setup"), or a project predates the bundled player: follow `references/upgrade.md`. It runs `scripts/upgrade-project.js`, which prints a plan, applies the safe steps and asks before deleting anything. Before adding a scene to, or validating, a project you did not set up in this session, run `node <skill>/scripts/upgrade-project.js --root <target>` without flags: if it reports anything but `up to date`, tell the user and offer the upgrade first.
 - "Does my project work?", or an animation fails to build or render: follow `references/validate.md`, a read-only checklist that starts from the deck the Makefile names, stops at the first failure and points back to the error tables below.
 - "Does the scene look right?": take screenshots of its slide at chosen moments with `scripts/screenshot-slide.mjs`, as in "Check the scene visually" at the end of `references/validate.md`. Building and rendering do not show this.
 - How the root project, `animations/` and the Makefile fit together: `references/project-architecture.md`.

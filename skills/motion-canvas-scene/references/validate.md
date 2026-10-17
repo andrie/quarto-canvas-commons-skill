@@ -93,10 +93,10 @@ A project from an older template may build the player itself (a root `package.js
 7. The Quarto extension is the current one.
 
    ```bash
-   diff -r _extensions/andrie/motion-canvas <skill>/assets/project-template/_extensions/andrie/motion-canvas
+   node <skill>/scripts/upgrade-project.js --root .
    ```
 
-   Expected: no output. `<skill>` is the absolute path of the skill folder, for example `~/.claude/skills/motion-canvas-scene`.
+   Expected: `up to date` as the last line, and `ok: extension is current`. `<skill>` is the absolute path of the skill folder, for example `~/.claude/skills/motion-canvas-scene`. The script tells an untouched older copy from an edited one.
 
    Failure: the project has an older copy. The usual difference is `motion-canvas-player` where the current copy has `canvas-commons-player`, which shows as a silent blank player. Report the differences and offer to replace the folder with the template copy.
 

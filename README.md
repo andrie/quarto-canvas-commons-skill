@@ -77,7 +77,7 @@ You do this once.
 
 4. Start a new Claude Code session so it picks up the skills. Type `claude` in the terminal
 
-To update later, run `git pull` inside `~/quarto-canvas-commons-skill`. Because the skills are links, the update takes effect straight away. To remove them, run the installer with `--uninstall`, which deletes only the links it made.
+To update later, run `git pull` inside `~/quarto-canvas-commons-skill`. Because the skills are links, the update takes effect straight away. A project you made earlier keeps its old copy of the extension and Makefile rules, so open it in Claude Code and ask it to "upgrade this project's Canvas Commons setup". It prints a plan first, applies the safe steps, and asks before it deletes anything. To remove the skills, run the installer with `--uninstall`, which deletes only the links it made.
 
 ## Make your first animated slide
 
