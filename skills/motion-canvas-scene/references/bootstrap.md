@@ -128,7 +128,7 @@ Work from `<target>`. Each step copies what is absent and reports what is presen
    for v in QMD_FILE PORT; do echo "$db" | grep -qE "^$v " && echo "collision: $v"; done
    ```
 
-   No collisions: ask "Shall I append the Canvas Commons rules from the template `Makefile` to yours?" On yes, append the template's `Makefile` from the `# Source files` line onwards, preceded by `QMD_FILE = <deck>` and `PORT = 4200`. The user's default goal stays theirs, because it is the first target in the file. Check `make -n anim` prints the build commands.
+   No collisions: ask "Shall I append the Canvas Commons rules from the template `Makefile` to yours?" On yes, append `QMD_FILE = <deck>` and `PORT = 4200`, then the template's managed block: every line from `# >>> canvas-commons` to `# <<< canvas-commons`, markers included. The markers are how a later upgrade finds the block to replace, so never strip them. The user's default goal stays theirs, because it is the first target in the file. Check `make -n anim` prints the build commands.
 
    Collisions: do not append. Show the collisions and say the template's `Makefile` holds the rules, each commented. Ask whether the user wants to rename the clashing targets in the appended copy (for example `anim` to `cc-anim`) or merge by hand.
 

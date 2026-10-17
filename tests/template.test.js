@@ -37,6 +37,16 @@ test('extension ships the prebuilt player and the Lua loads it before the slide 
     /scripts = \{'canvas-commons-bundle\.js', 'motion-canvas-player\.js'\}/);
 });
 
+test('extension, Lua and the Makefile block carry one version', () => {
+  const ext = '_extensions/andrie/motion-canvas';
+  const yml = read(`${ext}/_extension.yml`).match(/^version:\s*(\S+)/m)[1];
+  assert.equal(read(`${ext}/motion-canvas.lua`).match(/version = "([^"]+)"/)[1], yml);
+  const mk = read('Makefile');
+  assert.equal(mk.match(/^# >>> canvas-commons (\S+)/m)[1], yml);
+  assert.match(mk, /^# <<< canvas-commons$/m);
+  assert.ok(mk.indexOf('QMD_FILE =') < mk.indexOf('# >>> canvas-commons'), 'the deck and port sit outside the managed block');
+});
+
 test('template deck is deck.qmd and nothing names smoke.qmd or smoke.html', () => {
   assert.ok(!fs.existsSync(path.join(tplRoot, 'smoke.qmd')));
   const deck = read('deck.qmd');
